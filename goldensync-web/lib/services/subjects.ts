@@ -70,8 +70,13 @@ export async function createSubject(
     effectivity: input.effectivity ?? null,
   });
 
-  /** Checklist stays useful: blank weeks for manual, topics overlaid for syllabus. */
-  await writeSubjectPlanWeeks(userId, row.id, input.planWeeks ?? []);
+  try {
+    /** Checklist stays useful: blank weeks for manual, topics overlaid for syllabus. */
+    await writeSubjectPlanWeeks(userId, row.id, input.planWeeks ?? []);
+  } catch (err) {
+    await db.orm.public.Subject.where({ id: row.id }).delete();
+    throw err;
+  }
 
   return mapSubject(row);
 }

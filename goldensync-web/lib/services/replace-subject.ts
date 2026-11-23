@@ -104,7 +104,12 @@ export async function replaceSubject(
     }
   });
 
-  await writeSubjectPlanWeeks(userId, newId, []);
+  try {
+    await writeSubjectPlanWeeks(userId, newId, []);
+  } catch (err) {
+    await db.orm.public.Subject.where({ id: newId }).delete();
+    throw err;
+  }
   const subject = await getSubjectDetailForUser(userId, newId);
   return { subject, copied, skipped };
 }

@@ -83,83 +83,93 @@ export async function processIngestJob(
     status: "RUNNING",
   });
 
-  const { bytes, detail } = await downloadBlobBytes(pathname);
-  if (!bytes || bytes.byteLength === 0) {
-    await db.orm.public.IngestJob.where({ id: job.id }).update({
-      status: "FAILED",
-      errorCode: "PDF_INVALID",
-      result: { message: detail ?? "Could not download PDF from Blob" },
-    });
-    return { status: "FAILED", errorCode: "PDF_INVALID" };
-  }
+  try {
+    const { bytes, detail } = await downloadBlobBytes(pathname);
+    if (!bytes || bytes.byteLength === 0) {
+      await db.orm.public.IngestJob.where({ id: job.id }).update({
+        status: "FAILED",
+        errorCode: "PDF_INVALID",
+        result: { message: detail ?? "Could not download PDF from Blob" },
+      });
+      return { status: "FAILED", errorCode: "PDF_INVALID" };
+    }
 
-  if (bytes.byteLength > limits.MAX_PDF_BYTES) {
-    await db.orm.public.IngestJob.where({ id: job.id }).update({
-      status: "FAILED",
-      errorCode: "PDF_TOO_LARGE",
-      result: { message: `PDF exceeds ${limits.MAX_PDF_BYTES} bytes` },
-    });
-    return { status: "FAILED", errorCode: "PDF_TOO_LARGE" };
-  }
+    if (bytes.byteLength > limits.MAX_PDF_BYTES) {
+      await db.orm.public.IngestJob.where({ id: job.id }).update({
+        status: "FAILED",
+        errorCode: "PDF_TOO_LARGE",
+        result: { message: `PDF exceeds ${limits.MAX_PDF_BYTES} bytes` },
+      });
+      return { status: "FAILED", errorCode: "PDF_TOO_LARGE" };
+    }
 
-  if (!isPdfMagic(bytes)) {
-    await db.orm.public.IngestJob.where({ id: job.id }).update({
-      status: "FAILED",
-      errorCode: "PDF_INVALID",
-      result: { message: "File is not a valid PDF (%PDF- magic missing)" },
-    });
-    return { status: "FAILED", errorCode: "PDF_INVALID" };
-  }
+    if (!isPdfMagic(bytes)) {
+      await db.orm.public.IngestJob.where({ id: job.id }).update({
+        status: "FAILED",
+        errorCode: "PDF_INVALID",
+        result: { message: "File is not a valid PDF (%PDF- magic missing)" },
+      });
+      return { status: "FAILED", errorCode: "PDF_INVALID" };
+    }
 
-  const parsed = await parseSyllabusPdf(Buffer.from(bytes));
-  if (!parsed.ok) {
-    const codeMap: Record<string, string> = {
-      invalid: "PDF_INVALID",
-      toolarge: "PDF_TOO_LARGE",
-      encrypted: "PDF_ENCRYPTED",
-      scanned: "PDF_SCANNED",
-      timeout: "PARSE_TIMEOUT",
-      error: "INTERNAL",
-    };
-    const errorCode = codeMap[parsed.code] ?? "INTERNAL";
-    await db.orm.public.IngestJob.where({ id: job.id }).update({
-      status: "FAILED",
-      errorCode,
-      result: { message: parsed.message, code: parsed.code },
-    });
-    return { status: "FAILED", errorCode };
-  }
+    const parsed = await parseSyllabusPdf(Buffer.from(bytes));
+    if (!parsed.ok) {
+      const codeMap: Record<string, string> = {
+        invalid: "PDF_INVALID",
+        toolarge: "PDF_TOO_LARGE",
+        encrypted: "PDF_ENCRYPTED",
+        scanned: "PDF_SCANNED",
+        timeout: "PARSE_TIMEOUT",
+        error: "INTERNAL",
+      };
+      const errorCode = codeMap[parsed.code] ?? "INTERNAL";
+      await db.orm.public.IngestJob.where({ id: job.id }).update({
+        status: "FAILED",
+        errorCode,
+        result: { message: parsed.message, code: parsed.code },
+      });
+      return { status: "FAILED", errorCode };
+    }
 
-  const titleHint = parsed.previewLines[0]?.slice(0, 80) ?? null;
-  const planWeeks = extractPlanWeeksFromText(parsed.text);
-  await db.orm.public.IngestJob.where({ id: job.id }).update({
-    status: "NEEDS_REVIEW",
-    errorCode: null,
-    result: {
-      flags: [
-        {
-          path: "parser",
-          reason: "Confirm extracted fields in the review form",
+    const titleHint = parsed.previewLines[0]?.slice(0, 80) ?? null;
+    const planWeeks = extractPlanWeeksFromText(parsed.text);
+    await db.orm.public.IngestJob.where({ id: job.id }).update({
+      status: "NEEDS_REVIEW",
+      errorCode: null,
+      result: {
+        flags: [
+          {
+            path: "parser",
+            reason: "Confirm extracted fields in the review form",
+          },
+        ],
+        meta: {
+          bytes: bytes.byteLength,
+          pathname,
+          pages: parsed.pages,
+          processedBy: "next-api",
+          planWeekCount: planWeeks.length,
         },
-      ],
-      meta: {
-        bytes: bytes.byteLength,
-        pathname,
-        pages: parsed.pages,
-        processedBy: "next-api",
-        planWeekCount: planWeeks.length,
+        draft: {
+          courseCode: null,
+          title: titleHint,
+          units: null,
+          outcomes: [],
+          planWeeks,
+          assessments: [],
+          previewLines: parsed.previewLines,
+        },
       },
-      draft: {
-        courseCode: null,
-        title: titleHint,
-        units: null,
-        outcomes: [],
-        planWeeks,
-        assessments: [],
-        previewLines: parsed.previewLines,
-      },
-    },
-  });
+    });
 
-  return { status: "NEEDS_REVIEW", errorCode: null };
+    return { status: "NEEDS_REVIEW", errorCode: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await db.orm.public.IngestJob.where({ id: job.id }).update({
+      status: "FAILED",
+      errorCode: "INTERNAL",
+      result: { message, code: "process_exception" },
+    });
+    return { status: "FAILED", errorCode: "INTERNAL" };
+  }
 }

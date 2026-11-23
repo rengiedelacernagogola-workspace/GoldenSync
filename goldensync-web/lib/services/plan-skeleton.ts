@@ -30,22 +30,24 @@ async function semesterDates(semesterId: string, userId: string) {
 }
 
 async function writeWeeks(subjectId: string, weeks: SkeletonWeek[]) {
-  const existing = await db.orm.public.PlanWeek.where({ subjectId }).all();
-  for (const row of existing) {
-    await db.orm.public.PlanWeek.where({ id: row.id }).delete();
-  }
-  for (const week of weeks.slice(0, limits.MAX_PLAN_WEEKS)) {
-    await db.orm.public.PlanWeek.create({
-      subjectId,
-      weekNumber: week.weekNumber,
-      position: week.weekNumber - 1,
-      topic: week.topic,
-      outcome: week.outcome,
-      activities: week.activities,
-      status: week.status,
-      notes: week.notes,
-    });
-  }
+  await db.transaction(async (tx) => {
+    const existing = await tx.orm.public.PlanWeek.where({ subjectId }).all();
+    for (const row of existing) {
+      await tx.orm.public.PlanWeek.where({ id: row.id }).delete();
+    }
+    for (const week of weeks.slice(0, limits.MAX_PLAN_WEEKS)) {
+      await tx.orm.public.PlanWeek.create({
+        subjectId,
+        weekNumber: week.weekNumber,
+        position: week.weekNumber - 1,
+        topic: week.topic,
+        outcome: week.outcome,
+        activities: week.activities,
+        status: week.status,
+        notes: week.notes,
+      });
+    }
+  });
 }
 
 /**

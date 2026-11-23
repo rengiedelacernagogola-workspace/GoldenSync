@@ -3,12 +3,13 @@ import "server-only";
 /**
  * Checklist write — toggles ChecklistItem (invariant I14).
  * Optional planWeekId updates only that Learning Plan row’s status.
+ * Unchecking Done restores "Not started" (not "In progress").
  */
 
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
-import { notFound } from "@/lib/http/errors";
 import { listChecklistForSubject } from "@/lib/queries/checklist";
+import { upsertChecklistDoneForWeek } from "@/lib/services/checklist-sync";
 import {
   mapChecklistItem,
   type ChecklistItemDto,
@@ -25,29 +26,12 @@ export async function toggleChecklistWeek(
 ): Promise<ChecklistItemDto> {
   await requireOwnedSubject(userId, subjectId);
 
-  const existing = await db.orm.public.ChecklistItem.where({
+  const upserted = await upsertChecklistDoneForWeek(
     subjectId,
-    weekNumber: input.weekNumber,
-  }).first();
-
-  let result: ChecklistItemDto;
-  if (existing) {
-    await db.orm.public.ChecklistItem.where({ id: existing.id }).update({
-      done: input.done,
-    });
-    const updated = await db.orm.public.ChecklistItem.where({
-      id: existing.id,
-    }).first();
-    if (!updated) throw notFound();
-    result = mapChecklistItem(updated);
-  } else {
-    const created = await db.orm.public.ChecklistItem.create({
-      subjectId,
-      weekNumber: input.weekNumber,
-      done: input.done,
-    });
-    result = mapChecklistItem(created);
-  }
+    input.weekNumber,
+    input.done,
+  );
+  let result = mapChecklistItem(upserted);
 
   await syncPlanWeekStatusFromChecklist(
     subjectId,
@@ -58,12 +42,16 @@ export async function toggleChecklistWeek(
 
   /* Recompute week-level done from all plan rows when a single row was toggled. */
   if (input.planWeekId) {
-    await recomputeChecklistDoneForWeek(subjectId, input.weekNumber);
-    const fresh = await db.orm.public.ChecklistItem.where({
+    const done = await recomputeChecklistDoneForWeek(
       subjectId,
-      weekNumber: input.weekNumber,
-    }).first();
-    if (fresh) result = mapChecklistItem(fresh);
+      input.weekNumber,
+    );
+    const synced = await upsertChecklistDoneForWeek(
+      subjectId,
+      input.weekNumber,
+      done,
+    );
+    result = mapChecklistItem(synced);
   }
 
   return result;
@@ -76,7 +64,7 @@ async function syncPlanWeekStatusFromChecklist(
   done: boolean,
   planWeekId?: string,
 ) {
-  const nextStatus = done ? "Done" : "In progress";
+  const nextStatus = done ? "Done" : "Not started";
 
   if (planWeekId) {
     const planWeek = await db.orm.public.PlanWeek.where({
@@ -108,27 +96,11 @@ async function syncPlanWeekStatusFromChecklist(
 async function recomputeChecklistDoneForWeek(
   subjectId: string,
   weekNumber: number,
-) {
+): Promise<boolean> {
   const planWeeks = await db.orm.public.PlanWeek.where({
     subjectId,
     weekNumber,
   }).all();
   const active = planWeeks.filter((p) => p.status !== "No class");
-  const done =
-    active.length > 0 && active.every((p) => p.status === "Done");
-  const checklist = await db.orm.public.ChecklistItem.where({
-    subjectId,
-    weekNumber,
-  }).first();
-  if (checklist) {
-    await db.orm.public.ChecklistItem.where({ id: checklist.id }).update({
-      done,
-    });
-  } else if (done) {
-    await db.orm.public.ChecklistItem.create({
-      subjectId,
-      weekNumber,
-      done: true,
-    });
-  }
+  return active.length > 0 && active.every((p) => p.status === "Done");
 }

@@ -101,7 +101,10 @@ export async function enqueueIngest(
   return mapJob(updated ?? row);
 }
 
-/** Owner-scoped job read. */
+/** Mark RUNNING jobs that never finished (serverless timeout / crash). */
+const STALE_RUNNING_MS = 3 * 60 * 1000;
+
+/** Owner-scoped job read. Recovers stale RUNNING → FAILED so clients can terminate. */
 export async function getIngestJob(
   userId: string,
   jobId: string,
@@ -111,5 +114,29 @@ export async function getIngestJob(
     userId,
   }).first();
   if (!row) throw notFound();
+
+  if (String(row.status) === "RUNNING") {
+    const updatedAt =
+      row.updatedAt instanceof Date
+        ? row.updatedAt
+        : new Date(String(row.updatedAt));
+    if (Date.now() - updatedAt.getTime() >= STALE_RUNNING_MS) {
+      await db.orm.public.IngestJob.where({ id: row.id }).update({
+        status: "FAILED",
+        errorCode: "PARSE_TIMEOUT",
+        result: {
+          message:
+            "Ingest stayed RUNNING past the server timeout; re-upload the syllabus.",
+          code: "stale_running",
+        },
+      });
+      const refreshed = await db.orm.public.IngestJob.where({
+        id: jobId,
+        userId,
+      }).first();
+      if (refreshed) return mapJob(refreshed);
+    }
+  }
+
   return mapJob(row);
 }

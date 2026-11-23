@@ -74,6 +74,7 @@ function ChecklistBody() {
   const [weeks, setWeeks] = React.useState<WeekItem[]>([]);
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [toggleError, setToggleError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!subject.ready) return;
@@ -107,6 +108,8 @@ function ChecklistBody() {
     const row = weeks[index];
     if (!row) return;
     const weekNumber = Number(row.week);
+    const previous = weeks;
+    setToggleError(null);
     setWeeks((prev) =>
       prev.map((r, i) =>
         i === index
@@ -116,7 +119,7 @@ function ChecklistBody() {
                 ? "Done"
                 : r.status === "No class"
                   ? "No class"
-                  : "In progress") as WeekRowStatus,
+                  : "Not started") as WeekRowStatus,
             }
           : r,
       ),
@@ -130,8 +133,13 @@ function ChecklistBody() {
           row.planWeekId,
         );
         subject.refresh();
-      } catch {
-        /* keep optimistic UI; refresh can reconcile */
+      } catch (err) {
+        setWeeks(previous);
+        setToggleError(
+          err instanceof Error
+            ? err.message
+            : "Could not update checklist. Try again.",
+        );
       }
     }
   }
@@ -184,6 +192,11 @@ function ChecklistBody() {
                 <p className="text-[11px] tracking-tight text-text-muted">
                   Ticking weeks never changes your results.
                 </p>
+                {toggleError ? (
+                  <p className="text-body-sm text-status-error" role="alert">
+                    {toggleError}
+                  </p>
+                ) : null}
               </div>
               {weeks.length > 0 ? (
                 <div className="w-full overflow-x-auto">
