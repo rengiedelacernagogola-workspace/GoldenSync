@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 
 import { ProtoFab } from "@/components/dev/proto-fab";
@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   description: "Personal semester, subject, and grade tracker",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 const themeBootScript = `(function(){try{var t=localStorage.getItem("gs-theme");var d=document.documentElement;if(t==="light")d.classList.remove("dark");else d.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -39,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body className="bg-ambient flex min-h-full flex-col">
+      <body className="bg-ambient flex min-h-dvh w-full min-w-0 flex-col overflow-x-hidden">
         <ClerkProvider appearance={{ theme: shadcn }}>
           {children}
           <ProtoFab />

@@ -16,6 +16,10 @@ import {
 import { EmptyModulePanel } from "@/components/features/modules/empty-module-panel";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveSubject } from "@/hooks/use-live-subject";
+import {
+  formatInstructorName,
+  parseFaculty,
+} from "@/lib/domain/faculty";
 import { pathForNav } from "@/lib/nav";
 
 function FacultyBody() {
@@ -25,9 +29,11 @@ function FacultyBody() {
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
   const isEmpty = searchParams.get("empty") === "1";
-  const body =
-    (typeof subject.detail?.faculty === "string" && subject.detail.faculty) ||
-    goldenSyncSeed.activeSubject.facultyBlurb;
+  const faculty = parseFaculty(
+    subject.detail?.faculty ?? {
+      name: goldenSyncSeed.activeSubject.facultyBlurb,
+    },
+  );
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -42,6 +48,7 @@ function FacultyBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="faculty"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -67,7 +74,26 @@ function FacultyBody() {
                 Read-only (from your saved syllabus)
               </p>
               <Card title="Faculty" hasHeader className="w-full">
-                <p className="text-body-sm text-text-secondary">{body}</p>
+                <div className="flex flex-col gap-space-3 text-body-sm text-text-secondary">
+                  <p>
+                    <span className="text-text-muted">Instructor: </span>
+                    {formatInstructorName(faculty)}
+                  </p>
+                  <p>
+                    <span className="text-text-muted">College: </span>
+                    {faculty.college.trim() || "—"}
+                  </p>
+                  <p>
+                    <span className="text-text-muted">Consultation: </span>
+                    {faculty.consultation.trim() || "—"}
+                  </p>
+                  <p>
+                    <span className="text-text-muted">Contact hours: </span>
+                    {faculty.estimatedContactHours != null
+                      ? `${faculty.estimatedContactHours} hrs`
+                      : "—"}
+                  </p>
+                </div>
               </Card>
             </>
           )}
@@ -77,6 +103,7 @@ function FacultyBody() {
         open={drawerOpen}
         subjectSelected
         activeId="faculty"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

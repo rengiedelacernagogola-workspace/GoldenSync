@@ -20,13 +20,16 @@ import {
   SemesterPicker,
   Skeleton,
   SubjectCard,
-  SubjectSwitcherPopover,
   ToastHost,
   type SidebarActiveId,
   type ToastItem,
 } from "@/components/core";
 import { AddSubjectModal } from "@/components/features/add-subject/add-subject-modal";
 import { SemesterDialog } from "@/components/features/semester/semester-dialog";
+import {
+  SubjectCardEditModal,
+  cardEditValuesFromDetail,
+} from "@/components/features/subject/subject-card-edit-modal";
 import { DeleteSubjectDialog } from "@/components/features/subject/delete-subject-dialog";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveData } from "@/hooks/use-live-data";
@@ -35,7 +38,14 @@ import { pushActivity } from "@/lib/activity/activity-log";
 import {
   archiveSubject,
   fetchSubjectDetail,
+  type SubjectDetailDto,
 } from "@/lib/api/subjects";
+import {
+  formatInstructorName,
+  latestOngoingTask,
+  parseFaculty,
+  remainingContactHours,
+} from "@/lib/domain/faculty";
 import { pathForNav } from "@/lib/nav";
 import {
   useHasSemester,
@@ -58,7 +68,6 @@ function DashboardBody() {
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [switcherOpen, setSwitcherOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [semesterOpen, setSemesterOpen] = React.useState(false);
   const [activeNav, setActiveNav] = React.useState<SidebarActiveId>("home");
@@ -68,9 +77,10 @@ function DashboardBody() {
     null,
   );
   const [activityTick, setActivityTick] = React.useState(0);
-  const [progressById, setProgressById] = React.useState<
-    Record<string, { weeksDone: number; weeksTotal: number }>
+  const [detailById, setDetailById] = React.useState<
+    Record<string, SubjectDetailDto>
   >({});
+  const [editSubjectId, setEditSubjectId] = React.useState<string | null>(null);
 
   function logActivity(
     entry: Parameters<typeof pushActivity>[0],
@@ -79,10 +89,22 @@ function DashboardBody() {
   }
 
   const useLiveSubjects = live.signedIn && live.semesters.length > 0;
+  const activeSemester = live.semesters[0] ?? null;
+
+  function formatDateLabel(iso: string | null | undefined): string {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-PH", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
 
   React.useEffect(() => {
     if (!useLiveSubjects || live.subjects.length === 0) {
-      const handle = window.setTimeout(() => setProgressById({}), 0);
+      const handle = window.setTimeout(() => setDetailById({}), 0);
       return () => window.clearTimeout(handle);
     }
     let cancelled = false;
@@ -92,20 +114,18 @@ function DashboardBody() {
           live.subjects.map(async (s) => {
             try {
               const detail = await fetchSubjectDetail(s.id);
-              const weeksTotal = Math.max(
-                18,
-                detail.planWeeks.length || 18,
-                detail.checklist.length || 0,
-              );
-              const weeksDone = detail.checklist.filter((c) => c.done).length;
-              return [s.id, { weeksDone, weeksTotal }] as const;
+              return [s.id, detail] as const;
             } catch {
-              return [s.id, { weeksDone: 0, weeksTotal: 18 }] as const;
+              return null;
             }
           }),
         );
         if (!cancelled) {
-          setProgressById(Object.fromEntries(entries));
+          const next: Record<string, SubjectDetailDto> = {};
+          for (const entry of entries) {
+            if (entry) next[entry[0]] = entry[1];
+          }
+          setDetailById(next);
         }
       })();
     }, 0);
@@ -117,25 +137,91 @@ function DashboardBody() {
 
   const gridSubjects = useLiveSubjects
     ? live.subjects.map((s, i) => {
-        const progress = progressById[s.id];
+        const detail = detailById[s.id];
+        const faculty = parseFaculty(detail?.faculty ?? s.faculty);
+        const weeksTotal = Math.max(
+          18,
+          detail?.planWeeks.length || 18,
+          detail?.checklist.length || 0,
+        );
+        const weeksDone = detail?.checklist.filter((c) => c.done).length ?? 0;
+        const coCount =
+          detail?.outcomes.filter((o) => o.kind === "CO").length ?? 0;
+        const start =
+          detail?.semesterStartDate ?? activeSemester?.startDate ?? null;
+        const end = detail?.semesterEndDate ?? activeSemester?.endDate ?? null;
         return {
           id: s.id,
           code: s.courseCode,
-          title: s.title,
-          units: Number(s.units) || 0,
-          weeksDone: progress?.weeksDone ?? 0,
-          weeksTotal: progress?.weeksTotal ?? 18,
+          title: detail?.title ?? s.title,
+          units: Number(detail?.units ?? s.units) || 0,
+          prerequisite: detail?.prerequisite ?? s.prerequisite ?? "",
+          effectivity: detail?.effectivity ?? s.effectivity ?? "",
+          weeksDone,
+          weeksTotal,
+          latestTask: detail
+            ? latestOngoingTask({
+                checklist: detail.checklist,
+                planWeeks: detail.planWeeks,
+              })
+            : "—",
+          instructorLabel: formatInstructorName(faculty),
+          college: faculty.college,
+          consultation: faculty.consultation,
+          courseOutcomeCount: coCount,
+          contactHoursTotal: faculty.estimatedContactHours,
+          contactHoursRemaining: remainingContactHours(
+            faculty.estimatedContactHours,
+            start,
+            end,
+          ),
+          semesterStartLabel: formatDateLabel(start),
+          semesterEndLabel: formatDateLabel(end),
+          facultyRaw: detail?.faculty ?? s.faculty,
           isActive:
             selectedLiveId != null
               ? s.id === selectedLiveId
               : i === 0,
         };
       })
-    : goldenSyncSeed.subjects;
+    : goldenSyncSeed.subjects.map((s, i) => ({
+        id: s.id,
+        code: s.code,
+        title: s.title,
+        units: s.units,
+        prerequisite: goldenSyncSeed.activeSubject.prerequisite,
+        effectivity: goldenSyncSeed.activeSubject.effectivity,
+        weeksDone: s.weeksDone,
+        weeksTotal: s.weeksTotal,
+        latestTask: "Week 13 · Secure session handling",
+        instructorLabel: goldenSyncSeed.activeSubject.facultyBlurb,
+        college: "",
+        consultation: "",
+        courseOutcomeCount: goldenSyncSeed.activeSubject.outcomes.length,
+        contactHoursTotal: 54,
+        contactHoursRemaining: remainingContactHours(
+          54,
+          goldenSyncSeed.semester.startIso,
+          goldenSyncSeed.semester.endIso,
+        ),
+        semesterStartLabel: formatDateLabel(goldenSyncSeed.semester.startIso),
+        semesterEndLabel: formatDateLabel(goldenSyncSeed.semester.endIso),
+        facultyRaw: {
+          title: "" as const,
+          name: goldenSyncSeed.activeSubject.facultyBlurb,
+          college: "",
+          consultation: "",
+          estimatedContactHours: 54,
+        },
+        isActive: selectedLiveId != null ? s.id === selectedLiveId : i === 0,
+      }));
   const active =
     gridSubjects.find((s) => s.isActive) ?? gridSubjects[0] ?? undefined;
   const semester =
     live.semesters[0]?.label ?? goldenSyncSeed.semester.label;
+  const editingCard = editSubjectId
+    ? gridSubjects.find((s) => s.id === editSubjectId)
+    : null;
   const emptySubjects = subjectCount === 0;
   const hideAddInBar = emptySubjects;
   /* Loading skeleton via ?loading=1 — avoid setState-in-effect */
@@ -216,14 +302,14 @@ function DashboardBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected={subjectSelected && !emptySubjects}
         activeId={activeNav}
+        activeSubjectId={active?.id ?? selectedLiveId}
         subjectCode={emptySubjects ? "No subject" : active?.code}
         subjectTitle={
           emptySubjects ? "Add your first subject." : active?.title
         }
-        switcherOpen={switcherOpen}
+        switcherEnabled={!emptySubjects}
         onToggleCollapse={() => setCollapsed((c) => !c)}
         onNav={handleNav}
-        onSwitcherClick={() => setSwitcherOpen((o) => !o)}
         topBar={{
           title: "Dashboard",
           semesterLabel: hasSemester ? semester : "No semester",
@@ -235,24 +321,6 @@ function DashboardBody() {
         }}
         className="relative"
       >
-        {switcherOpen ? (
-          <div className="absolute top-[120px] left-4 z-30 hidden md:block">
-            <SubjectSwitcherPopover
-              empty={emptySubjects}
-              items={gridSubjects.map((s) => ({
-                id: s.id,
-                code: s.code,
-                title: s.title,
-              }))}
-              activeId={active?.id}
-              onSubjectSelect={(id) => {
-                setSelectedLiveId(id);
-                setSwitcherOpen(false);
-              }}
-            />
-          </div>
-        ) : null}
-
         {/* T/M: semester + Add move into body (DEC-059 / UI-121) */}
         <div className="mb-space-6 flex w-full flex-col gap-space-3 sm:hidden">
           {hasSemester ? (
@@ -301,7 +369,7 @@ function DashboardBody() {
         ) : (
           <div
             data-slot="gs-subject-grid"
-            className="gs-fade-up grid w-full grid-cols-1 gap-space-6 md:grid-cols-2 xl:grid-cols-3"
+            className="gs-fade-up grid w-full min-w-0 grid-cols-1 gap-space-4 sm:gap-space-6 md:grid-cols-2 xl:grid-cols-3"
           >
             {gridSubjects.map((s, i) => (
               <SubjectCard
@@ -313,6 +381,24 @@ function DashboardBody() {
                 weeksDone={s.weeksDone}
                 weeksTotal={s.weeksTotal}
                 active={s.isActive}
+                prerequisite={s.prerequisite}
+                semesterStartLabel={s.semesterStartLabel}
+                semesterEndLabel={s.semesterEndLabel}
+                latestTask={s.latestTask}
+                instructorLabel={s.instructorLabel}
+                college={s.college}
+                consultation={s.consultation}
+                courseOutcomeCount={s.courseOutcomeCount}
+                contactHoursTotal={s.contactHoursTotal}
+                contactHoursRemaining={s.contactHoursRemaining}
+                onEdit={
+                  useLiveSubjects
+                    ? () => {
+                        setSelectedLiveId(s.id);
+                        setEditSubjectId(s.id);
+                      }
+                    : undefined
+                }
                 className={
                   i === 0
                     ? "gs-stagger-1"
@@ -330,18 +416,43 @@ function DashboardBody() {
         )}
       </AppShell>
 
+      {editingCard && useLiveSubjects ? (
+        <SubjectCardEditModal
+          open={editSubjectId != null}
+          subjectId={editingCard.id}
+          courseCode={editingCard.code}
+          initial={cardEditValuesFromDetail({
+            title: editingCard.title,
+            units: editingCard.units,
+            prerequisite: editingCard.prerequisite,
+            effectivity: editingCard.effectivity,
+            faculty: editingCard.facultyRaw,
+          })}
+          onClose={() => setEditSubjectId(null)}
+          onSaved={() => {
+            live.refresh();
+            pushToast("Subject card updated.");
+            logActivity({
+              kind: "subject",
+              title: "Subject updated",
+              detail: `${editingCard.code} · card details saved`,
+            });
+          }}
+        />
+      ) : null}
+
       <MobileDrawer
         open={drawerOpen}
         subjectSelected={subjectSelected && !emptySubjects}
         activeId={activeNav}
+        activeSubjectId={active?.id ?? selectedLiveId}
         subjectCode={emptySubjects ? "No subject" : active?.code}
         subjectTitle={
           emptySubjects ? "Add your first subject." : active?.title
         }
-        switcherOpen={switcherOpen}
+        switcherEnabled={!emptySubjects}
         onClose={() => setDrawerOpen(false)}
         onNav={handleNav}
-        onSwitcherClick={() => setSwitcherOpen((o) => !o)}
       />
 
       <AddSubjectModal

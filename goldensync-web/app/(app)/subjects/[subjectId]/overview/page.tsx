@@ -2,33 +2,23 @@
 
 /**
  * Overview — subject home (Figma `128:183`, UI-090).
- * FLOW: Dashboard SubjectCard → Overview · Course spec + Quick links.
+ * FLOW: Dashboard SubjectCard → Overview · Course spec + subject Notes.
  * RULE: Signed-in live id → GET /api/subjects/:id; else seed.
  */
 
-import { Calculator, CalendarDays } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
 import {
   AppShell,
-  Button,
-  Card,
   MobileDrawer,
   type SidebarActiveId,
 } from "@/components/core";
+import { CourseSpecCard } from "@/components/features/overview/course-spec-card";
+import { SubjectNotesPanel } from "@/components/features/overview/subject-notes-panel";
 import { useLiveSubject } from "@/hooks/use-live-subject";
+import { pushActivity, type ActivityKind } from "@/lib/activity/activity-log";
 import { pathForNav } from "@/lib/nav";
-
-/** Spec row — muted label, primary value. */
-function SpecRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid grid-cols-[120px_1fr] gap-space-3 sm:grid-cols-[140px_1fr]">
-      <span className="text-body-sm text-text-muted">{label}</span>
-      <span className="text-body-sm text-text-primary">{value}</span>
-    </div>
-  );
-}
 
 /** Inner overview — Suspense for useParams. */
 function OverviewBody() {
@@ -39,10 +29,19 @@ function OverviewBody() {
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [activityTick, setActivityTick] = React.useState(0);
 
   function handleNav(id: SidebarActiveId) {
     const path = pathForNav(id, subject.id);
     if (path) router.push(path);
+  }
+
+  function notifyActivity(entry: {
+    kind: ActivityKind;
+    title: string;
+    detail: string;
+  }) {
+    void pushActivity(entry).then(() => setActivityTick((n) => n + 1));
   }
 
   return (
@@ -51,6 +50,7 @@ function OverviewBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="overview"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -60,6 +60,7 @@ function OverviewBody() {
           semesterLabel: subject.semesterLabel,
           hideAddSubject: true,
           hideSemester: true,
+          notificationsRefreshKey: activityTick,
           onMenuClick: () => setDrawerOpen(true),
         }}
       >
@@ -69,38 +70,27 @@ function OverviewBody() {
             {subject.live ? " · Live" : ""}
           </p>
 
-          <div className="grid w-full gap-space-6 lg:grid-cols-[1fr_280px]">
-            <Card title="Course specification" hasHeader className="w-full">
-              <div className="flex flex-col gap-space-3">
-                <SpecRow label="Code" value={subject.code} />
-                <SpecRow label="Title" value={subject.title} />
-                <SpecRow label="Units" value={subject.units} />
-                <SpecRow label="Prerequisite" value={subject.prerequisite || "—"} />
-                <SpecRow label="Effectivity" value={subject.effectivity || "—"} />
-                <SpecRow label="Semester" value={subject.semesterLabel} />
-              </div>
-            </Card>
+          <div className="grid w-full min-w-0 grid-cols-1 items-start gap-space-4 sm:gap-space-6 xl:grid-cols-[minmax(0,1fr)_minmax(240px,320px)]">
+            <CourseSpecCard
+              subjectId={subject.id}
+              live={subject.live}
+              code={subject.code}
+              title={subject.title}
+              units={subject.units}
+              prerequisite={subject.prerequisite}
+              effectivity={subject.effectivity}
+              semesterLabel={subject.semesterLabel}
+              policies={subject.detail?.policies ?? null}
+              faculty={subject.detail?.faculty ?? null}
+              onSaved={() => subject.refresh()}
+              onActivity={notifyActivity}
+            />
 
-            <Card title="Quick links" hasHeader className="w-full">
-              <Button
-                variant="Secondary"
-                size="md"
-                className="w-full justify-start"
-                onClick={() => router.push(`/subjects/${subject.id}/this-week`)}
-              >
-                <CalendarDays className="size-4" aria-hidden />
-                This Week
-              </Button>
-              <Button
-                variant="Secondary"
-                size="md"
-                className="w-full justify-start"
-                onClick={() => router.push("/calculator")}
-              >
-                <Calculator className="size-4" aria-hidden />
-                Grade Calculator
-              </Button>
-            </Card>
+            <SubjectNotesPanel
+              subjectId={subject.id}
+              live={subject.live}
+              onActivity={notifyActivity}
+            />
           </div>
         </div>
       </AppShell>
@@ -109,6 +99,7 @@ function OverviewBody() {
         open={drawerOpen}
         subjectSelected
         activeId="overview"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

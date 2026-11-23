@@ -36,6 +36,37 @@ export async function listSubjectsForSemester(
   return rows.map(mapSubject).sort((a, b) => a.courseCodeNorm.localeCompare(b.courseCodeNorm));
 }
 
+export type ArchivedSubjectDto = SubjectDto & {
+  semesterLabel: string;
+};
+
+/** Archived subjects across all semesters owned by the user (newest archive first). */
+export async function listArchivedSubjectsForUser(
+  userId: string,
+): Promise<ArchivedSubjectDto[]> {
+  const semesters = await db.orm.public.Semester.where({ userId }).all();
+  const results: ArchivedSubjectDto[] = [];
+
+  for (const semester of semesters) {
+    const rows = await db.orm.public.Subject.where({
+      semesterId: semester.id,
+    }).all();
+    for (const row of rows) {
+      if (row.archivedAt == null) continue;
+      results.push({
+        ...mapSubject(row),
+        semesterLabel: semester.label,
+      });
+    }
+  }
+
+  return results.sort((a, b) => {
+    const aAt = a.archivedAt ?? "";
+    const bAt = b.archivedAt ?? "";
+    return bAt.localeCompare(aAt);
+  });
+}
+
 /** One subject if owned; else 404. */
 export async function getSubjectForUser(
   userId: string,
@@ -64,6 +95,18 @@ export async function getSubjectDetailForUser(
   return {
     ...mapSubject(row),
     semesterLabel: semester?.label ?? "—",
+    semesterStartDate:
+      semester?.startDate instanceof Date
+        ? semester.startDate.toISOString()
+        : semester?.startDate
+          ? String(semester.startDate)
+          : null,
+    semesterEndDate:
+      semester?.endDate instanceof Date
+        ? semester.endDate.toISOString()
+        : semester?.endDate
+          ? String(semester.endDate)
+          : null,
     outcomes: outcomes
       .map(mapOutcome)
       .sort((a, b) => a.position - b.position || a.code.localeCompare(b.code)),

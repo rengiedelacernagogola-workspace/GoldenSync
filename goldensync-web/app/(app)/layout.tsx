@@ -1,11 +1,13 @@
 /**
- * Authenticated app segment layout — ambient chrome shared by shell pages.
+ * Authenticated app segment layout — shared live subject list for the switcher.
  */
+
+import { AppLiveDataProvider } from "@/components/providers/live-data-provider";
 
 export default function AppSegmentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <AppLiveDataProvider>{children}</AppLiveDataProvider>;
 }

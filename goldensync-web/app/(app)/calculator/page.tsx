@@ -6,7 +6,7 @@
  * RULE: Estimated (self-reported); isGradeHidden from gradeScaleConfirmed.
  */
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import {
@@ -20,7 +20,6 @@ import {
   OutcomeRow,
   ResultCard,
   SegmentedControl,
-  SubjectSwitcherPopover,
   Table,
   type SidebarActiveId,
 } from "@/components/core";
@@ -61,9 +60,10 @@ type LocalActivity = {
   percent: string;
 };
 
-/** Calculator page — Proto scenarios + activity add/edit/conflict. */
-export default function CalculatorPage() {
+/** Calculator page body — needs Suspense for useSearchParams. */
+function CalculatorBody() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const live = useLiveData();
   const subjectSelected = useSubjectSelected();
   const scenario = useScenario();
@@ -71,7 +71,7 @@ export default function CalculatorPage() {
   const conflict = useConflict();
   const { setScenario, setConflict, setSubjectSelected } = useProtoActions();
   const seedActive = goldenSyncSeed.subjects.find((s) => s.isActive);
-  const [liveSubjectId, setLiveSubjectId] = React.useState<string | null>(null);
+  const querySubject = searchParams.get("subject");
 
   const liveSubjects = live.subjects.map((s) => ({
     id: s.id,
@@ -79,28 +79,37 @@ export default function CalculatorPage() {
     title: s.title,
   }));
   const useLive = live.signedIn && liveSubjects.length > 0;
+  const liveSubjectId =
+    (querySubject && liveSubjects.some((s) => s.id === querySubject)
+      ? querySubject
+      : null) ??
+    liveSubjects[0]?.id ??
+    null;
   const active = useLive
     ? liveSubjects.find((s) => s.id === liveSubjectId) ?? liveSubjects[0]
     : seedActive;
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [switcherOpen, setSwitcherOpen] = React.useState(false);
   const [newOpen, setNewOpen] = React.useState(false);
   const [editOpen, setEditOpen] = React.useState(false);
   const [editInvalid, setEditInvalid] = React.useState(false);
   const [editing, setEditing] = React.useState<LocalActivity | null>(null);
   const [extra, setExtra] = React.useState<LocalActivity[]>([]);
 
-  const firstLiveId = liveSubjects[0]?.id ?? null;
   React.useEffect(() => {
-    if (!useLive || !firstLiveId || liveSubjectId) return;
+    if (!useLive || !liveSubjectId) return;
+    const handle = window.setTimeout(() => setSubjectSelected(true), 0);
+    return () => window.clearTimeout(handle);
+  }, [useLive, liveSubjectId, setSubjectSelected]);
+
+  React.useEffect(() => {
+    if (!useLive || !liveSubjectId || querySubject === liveSubjectId) return;
     const handle = window.setTimeout(() => {
-      setLiveSubjectId(firstLiveId);
-      setSubjectSelected(true);
+      router.replace(`/calculator?subject=${encodeURIComponent(liveSubjectId)}`);
     }, 0);
     return () => window.clearTimeout(handle);
-  }, [useLive, firstLiveId, liveSubjectId, setSubjectSelected]);
+  }, [useLive, liveSubjectId, querySubject, router]);
 
   const isGradeHidden = !gradeScaleConfirmed;
   const status =
@@ -176,15 +185,15 @@ export default function CalculatorPage() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected={subjectSelected}
         activeId="calculator"
+        activeSubjectId={active?.id ?? liveSubjectId}
         subjectCode={active?.code ?? "No subject"}
         subjectTitle={active?.title ?? "Choose a subject."}
-        switcherOpen={switcherOpen}
         onToggleCollapse={() => setCollapsed((c) => !c)}
         onNav={handleNav}
-        onSwitcherClick={() => setSwitcherOpen((o) => !o)}
         topBar={{
           title: "Grade Calculator",
-          semesterLabel: goldenSyncSeed.semester.label,
+          semesterLabel:
+            live.semesters[0]?.label ?? goldenSyncSeed.semester.label,
           /* Figma P4 keeps SemesterPicker; Add Subject lives on Dashboard */
           hideAddSubject: true,
           onMenuClick: () => setDrawerOpen(true),
@@ -199,29 +208,9 @@ export default function CalculatorPage() {
           />
         ) : (
           <div className="relative flex w-full flex-col gap-space-6">
-            {switcherOpen ? (
-              <div className="absolute top-0 left-0 z-40 md:left-[calc(240px+1rem)]">
-                <SubjectSwitcherPopover
-                  activeId={active?.id}
-                  items={
-                    useLive
-                      ? liveSubjects
-                      : goldenSyncSeed.subjects.map((s) => ({
-                          id: s.id,
-                          code: s.code,
-                          title: s.title,
-                        }))
-                  }
-                  onSubjectSelect={(id) => {
-                    if (useLive) setLiveSubjectId(id);
-                    setSwitcherOpen(false);
-                  }}
-                />
-              </div>
-            ) : null}
-
             <p className="text-overline uppercase text-text-muted">
-              {active?.code} · {goldenSyncSeed.semester.label}
+              {active?.code} ·{" "}
+              {live.semesters[0]?.label ?? goldenSyncSeed.semester.label}
             </p>
 
             <div className="flex flex-col gap-space-2 rounded-lg border border-dashed border-border-strong p-space-3">
@@ -514,12 +503,11 @@ export default function CalculatorPage() {
         open={drawerOpen}
         subjectSelected={subjectSelected}
         activeId="calculator"
+        activeSubjectId={active?.id ?? liveSubjectId}
         subjectCode={active?.code}
         subjectTitle={active?.title}
-        switcherOpen={switcherOpen}
         onClose={() => setDrawerOpen(false)}
         onNav={handleNav}
-        onSwitcherClick={() => setSwitcherOpen((o) => !o)}
       />
 
       <NewActivityDialog
@@ -530,5 +518,20 @@ export default function CalculatorPage() {
         }}
       />
     </>
+  );
+}
+
+/** Calculator page — Proto scenarios + activity add/edit/conflict. */
+export default function CalculatorPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-bg-base text-text-muted">
+          Loading calculator…
+        </div>
+      }
+    >
+      <CalculatorBody />
+    </React.Suspense>
   );
 }

@@ -121,9 +121,15 @@ export async function updateSubject(
     ...(input.effectivity !== undefined
       ? { effectivity: input.effectivity }
       : {}),
-    ...(input.grading !== undefined ? { grading: input.grading } : {}),
-    ...(input.policies !== undefined ? { policies: input.policies } : {}),
-    ...(input.faculty !== undefined ? { faculty: input.faculty } : {}),
+    ...(input.grading !== undefined
+      ? { grading: structuredClone(input.grading) as never }
+      : {}),
+    ...(input.policies !== undefined
+      ? { policies: structuredClone(input.policies) as never }
+      : {}),
+    ...(input.faculty !== undefined
+      ? { faculty: structuredClone(input.faculty) as never }
+      : {}),
   });
 
   return getSubjectForUser(userId, subjectId);

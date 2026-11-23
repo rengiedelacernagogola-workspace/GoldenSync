@@ -111,6 +111,7 @@ function ThisWeekBody() {
           sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
           subjectSelected
           activeId="this-week"
+          activeSubjectId={card.id}
           subjectCode={card.code}
           subjectTitle={card.title}
           onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -142,6 +143,7 @@ function ThisWeekBody() {
           open={drawerOpen}
           subjectSelected
           activeId="this-week"
+          activeSubjectId={card.id}
           subjectCode={card.code}
           subjectTitle={card.title}
           onClose={() => setDrawerOpen(false)}
@@ -157,6 +159,7 @@ function ThisWeekBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="this-week"
+        activeSubjectId={card.id}
         subjectCode={card.code}
         subjectTitle={card.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -199,6 +202,7 @@ function ThisWeekBody() {
         open={drawerOpen}
         subjectSelected
         activeId="this-week"
+        activeSubjectId={card.id}
         subjectCode={card.code}
         subjectTitle={card.title}
         onClose={() => setDrawerOpen(false)}

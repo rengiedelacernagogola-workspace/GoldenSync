@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
   [
-    "relative flex w-full flex-col items-start gap-space-4 overflow-hidden",
-    "rounded-lg p-space-6",
+    "relative flex w-full min-w-0 flex-col items-start gap-space-3 overflow-hidden sm:gap-space-4",
+    "rounded-lg p-space-4 sm:p-space-6",
     "transition-[box-shadow,border-color,opacity,background-color] duration-150 ease-out",
   ].join(" "),
   {
