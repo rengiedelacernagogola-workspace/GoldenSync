@@ -1,0 +1,67 @@
+name: goldensync
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: goldensync
+      POSTGRES_PASSWORD: goldensync
+      POSTGRES_DB: goldensync
+    ports:
+      # Host 55432 — avoid Windows native Postgres on 5432/5433
+      - "55432:5432"
+    volumes:
+      - goldensync_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goldensync -d goldensync"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: ./goldensync-web
+      target: dev
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://goldensync:goldensync@db:5432/goldensync?schema=public
+      DIRECT_URL: postgresql://goldensync:goldensync@db:5432/goldensync?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./goldensync-web
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+        - action: rebuild
+          path: ./goldensync-web/package.json
+        - action: rebuild
+          path: ./goldensync-web/package-lock.json
+
+  # Runs npm against the host package.json/package-lock.json while keeping node_modules inside Docker.
+  npm:
+    build:
+      context: ./goldensync-web
+      target: deps
+    working_dir: /app
+    entrypoint: ["npm"]
+    volumes:
+      - ./goldensync-web:/app
+      - /app/node_modules
+    profiles: ["tools"]
+
+  web-prod:
+    build:
+      context: ./goldensync-web
+      target: runner
+    ports:
+      - "3001:3000"
+    profiles: ["prod"]
+
+volumes:
+  goldensync_pg:

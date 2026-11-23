@@ -1,0 +1,295 @@
+// use prisma-8
+// GoldenSync data contract — architecture Appendix A + product storage (PlanNote, ManualChecklist, Activity).
+
+native_enum OutcomeKind {
+  PEO = "PEO"
+  PO  = "PO"
+  CO  = "CO"
+}
+
+native_enum JobStatus {
+  QUEUED       = "QUEUED"
+  RUNNING      = "RUNNING"
+  NEEDS_REVIEW = "NEEDS_REVIEW"
+  CONFIRMED    = "CONFIRMED"
+  FAILED       = "FAILED"
+  EXPIRED      = "EXPIRED"
+}
+
+native_enum LinkLevel {
+  I = "I"
+  E = "E"
+  D = "D"
+}
+
+model User {
+  id          String             @id @onCreate(cuid(2))
+  clerkUserId String             @unique
+  email       String
+  name        String?
+  consentAt   DateTime?
+  createdAt   DateTime           @default(now()) @onCreate(now())
+  updatedAt   temporal.UpdatedAt
+  semesters   Semester[]
+  ingestJobs  IngestJob[]
+  drafts      Draft[]
+  activities  ActivityEvent[]
+  idempotency IdempotencyKey[]
+}
+
+model Semester {
+  id           String             @id @onCreate(cuid(2))
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label        String
+  startDate    DateTime
+  endDate      DateTime
+  skippedWeeks Json
+  subjects     Subject[]
+  createdAt    DateTime           @default(now()) @onCreate(now())
+  updatedAt    temporal.UpdatedAt
+
+  @@index([userId])
+}
+
+model Subject {
+  id              String                @id @onCreate(cuid(2))
+  semesterId      String
+  semester        Semester              @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  courseCode      String
+  courseCodeNorm  String
+  title           String
+  units           Decimal
+  prerequisite    String?
+  effectivity     String?
+  grading         Json?
+  policies        Json?
+  faculty         Json?
+  archivedAt      DateTime?
+  createdAt       DateTime              @default(now()) @onCreate(now())
+  updatedAt       temporal.UpdatedAt
+  outcomes        Outcome[]
+  planWeeks       PlanWeek[]
+  planNotes       PlanNote[]
+  assessments     Assessment[]
+  checklist       ChecklistItem[]
+  manualChecklist ManualChecklistItem[]
+
+  @@index([semesterId])
+  @@index([semesterId, archivedAt])
+}
+
+model Outcome {
+  id          String               @id @onCreate(cuid(2))
+  subjectId   String
+  kind        pg.enum(OutcomeKind)
+  code        String
+  description String
+  position    Int
+  subject     Subject              @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  assessments AssessmentOutcome[]
+  linksAsCo   OutcomeLink[]        @relation("OutcomeLinkCo")
+  linksAsPo   OutcomeLink[]        @relation("OutcomeLinkPo")
+
+  @@unique([subjectId, kind, code])
+  @@index([subjectId])
+}
+
+model OutcomeLink {
+  id    String            @id @onCreate(cuid(2))
+  coId  String
+  poId  String
+  level pg.enum(LinkLevel)
+  co    Outcome           @relation("OutcomeLinkCo", fields: [coId], references: [id], onDelete: Cascade)
+  po    Outcome           @relation("OutcomeLinkPo", fields: [poId], references: [id], onDelete: Cascade)
+
+  @@unique([coId, poId])
+  @@index([coId])
+  @@index([poId])
+}
+
+model PlanWeek {
+  id         String  @id @onCreate(cuid(2))
+  subjectId  String
+  weekNumber Int
+  /// Order among rows (same weekNumber allowed for multiple topics).
+  position   Int
+  topic      String?
+  outcome    String?
+  activities String?
+  /// Checklist-style status: Not started | In progress | Done | No class
+  status     String?
+  notes      String?
+  subject    Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
+  @@index([subjectId, weekNumber, position])
+}
+
+model PlanNote {
+  id         String             @id @onCreate(cuid(2))
+  subjectId  String
+  subject    Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title      String
+  topic      String
+  body       String
+  importance Int
+  pinned     Boolean
+  archivedAt DateTime?
+  /// Soft-delete; hard-purged after NOTE_SOFT_DELETE_DAYS (30).
+  deletedAt  DateTime?
+  savedAt    DateTime           @default(now()) @onCreate(now())
+  createdAt  DateTime           @default(now()) @onCreate(now())
+  updatedAt  temporal.UpdatedAt
+
+  @@index([subjectId, savedAt])
+  @@index([deletedAt])
+}
+
+model Assessment {
+  id        String  @id @onCreate(cuid(2))
+  subjectId String
+  label     String
+  maxScore  Decimal
+  position  Int
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  score     Score?
+  outcomes  AssessmentOutcome[]
+
+  @@index([subjectId])
+}
+
+model AssessmentOutcome {
+  assessmentId String
+  outcomeId    String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  outcome      Outcome    @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
+
+  @@id([assessmentId, outcomeId])
+  @@index([outcomeId])
+}
+
+model Score {
+  id           String             @id @onCreate(cuid(2))
+  assessmentId String             @unique
+  score        Decimal?
+  max          Decimal
+  version      Int
+  updatedAt    temporal.UpdatedAt
+  assessment   Assessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+}
+
+model ChecklistItem {
+  id         String  @id @onCreate(cuid(2))
+  subjectId  String
+  weekNumber Int
+  done       Boolean
+  subject    Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, weekNumber])
+  @@index([subjectId])
+}
+
+model ManualChecklistItem {
+  id        String             @id @onCreate(cuid(2))
+  subjectId String
+  subject   Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title     String
+  detail    String
+  done      Boolean
+  position  Int
+  createdAt DateTime           @default(now()) @onCreate(now())
+  updatedAt temporal.UpdatedAt
+
+  @@index([subjectId, position])
+}
+
+model ActivityEvent {
+  id        String    @id @onCreate(cuid(2))
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  title     String
+  detail    String
+  entity    String?
+  entityId  String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now()) @onCreate(now())
+
+  @@index([userId, createdAt])
+}
+
+model IdempotencyKey {
+  id             String   @id @onCreate(cuid(2))
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key            String
+  route          String
+  requestHash    String
+  responseStatus Int
+  responseBody   Json
+  createdAt      DateTime @default(now()) @onCreate(now())
+
+  @@unique([userId, key, route])
+  @@index([userId, createdAt])
+}
+
+// Singleton release-gate flag for the active grade scale (§10.3).
+model GradeScaleMeta {
+  id        String             @id @onCreate(cuid(2))
+  confirmed Boolean
+  updatedAt temporal.UpdatedAt
+}
+
+// Contiguous average→grade bands for the active scale.
+model GradeScale {
+  id         String  @id @onCreate(cuid(2))
+  minAverage Decimal
+  maxAverage Decimal
+  grade      Decimal
+  position   Int
+
+  @@index([position])
+}
+
+// Syllabus ingest job (architecture §9).
+model IngestJob {
+  id           String              @id @onCreate(cuid(2))
+  userId       String
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       pg.enum(JobStatus)
+  blobPathname String?
+  result       Json?
+  errorCode    String?
+  createdAt    DateTime            @default(now()) @onCreate(now())
+  updatedAt    temporal.UpdatedAt
+
+  @@index([userId, createdAt])
+}
+
+// Insert-only audit trail (no PII in metadata).
+model AuditLog {
+  id        String   @id @onCreate(cuid(2))
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now()) @onCreate(now())
+
+  @@index([userId, createdAt])
+}
+
+// Autosave draft (7-day TTL).
+model Draft {
+  id        String             @id @onCreate(cuid(2))
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  payload   Json
+  updatedAt temporal.UpdatedAt
+  expiresAt DateTime
+
+  @@unique([userId, kind])
+  @@index([userId])
+}
