@@ -16,6 +16,7 @@ import {
 import { EmptyModulePanel } from "@/components/features/modules/empty-module-panel";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveSubject } from "@/hooks/use-live-subject";
+import { parsePoliciesDoc } from "@/lib/domain/course-spec";
 import { pathForNav } from "@/lib/nav";
 
 function PoliciesBody() {
@@ -25,9 +26,9 @@ function PoliciesBody() {
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
   const isEmpty = searchParams.get("empty") === "1";
+  const classPolicies = parsePoliciesDoc(subject.detail?.policies).classPolicies;
   const body =
-    (typeof subject.detail?.policies === "string" && subject.detail.policies) ||
-    goldenSyncSeed.activeSubject.policiesBlurb;
+    classPolicies.trim() || goldenSyncSeed.activeSubject.policiesBlurb;
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -42,6 +43,7 @@ function PoliciesBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="policies"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -77,6 +79,7 @@ function PoliciesBody() {
         open={drawerOpen}
         subjectSelected
         activeId="policies"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

@@ -150,6 +150,7 @@ function ChecklistBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="checklist"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -233,6 +234,7 @@ function ChecklistBody() {
         open={drawerOpen}
         subjectSelected
         activeId="checklist"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

@@ -202,6 +202,7 @@ function NotesBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected={subjectSelected}
         activeId="notes"
+        activeSubjectId={activeSubject?.id ?? (activeSubjectId || null)}
         subjectCode={activeSubject?.courseCode ?? "—"}
         subjectTitle={activeSubject?.title ?? "Notes"}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -366,6 +367,7 @@ function NotesBody() {
         open={drawerOpen}
         subjectSelected={subjectSelected}
         activeId="notes"
+        activeSubjectId={activeSubject?.id ?? (activeSubjectId || null)}
         subjectCode={activeSubject?.courseCode ?? "—"}
         subjectTitle={activeSubject?.title ?? "Notes"}
         onClose={() => setDrawerOpen(false)}

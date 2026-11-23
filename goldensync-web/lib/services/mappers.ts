@@ -75,6 +75,9 @@ export type ChecklistItemDto = {
 export type SubjectDetailDto = SubjectDto & {
   /** Owning semester label for module shells (never seed fallback). */
   semesterLabel: string;
+  /** Semester window for contact-hours countdown (ISO). */
+  semesterStartDate?: string | null;
+  semesterEndDate?: string | null;
   outcomes: OutcomeDto[];
   planWeeks: PlanWeekDto[];
   assessments: AssessmentDto[];

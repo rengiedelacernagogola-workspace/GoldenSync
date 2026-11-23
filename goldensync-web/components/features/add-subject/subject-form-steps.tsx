@@ -13,6 +13,7 @@ import { FormField } from "@/components/core/form-field";
 import { Stepper, type StepperStep } from "@/components/core/stepper";
 import { Textarea } from "@/components/core/textarea";
 import { goldenSyncSeed } from "@/data/seed";
+import type { FacultyTitle } from "@/lib/domain/faculty";
 
 export type SubjectFormStepIndex = 1 | 2 | 3 | 4 | 5;
 
@@ -26,7 +27,11 @@ export interface SubjectFormValues {
   pos: string;
   grading: string;
   policies: string;
-  faculty: string;
+  facultyTitle: FacultyTitle;
+  facultyName: string;
+  facultyCollege: string;
+  facultyConsultation: string;
+  estimatedContactHours: string;
 }
 
 export interface SubjectFormStepsProps {
@@ -61,7 +66,11 @@ export function defaultSubjectFormValues(
       pos: "",
       grading: "",
       policies: "",
-      faculty: "",
+      facultyTitle: "",
+      facultyName: "",
+      facultyCollege: "",
+      facultyConsultation: "",
+      estimatedContactHours: "",
     };
   }
   const d = goldenSyncSeed.activeSubject;
@@ -76,7 +85,11 @@ export function defaultSubjectFormValues(
     pos: d.pos.join(", "),
     grading: d.gradingBlurb,
     policies: d.policiesBlurb,
-    faculty: d.facultyBlurb,
+    facultyTitle: "",
+    facultyName: d.facultyBlurb,
+    facultyCollege: "",
+    facultyConsultation: "",
+    estimatedContactHours: "54",
   };
 }
 
@@ -234,15 +247,59 @@ export function SubjectFormSteps({
               onChange={set("policies")}
             />
           </label>
-          <label className="flex w-full flex-col gap-space-2">
-            <span className="text-body-sm font-medium text-text-secondary">
-              Faculty
-            </span>
-            <Textarea
-              value={values.faculty}
-              onChange={set("faculty")}
+          <div className="grid grid-cols-[110px_1fr] gap-space-3">
+            <label className="flex flex-col gap-space-2">
+              <span className="text-body-sm font-medium text-text-secondary">
+                Title
+              </span>
+              <select
+                value={values.facultyTitle}
+                onChange={(e) =>
+                  onChange({
+                    facultyTitle: e.target.value as FacultyTitle,
+                  })
+                }
+                className="h-11 w-full rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary"
+              >
+                <option value="">—</option>
+                <option value="Mr">Mr</option>
+                <option value="Ms">Ms</option>
+              </select>
+            </label>
+            <FormField
+              label="Instructor name"
+              inputProps={{
+                value: values.facultyName,
+                onChange: set("facultyName"),
+              }}
             />
-          </label>
+          </div>
+          <FormField
+            label="College"
+            inputProps={{
+              value: values.facultyCollege,
+              onChange: set("facultyCollege"),
+            }}
+          />
+          <FormField
+            label="Consultation time"
+            inputProps={{
+              value: values.facultyConsultation,
+              onChange: set("facultyConsultation"),
+              placeholder: "e.g. Mon 1–3 PM",
+            }}
+          />
+          <FormField
+            label="Estimated contact hours"
+            helper="Remaining hours count down with the semester calendar."
+            inputProps={{
+              type: "number",
+              min: 0,
+              value: values.estimatedContactHours,
+              onChange: set("estimatedContactHours"),
+              placeholder: "e.g. 54",
+            }}
+          />
         </div>
       ) : null}
     </div>

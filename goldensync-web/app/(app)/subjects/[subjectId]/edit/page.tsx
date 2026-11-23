@@ -24,6 +24,14 @@ import {
 import { useLiveSubject } from "@/hooks/use-live-subject";
 import { ApiClientError } from "@/lib/api/client";
 import { patchSubject, replaceOutcomes } from "@/lib/api/subjects";
+import {
+  parsePoliciesDoc,
+  serializePoliciesDoc,
+} from "@/lib/domain/course-spec";
+import {
+  parseFaculty,
+  serializeFaculty,
+} from "@/lib/domain/faculty";
 import { pathForNav } from "@/lib/nav";
 
 function EditBody() {
@@ -68,14 +76,20 @@ function EditBody() {
         typeof subject.detail?.grading === "string"
           ? subject.detail.grading
           : "",
-      policies:
-        typeof subject.detail?.policies === "string"
-          ? subject.detail.policies
-          : "",
-      faculty:
-        typeof subject.detail?.faculty === "string"
-          ? subject.detail.faculty
-          : "",
+      policies: parsePoliciesDoc(subject.detail?.policies).classPolicies,
+      ...(() => {
+        const faculty = parseFaculty(subject.detail?.faculty);
+        return {
+          facultyTitle: faculty.title,
+          facultyName: faculty.name,
+          facultyCollege: faculty.college,
+          facultyConsultation: faculty.consultation,
+          estimatedContactHours:
+            faculty.estimatedContactHours != null
+              ? String(faculty.estimatedContactHours)
+              : "",
+        };
+      })(),
     };
     const handle = window.setTimeout(() => {
       setValues(next);
@@ -98,6 +112,10 @@ function EditBody() {
     }
     setSaving(true);
     try {
+      const hoursRaw = values.estimatedContactHours.trim();
+      const hoursNum =
+        hoursRaw === "" ? null : Number(hoursRaw);
+      const existingPolicies = parsePoliciesDoc(subject.detail?.policies);
       await patchSubject(subject.id, {
         courseCode: values.code.trim(),
         title: values.title.trim(),
@@ -105,8 +123,20 @@ function EditBody() {
         prerequisite: values.prerequisite.trim() || null,
         effectivity: values.effectivity.trim() || null,
         grading: values.grading.trim() || null,
-        policies: values.policies.trim() || null,
-        faculty: values.faculty.trim() || null,
+        policies: serializePoliciesDoc({
+          classPolicies: values.policies.trim(),
+          courseSpec: existingPolicies.courseSpec,
+        }),
+        faculty: serializeFaculty({
+          title: values.facultyTitle,
+          name: values.facultyName,
+          college: values.facultyCollege,
+          consultation: values.facultyConsultation,
+          estimatedContactHours:
+            hoursNum != null && Number.isFinite(hoursNum) && hoursNum >= 0
+              ? hoursNum
+              : null,
+        }),
       });
 
       const outcomes: Array<{
@@ -152,6 +182,7 @@ function EditBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="edit-subject"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -213,6 +244,7 @@ function EditBody() {
         open={drawerOpen}
         subjectSelected
         activeId="edit-subject"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

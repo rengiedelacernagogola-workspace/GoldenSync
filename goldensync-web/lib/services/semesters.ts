@@ -6,6 +6,11 @@ import "server-only";
 
 import { limits } from "@/lib/config/limits";
 import { db } from "@/lib/db";
+import {
+  findConflictingSemester,
+  isValidSemesterRange,
+  parseSemesterDate,
+} from "@/lib/domain/semester-dates";
 import { AppError, notFound } from "@/lib/http/errors";
 import {
   listSemestersForUser,
@@ -32,12 +37,27 @@ export async function createSemester(
     );
   }
 
-  const start = new Date(input.startDate);
-  const end = new Date(input.endDate);
-  if (!(start < end)) {
+  const start = parseSemesterDate(input.startDate);
+  const end = parseSemesterDate(input.endDate);
+  if (!start || !end) {
     throw new AppError(
       "VALIDATION_FAILED",
-      "endDate must be after startDate.",
+      "Start date and end date must be valid calendar dates.",
+    );
+  }
+  if (!isValidSemesterRange(start, end)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "End date must be after start date.",
+    );
+  }
+
+  const conflict = findConflictingSemester(start, end, existing);
+  if (conflict) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      `Date range overlaps existing semester “${conflict.label}” (${conflict.startDate} → ${conflict.endDate}).`,
+      { conflict },
     );
   }
 
@@ -65,15 +85,31 @@ export async function updateSemester(
   if (!current) throw notFound();
 
   const start = input.startDate
-    ? new Date(input.startDate)
-    : new Date(current.startDate as string | Date);
+    ? parseSemesterDate(input.startDate)
+    : parseSemesterDate(String(current.startDate));
   const end = input.endDate
-    ? new Date(input.endDate)
-    : new Date(current.endDate as string | Date);
-  if (!(start < end)) {
+    ? parseSemesterDate(input.endDate)
+    : parseSemesterDate(String(current.endDate));
+  if (!start || !end) {
     throw new AppError(
       "VALIDATION_FAILED",
-      "endDate must be after startDate.",
+      "Start date and end date must be valid calendar dates.",
+    );
+  }
+  if (!isValidSemesterRange(start, end)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "End date must be after start date.",
+    );
+  }
+
+  const siblings = await db.orm.public.Semester.where({ userId }).all();
+  const conflict = findConflictingSemester(start, end, siblings, semesterId);
+  if (conflict) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      `Date range overlaps existing semester “${conflict.label}” (${conflict.startDate} → ${conflict.endDate}).`,
+      { conflict },
     );
   }
 

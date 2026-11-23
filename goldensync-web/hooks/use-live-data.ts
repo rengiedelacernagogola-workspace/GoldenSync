@@ -3,6 +3,7 @@
 /**
  * Sync Proto UI flags from live APIs when Clerk session is active.
  * FLOW: signed-in → GET /api/me + /api/semesters → subjects → setHasSemester / setSubjectCount.
+ * Shared via LiveDataProvider so switcher + pages share one subject list.
  */
 
 import { useAuth } from "@clerk/nextjs";
@@ -20,6 +21,8 @@ import { useProtoActions } from "@/state";
 export type LiveSemester = {
   id: string;
   label: string;
+  startDate: string;
+  endDate: string;
 };
 
 export type LiveDataState = {
@@ -34,8 +37,10 @@ export type LiveDataState = {
   refresh: () => void;
 };
 
-/** Hook — bridges Clerk auth to dashboard Proto counts. */
-export function useLiveData(): LiveDataState {
+export const LiveDataContext = React.createContext<LiveDataState | null>(null);
+
+/** Internal state hook used by LiveDataProvider. */
+export function useLiveDataState(): LiveDataState {
   const { isLoaded, isSignedIn } = useAuth();
   const { setSessionActive, setHasSemester, setSubjectCount } =
     useProtoActions();
@@ -76,7 +81,14 @@ export function useLiveData(): LiveDataState {
             email: profile.email,
             name: profile.name,
           });
-          setSemesters(list.map((s) => ({ id: s.id, label: s.label })));
+          setSemesters(
+            list.map((s) => ({
+              id: s.id,
+              label: s.label,
+              startDate: s.startDate,
+              endDate: s.endDate,
+            })),
+          );
           setSessionActive(true);
           setHasSemester(list.length > 0);
 
@@ -119,6 +131,8 @@ export function useLiveData(): LiveDataState {
     setSubjectCount,
   ]);
 
+  const refresh = React.useCallback(() => setTick((t) => t + 1), []);
+
   return {
     ready: ready && isLoaded,
     signedIn: Boolean(isSignedIn),
@@ -127,6 +141,18 @@ export function useLiveData(): LiveDataState {
     activeSemesterId,
     subjects,
     error,
-    refresh: () => setTick((t) => t + 1),
+    refresh,
   };
+}
+
+/**
+ * Hook — bridges Clerk auth to dashboard Proto counts / subject switcher.
+ * Must be used under LiveDataProvider (app/(app) layout).
+ */
+export function useLiveData(): LiveDataState {
+  const ctx = React.useContext(LiveDataContext);
+  if (!ctx) {
+    throw new Error("useLiveData must be used within LiveDataProvider");
+  }
+  return ctx;
 }

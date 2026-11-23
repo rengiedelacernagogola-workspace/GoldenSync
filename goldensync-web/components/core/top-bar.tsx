@@ -54,13 +54,13 @@ export function TopBar({
     <header
       data-slot="gs-top-bar"
       className={cn(
-        "relative flex h-16 w-full shrink-0 items-center justify-between gap-space-4",
-        "px-space-4 sm:px-space-8",
+        "relative flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-space-2",
+        "px-space-3 sm:h-16 sm:gap-space-4 sm:px-space-6 lg:px-space-8",
         className,
       )}
       {...props}
     >
-      <div className="flex min-w-0 items-center gap-space-3">
+      <div className="flex min-w-0 flex-1 items-center gap-space-2 sm:gap-space-3">
         {showMenuButton ? (
           <Button
             variant="IconOnly"
@@ -68,23 +68,28 @@ export function TopBar({
             aria-label="Open navigation"
             data-slot="gs-top-bar-menu"
             onClick={onMenuClick}
+            className="shrink-0"
           >
             <Menu className="size-4" />
           </Button>
         ) : null}
-        <h1 className="truncate text-display-md text-text-primary">{title}</h1>
+        <h1 className="truncate text-heading-xl text-text-primary sm:text-display-sm md:text-display-md">
+          {title}
+        </h1>
       </div>
 
-      <div className="flex shrink-0 items-center gap-space-2 sm:gap-space-3">
+      <div className="flex shrink-0 items-center gap-space-1.5 sm:gap-space-3">
         <NotificationsMenu refreshKey={notificationsRefreshKey} />
-        <StreakBadge />
+        <div className="hidden sm:contents">
+          <StreakBadge />
+        </div>
         <ThemeToggle />
         {!hideSemester ? (
           <SemesterPicker
             label={semesterLabel}
             open={semesterOpen}
             onClick={onSemesterClick}
-            className="hidden sm:inline-flex"
+            className="hidden md:inline-flex"
           />
         ) : null}
         {!hideAddSubject ? (
@@ -92,7 +97,7 @@ export function TopBar({
             variant="Primary"
             size="md"
             onClick={onAddSubject}
-            className="hidden sm:inline-flex"
+            className="hidden md:inline-flex"
           >
             <Plus className="size-4" aria-hidden />
             Add Subject

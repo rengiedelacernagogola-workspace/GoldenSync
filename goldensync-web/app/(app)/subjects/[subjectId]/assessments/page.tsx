@@ -40,6 +40,7 @@ function AssessmentsBody() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="assessments"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -81,6 +82,7 @@ function AssessmentsBody() {
         open={drawerOpen}
         subjectSelected
         activeId="assessments"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}

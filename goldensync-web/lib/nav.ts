@@ -37,7 +37,7 @@ export function pathForNav(
     case "this-week":
       return `/subjects/${sid}/this-week`;
     case "calculator":
-      return "/calculator";
+      return `/calculator?subject=${encodeURIComponent(sid)}`;
     case "account":
       return "/account";
     case "add-subject":

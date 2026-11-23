@@ -48,6 +48,8 @@ export type SubjectDetailDto = SubjectDto & {
   policies: unknown;
   faculty: unknown;
   semesterLabel: string;
+  semesterStartDate?: string | null;
+  semesterEndDate?: string | null;
   outcomes: OutcomeDto[];
   planWeeks: PlanWeekDto[];
   assessments: AssessmentDto[];

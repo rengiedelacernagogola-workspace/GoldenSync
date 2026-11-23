@@ -126,6 +126,7 @@ function Body() {
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected
         activeId="outcomes"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -167,6 +168,7 @@ function Body() {
         open={drawerOpen}
         subjectSelected
         activeId="outcomes"
+        activeSubjectId={subject.id}
         subjectCode={subject.code}
         subjectTitle={subject.title}
         onClose={() => setDrawerOpen(false)}
