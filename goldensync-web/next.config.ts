@@ -2,10 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /**
-   * Standalone tracing uses filesystem junctions. Disabled by default on this
-   * USB volume (non-NTFS). Set GOLDENSYNC_STANDALONE=1 on NTFS/CI for Docker images.
+   * Standalone tracing uses filesystem junctions (breaks on FAT32 USB).
+   * Enable with GOLDENSYNC_STANDALONE=1 (Docker/CI sets this). Vercel ignores it.
    */
-  ...(process.env.GOLDENSYNC_STANDALONE === "1" ? { output: "standalone" as const } : {}),
+  ...(process.env.GOLDENSYNC_STANDALONE === "1"
+    ? { output: "standalone" as const }
+    : {}),
   /** Old Proto auth URLs → Clerk (CDEC-016). */
   async redirects() {
     return [

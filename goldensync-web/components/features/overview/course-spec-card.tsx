@@ -189,6 +189,7 @@ export function CourseSpecCard({
         outcomesBasedEvidence: draftEvidence.trim(),
         courseDescription: draftDescription.trim(),
       },
+      outcomesSyllabus: doc.outcomesSyllabus,
     });
 
     setSaving(true);

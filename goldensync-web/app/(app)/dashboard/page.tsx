@@ -72,7 +72,9 @@ function DashboardBody() {
   const [semesterOpen, setSemesterOpen] = React.useState(false);
   const [activeNav, setActiveNav] = React.useState<SidebarActiveId>("home");
   const [toasts, setToasts] = React.useState<ToastItem[]>([]);
-  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleteSubjectId, setDeleteSubjectId] = React.useState<string | null>(
+    null,
+  );
   const [selectedLiveId, setSelectedLiveId] = React.useState<string | null>(
     null,
   );
@@ -81,6 +83,10 @@ function DashboardBody() {
     Record<string, SubjectDetailDto>
   >({});
   const [editSubjectId, setEditSubjectId] = React.useState<string | null>(null);
+  /** Hide deleted cards immediately (seed grid + live refresh lag). */
+  const [removedSubjectIds, setRemovedSubjectIds] = React.useState<string[]>(
+    [],
+  );
 
   function logActivity(
     entry: Parameters<typeof pushActivity>[0],
@@ -88,8 +94,19 @@ function DashboardBody() {
     void pushActivity(entry).then(() => setActivityTick((n) => n + 1));
   }
 
+  /** Real API subjects only — never fall back to seed while signed in. */
   const useLiveSubjects = live.signedIn && live.semesters.length > 0;
   const activeSemester = live.semesters[0] ?? null;
+  const showLiveShell = live.signedIn;
+  const semesterReady = showLiveShell
+    ? live.semesters.length > 0
+    : hasSemester;
+
+  React.useEffect(() => {
+    if (!useLiveSubjects) return;
+    const liveIds = new Set(live.subjects.map((s) => s.id));
+    setRemovedSubjectIds((prev) => prev.filter((id) => liveIds.has(id)));
+  }, [useLiveSubjects, live.subjects]);
 
   function formatDateLabel(iso: string | null | undefined): string {
     if (!iso) return "—";
@@ -135,86 +152,96 @@ function DashboardBody() {
     };
   }, [useLiveSubjects, live.subjects]);
 
-  const gridSubjects = useLiveSubjects
-    ? live.subjects.map((s, i) => {
-        const detail = detailById[s.id];
-        const faculty = parseFaculty(detail?.faculty ?? s.faculty);
-        const weeksTotal = Math.max(
-          18,
-          detail?.planWeeks.length || 18,
-          detail?.checklist.length || 0,
-        );
-        const weeksDone = detail?.checklist.filter((c) => c.done).length ?? 0;
-        const coCount =
-          detail?.outcomes.filter((o) => o.kind === "CO").length ?? 0;
-        const start =
-          detail?.semesterStartDate ?? activeSemester?.startDate ?? null;
-        const end = detail?.semesterEndDate ?? activeSemester?.endDate ?? null;
-        return {
+  const removedSet = React.useMemo(
+    () => new Set(removedSubjectIds),
+    [removedSubjectIds],
+  );
+
+  const gridSubjects = showLiveShell
+    ? live.subjects
+        .filter((s) => !removedSet.has(s.id))
+        .map((s, i) => {
+          const detail = detailById[s.id];
+          const faculty = parseFaculty(detail?.faculty ?? s.faculty);
+          const weeksTotal = Math.max(
+            18,
+            detail?.planWeeks.length || 18,
+            detail?.checklist.length || 0,
+          );
+          const weeksDone =
+            detail?.checklist.filter((c) => c.done).length ?? 0;
+          const coCount =
+            detail?.outcomes.filter((o) => o.kind === "CO").length ?? 0;
+          const start =
+            detail?.semesterStartDate ?? activeSemester?.startDate ?? null;
+          const end =
+            detail?.semesterEndDate ?? activeSemester?.endDate ?? null;
+          return {
+            id: s.id,
+            code: s.courseCode,
+            title: detail?.title ?? s.title,
+            units: Number(detail?.units ?? s.units) || 0,
+            prerequisite: detail?.prerequisite ?? s.prerequisite ?? "",
+            effectivity: detail?.effectivity ?? s.effectivity ?? "",
+            weeksDone,
+            weeksTotal,
+            latestTask: detail
+              ? latestOngoingTask({
+                  checklist: detail.checklist,
+                  planWeeks: detail.planWeeks,
+                })
+              : "—",
+            instructorLabel: formatInstructorName(faculty),
+            college: faculty.college,
+            consultation: faculty.consultation,
+            courseOutcomeCount: coCount,
+            contactHoursTotal: faculty.estimatedContactHours,
+            contactHoursRemaining: remainingContactHours(
+              faculty.estimatedContactHours,
+              start,
+              end,
+            ),
+            semesterStartLabel: formatDateLabel(start),
+            semesterEndLabel: formatDateLabel(end),
+            facultyRaw: detail?.faculty ?? s.faculty,
+            isActive:
+              selectedLiveId != null ? s.id === selectedLiveId : i === 0,
+          };
+        })
+    : goldenSyncSeed.subjects
+        .filter((s) => !removedSet.has(s.id))
+        .map((s, i) => ({
           id: s.id,
-          code: s.courseCode,
-          title: detail?.title ?? s.title,
-          units: Number(detail?.units ?? s.units) || 0,
-          prerequisite: detail?.prerequisite ?? s.prerequisite ?? "",
-          effectivity: detail?.effectivity ?? s.effectivity ?? "",
-          weeksDone,
-          weeksTotal,
-          latestTask: detail
-            ? latestOngoingTask({
-                checklist: detail.checklist,
-                planWeeks: detail.planWeeks,
-              })
-            : "—",
-          instructorLabel: formatInstructorName(faculty),
-          college: faculty.college,
-          consultation: faculty.consultation,
-          courseOutcomeCount: coCount,
-          contactHoursTotal: faculty.estimatedContactHours,
-          contactHoursRemaining: remainingContactHours(
-            faculty.estimatedContactHours,
-            start,
-            end,
-          ),
-          semesterStartLabel: formatDateLabel(start),
-          semesterEndLabel: formatDateLabel(end),
-          facultyRaw: detail?.faculty ?? s.faculty,
-          isActive:
-            selectedLiveId != null
-              ? s.id === selectedLiveId
-              : i === 0,
-        };
-      })
-    : goldenSyncSeed.subjects.map((s, i) => ({
-        id: s.id,
-        code: s.code,
-        title: s.title,
-        units: s.units,
-        prerequisite: goldenSyncSeed.activeSubject.prerequisite,
-        effectivity: goldenSyncSeed.activeSubject.effectivity,
-        weeksDone: s.weeksDone,
-        weeksTotal: s.weeksTotal,
-        latestTask: "Week 13 · Secure session handling",
-        instructorLabel: goldenSyncSeed.activeSubject.facultyBlurb,
-        college: "",
-        consultation: "",
-        courseOutcomeCount: goldenSyncSeed.activeSubject.outcomes.length,
-        contactHoursTotal: 54,
-        contactHoursRemaining: remainingContactHours(
-          54,
-          goldenSyncSeed.semester.startIso,
-          goldenSyncSeed.semester.endIso,
-        ),
-        semesterStartLabel: formatDateLabel(goldenSyncSeed.semester.startIso),
-        semesterEndLabel: formatDateLabel(goldenSyncSeed.semester.endIso),
-        facultyRaw: {
-          title: "" as const,
-          name: goldenSyncSeed.activeSubject.facultyBlurb,
+          code: s.code,
+          title: s.title,
+          units: s.units,
+          prerequisite: goldenSyncSeed.activeSubject.prerequisite,
+          effectivity: goldenSyncSeed.activeSubject.effectivity,
+          weeksDone: s.weeksDone,
+          weeksTotal: s.weeksTotal,
+          latestTask: "Week 13 · Secure session handling",
+          instructorLabel: goldenSyncSeed.activeSubject.facultyBlurb,
           college: "",
           consultation: "",
-          estimatedContactHours: 54,
-        },
-        isActive: selectedLiveId != null ? s.id === selectedLiveId : i === 0,
-      }));
+          courseOutcomeCount: goldenSyncSeed.activeSubject.outcomes.length,
+          contactHoursTotal: 54,
+          contactHoursRemaining: remainingContactHours(
+            54,
+            goldenSyncSeed.semester.startIso,
+            goldenSyncSeed.semester.endIso,
+          ),
+          semesterStartLabel: formatDateLabel(goldenSyncSeed.semester.startIso),
+          semesterEndLabel: formatDateLabel(goldenSyncSeed.semester.endIso),
+          facultyRaw: {
+            title: "" as const,
+            name: goldenSyncSeed.activeSubject.facultyBlurb,
+            college: "",
+            consultation: "",
+            estimatedContactHours: 54,
+          },
+          isActive:
+            selectedLiveId != null ? s.id === selectedLiveId : i === 0,
+        }));
   const active =
     gridSubjects.find((s) => s.isActive) ?? gridSubjects[0] ?? undefined;
   const semester =
@@ -222,10 +249,16 @@ function DashboardBody() {
   const editingCard = editSubjectId
     ? gridSubjects.find((s) => s.id === editSubjectId)
     : null;
-  const emptySubjects = subjectCount === 0;
+  const deletingCard = deleteSubjectId
+    ? gridSubjects.find((s) => s.id === deleteSubjectId)
+    : null;
+  const emptySubjects = showLiveShell
+    ? live.ready && semesterReady && gridSubjects.length === 0
+    : subjectCount === 0 || gridSubjects.length === 0;
   const hideAddInBar = emptySubjects;
   /* Loading skeleton via ?loading=1 — avoid setState-in-effect */
-  const loading = searchParams.get("loading") === "1";
+  const loading =
+    searchParams.get("loading") === "1" || (showLiveShell && !live.ready);
 
   function openAdd() {
     setAddOpen(true);
@@ -285,7 +318,7 @@ function DashboardBody() {
       return;
     }
     if (id === "delete-subject" && active) {
-      setDeleteOpen(true);
+      setDeleteSubjectId(active.id);
       return;
     }
     const subjectId =
@@ -312,8 +345,8 @@ function DashboardBody() {
         onNav={handleNav}
         topBar={{
           title: "Dashboard",
-          semesterLabel: hasSemester ? semester : "No semester",
-          hideAddSubject: hideAddInBar || !hasSemester,
+          semesterLabel: semesterReady ? semester : "No semester",
+          hideAddSubject: hideAddInBar || !semesterReady,
           notificationsRefreshKey: activityTick,
           onMenuClick: () => setDrawerOpen(true),
           onAddSubject: openAdd,
@@ -323,7 +356,7 @@ function DashboardBody() {
       >
         {/* T/M: semester + Add move into body (DEC-059 / UI-121) */}
         <div className="mb-space-6 flex w-full flex-col gap-space-3 sm:hidden">
-          {hasSemester ? (
+          {semesterReady ? (
             <SemesterPicker
               label={semester}
               open={semesterOpen}
@@ -331,7 +364,7 @@ function DashboardBody() {
               className="w-full justify-between"
             />
           ) : null}
-          {!hideAddInBar && hasSemester ? (
+          {!hideAddInBar && semesterReady ? (
             <Button
               variant="Primary"
               size="md"
@@ -344,7 +377,15 @@ function DashboardBody() {
         </div>
 
         {/* Subject cards navigate to Overview */}
-        {!hasSemester ? (
+        {live.error && showLiveShell ? (
+          <EmptyState
+            icon={<BookOpen />}
+            title="Couldn’t load your subjects"
+            body={live.error}
+            actionLabel="Retry"
+            onAction={() => live.refresh()}
+          />
+        ) : !semesterReady ? (
           <EmptyState
             icon={<BookOpen />}
             title="No semester yet"
@@ -392,10 +433,18 @@ function DashboardBody() {
                 contactHoursTotal={s.contactHoursTotal}
                 contactHoursRemaining={s.contactHoursRemaining}
                 onEdit={
-                  useLiveSubjects
+                  showLiveShell
                     ? () => {
                         setSelectedLiveId(s.id);
                         setEditSubjectId(s.id);
+                      }
+                    : undefined
+                }
+                onDelete={
+                  showLiveShell
+                    ? () => {
+                        setSelectedLiveId(s.id);
+                        setDeleteSubjectId(s.id);
                       }
                     : undefined
                 }
@@ -416,7 +465,7 @@ function DashboardBody() {
         )}
       </AppShell>
 
-      {editingCard && useLiveSubjects ? (
+      {editingCard && showLiveShell ? (
         <SubjectCardEditModal
           open={editSubjectId != null}
           subjectId={editingCard.id}
@@ -497,18 +546,32 @@ function DashboardBody() {
       />
 
       <DeleteSubjectDialog
-        open={deleteOpen}
-        subjectCode={active?.code}
-        subjectId={useLiveSubjects ? active?.id : null}
-        onClose={() => setDeleteOpen(false)}
+        open={deleteSubjectId != null}
+        subjectCode={deletingCard?.code ?? active?.code}
+        subjectId={
+          showLiveShell
+            ? (deletingCard?.id ?? deleteSubjectId ?? active?.id ?? null)
+            : null
+        }
+        onClose={() => setDeleteSubjectId(null)}
         onDeleted={() => {
+          const removedId = deleteSubjectId;
+          const code = deletingCard?.code ?? active?.code;
+          const title = deletingCard?.title ?? active?.title;
+          if (removedId) {
+            setRemovedSubjectIds((prev) =>
+              prev.includes(removedId) ? prev : [...prev, removedId],
+            );
+            if (selectedLiveId === removedId) setSelectedLiveId(null);
+            if (editSubjectId === removedId) setEditSubjectId(null);
+          }
           live.refresh();
           pushToast("Subject deleted.");
           logActivity({
             kind: "subject",
             title: "Subject deleted",
-            detail: active
-              ? `${active.code} · ${active.title}`
+            detail: code
+              ? `${code} · ${title ?? ""}`.trim()
               : "A subject was removed.",
           });
         }}

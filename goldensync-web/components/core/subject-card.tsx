@@ -2,11 +2,11 @@
 
 /**
  * SubjectCard — Dashboard subject tile (Figma `32:223` + Body `32:40`, UI-040).
- * FLOW: Dashboard → click opens Overview. Edit opens modal (stopPropagation).
+ * FLOW: Dashboard → click opens Overview. Top-right Edit/Delete (stopPropagation).
  * Shows prerequisite, semester dates, checklist task, instructor, CO count, hours.
  */
 
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Badge } from "@/components/core/badge";
@@ -36,6 +36,7 @@ export interface SubjectCardProps
   contactHoursTotal?: number | null;
   contactHoursRemaining?: number | null;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 /** Percent for ring fill (weeksDone / weeksTotal). */
@@ -58,7 +59,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 /**
- * Subject card — progress ring + rich subject details + edit affordance.
+ * Subject card — progress ring + rich subject details + edit/delete affordances.
  */
 export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
   function SubjectCard(
@@ -82,6 +83,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
       contactHoursTotal,
       contactHoursRemaining,
       onEdit,
+      onDelete,
       onClick,
       ...props
     },
@@ -124,21 +126,39 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
           data-slot="gs-subject-card-body"
           className="relative flex w-full flex-col items-center gap-space-3 text-center"
         >
-          {onEdit ? (
-            <Button
-              type="button"
-              variant="Ghost"
-              size="sm"
-              aria-label={`Edit ${code}`}
-              className="absolute top-0 right-0 z-10 min-h-8 px-space-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-            >
-              <Pencil className="size-3.5" aria-hidden />
-              Edit
-            </Button>
+          {onEdit || onDelete ? (
+            <div className="absolute top-0 right-0 z-10 flex items-center gap-px">
+              {onEdit ? (
+                <Button
+                  type="button"
+                  variant="Ghost"
+                  size="sm"
+                  aria-label={`Edit ${code}`}
+                  className="min-h-8 min-w-8 px-space-2 text-text-muted hover:text-text-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                >
+                  <Pencil className="size-3.5" aria-hidden />
+                </Button>
+              ) : null}
+              {onDelete ? (
+                <Button
+                  type="button"
+                  variant="Ghost"
+                  size="sm"
+                  aria-label={`Delete ${code}`}
+                  className="min-h-8 min-w-8 px-space-2 text-text-muted hover:text-status-error"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                >
+                  <Trash2 className="size-3.5" aria-hidden />
+                </Button>
+              ) : null}
+            </div>
           ) : null}
 
           <div className="flex w-full items-center justify-center gap-space-2">

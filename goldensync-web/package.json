@@ -13,6 +13,8 @@
     "contract:emit": "prisma contract emit",
     "db:init": "prisma db init",
     "db:verify": "prisma db verify",
+    "db:apply-constraints": "node scripts/apply-all-constraints.mjs",
+    "deploy:check-env": "node scripts/check-deploy-env.mjs",
     "trigger:dev": "npx trigger.dev@latest dev",
     "trigger:deploy": "npx trigger.dev@latest deploy"
   },
