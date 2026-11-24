@@ -126,6 +126,7 @@ function EditBody() {
         policies: serializePoliciesDoc({
           classPolicies: values.policies.trim(),
           courseSpec: existingPolicies.courseSpec,
+          outcomesSyllabus: existingPolicies.outcomesSyllabus,
         }),
         faculty: serializeFaculty({
           title: values.facultyTitle,

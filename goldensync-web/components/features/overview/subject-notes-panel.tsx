@@ -1,17 +1,22 @@
 "use client";
 
 /**
- * Overview subject notes — pin ≤3, edit, done/forget (archive), delete.
- * FLOW: fetchPlanNotes → local list · PATCH/POST/DELETE via notes API.
+ * Overview subject notes — search, view, edit, delete, pin ≤3, sort time/size.
+ * FLOW: fetchPlanNotes → filter/sort client-side · PATCH/POST/DELETE via notes API.
  */
 
 import {
   Check,
+  Clock3,
+  Eye,
+  EyeOff,
   MoreHorizontal,
   Pencil,
   Pin,
   Plus,
+  Search,
   Trash2,
+  WholeWord,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -28,6 +33,8 @@ import {
 } from "@/lib/api/notes";
 import { cn } from "@/lib/utils";
 
+type SortMode = "time" | "size";
+
 export type SubjectNotesPanelProps = {
   subjectId: string;
   live: boolean;
@@ -38,9 +45,33 @@ export type SubjectNotesPanelProps = {
   }) => void;
 };
 
-function sortNotes(rows: PlanNoteDto[]): PlanNoteDto[] {
-  return [...rows].sort((a, b) => {
+function noteSize(note: PlanNoteDto): number {
+  return (note.body ?? "").length;
+}
+
+/** Pinned first, then time (newest) or size (largest). */
+function filterAndSort(
+  rows: PlanNoteDto[],
+  query: string,
+  sort: SortMode,
+): PlanNoteDto[] {
+  const q = query.trim().toLowerCase();
+  let list = rows;
+  if (q) {
+    list = list.filter((n) => {
+      const title = n.title.toLowerCase();
+      const body = n.body.toLowerCase();
+      const topic = (n.topic ?? "").toLowerCase();
+      return title.includes(q) || body.includes(q) || topic.includes(q);
+    });
+  }
+
+  return [...list].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    if (sort === "size") {
+      const diff = noteSize(b) - noteSize(a);
+      if (diff !== 0) return diff;
+    }
     return b.savedAt.localeCompare(a.savedAt);
   });
 }
@@ -55,16 +86,23 @@ export function SubjectNotesPanel({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
-  const [openId, setOpenId] = React.useState<string | null>(null);
+  const [menuId, setMenuId] = React.useState<string | null>(null);
+  const [viewingId, setViewingId] = React.useState<string | null>(null);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editTitle, setEditTitle] = React.useState("");
   const [editBody, setEditBody] = React.useState("");
-  const [adding, setAdding] = React.useState(true);
+  const [adding, setAdding] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState("");
   const [newBody, setNewBody] = React.useState("");
   const [savingNew, setSavingNew] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+  const [sort, setSort] = React.useState<SortMode>("time");
 
   const pinnedCount = notes.filter((n) => n.pinned).length;
+  const visible = React.useMemo(
+    () => filterAndSort(notes, query, sort),
+    [notes, query, sort],
+  );
 
   const reload = React.useCallback(async () => {
     if (!live) {
@@ -77,7 +115,7 @@ export function SubjectNotesPanel({
     setError(null);
     try {
       const rows = await fetchPlanNotes(subjectId);
-      setNotes(sortNotes(rows));
+      setNotes(rows);
     } catch (err) {
       setError(
         err instanceof ApiClientError
@@ -104,7 +142,8 @@ export function SubjectNotesPanel({
     setEditingId(note.id);
     setEditTitle(note.title);
     setEditBody(note.body);
-    setOpenId(null);
+    setMenuId(null);
+    setViewingId(null);
     setError(null);
   }
 
@@ -112,6 +151,11 @@ export function SubjectNotesPanel({
     setEditingId(null);
     setEditTitle("");
     setEditBody("");
+  }
+
+  function toggleView(noteId: string) {
+    setViewingId((id) => (id === noteId ? null : noteId));
+    setMenuId(null);
   }
 
   async function saveEdit() {
@@ -130,7 +174,7 @@ export function SubjectNotesPanel({
         body,
       });
       setNotes((prev) =>
-        sortNotes(prev.map((n) => (n.id === updated.id ? updated : n))),
+        prev.map((n) => (n.id === updated.id ? updated : n)),
       );
       cancelEdit();
       onActivity?.({
@@ -160,7 +204,7 @@ export function SubjectNotesPanel({
         pinned: !note.pinned,
       });
       setNotes((prev) =>
-        sortNotes(prev.map((n) => (n.id === updated.id ? updated : n))),
+        prev.map((n) => (n.id === updated.id ? updated : n)),
       );
       onActivity?.({
         kind: "notes",
@@ -183,7 +227,8 @@ export function SubjectNotesPanel({
     try {
       await patchPlanNote(subjectId, note.id, { archived: true });
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
-      setOpenId(null);
+      setMenuId(null);
+      if (viewingId === note.id) setViewingId(null);
       onActivity?.({
         kind: "notes",
         title: "Note marked done",
@@ -207,8 +252,9 @@ export function SubjectNotesPanel({
     try {
       await deletePlanNote(subjectId, note.id);
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
-      setOpenId(null);
+      setMenuId(null);
       if (editingId === note.id) cancelEdit();
+      if (viewingId === note.id) setViewingId(null);
       onActivity?.({
         kind: "notes",
         title: "Note deleted",
@@ -237,10 +283,10 @@ export function SubjectNotesPanel({
     setError(null);
     try {
       const created = await createPlanNote(subjectId, { title, body });
-      setNotes((prev) => sortNotes([created, ...prev]));
+      setNotes((prev) => [created, ...prev]);
       setNewTitle("");
       setNewBody("");
-      setAdding(true);
+      setAdding(false);
       onActivity?.({
         kind: "notes",
         title: "Note created",
@@ -257,12 +303,91 @@ export function SubjectNotesPanel({
     }
   }
 
+  const emptyCopy = !live
+    ? "Sign in to manage notes."
+    : loading
+      ? "Loading notes…"
+      : notes.length === 0
+        ? "No notes yet."
+        : query.trim()
+          ? "No notes match your search."
+          : "No notes yet.";
+
   return (
-    <Card title="Notes" hasHeader className="w-full">
-      <div className="flex w-full flex-col gap-space-3">
+    <Card title="Notes" hasHeader className="w-full min-w-0">
+      <div className="flex w-full min-w-0 flex-col gap-space-3">
+        <div className="flex w-full items-center gap-space-2">
+          <div
+            data-slot="gs-overview-notes-search"
+            className={cn(
+              "flex min-h-8 min-w-0 flex-1 items-center gap-space-2 overflow-hidden rounded-md",
+              "border border-border-default bg-bg-subtle px-space-2",
+              "transition-[border-color,box-shadow] duration-150 ease-out",
+              "hover:border-border-strong",
+              "focus-within:border-2 focus-within:border-border-focus",
+              "focus-within:shadow-[0_0_0_3px_var(--focus-ring-glow)]",
+            )}
+          >
+            <Search
+              className="size-3.5 shrink-0 text-text-muted"
+              aria-hidden
+            />
+            <input
+              type="search"
+              placeholder="Search notes…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              disabled={!live}
+              aria-label="Search notes"
+              className="min-w-0 flex-1 bg-transparent text-[11px] font-medium leading-snug tracking-tight text-text-primary outline-none placeholder:text-[11px] placeholder:tracking-tight placeholder:text-text-muted disabled:opacity-50"
+            />
+            <div
+              className="flex shrink-0 items-center gap-0.5 border-l border-border-subtle pl-space-1"
+              role="group"
+              aria-label="Sort notes"
+            >
+              <button
+                type="button"
+                aria-label="Sort by time"
+                aria-pressed={sort === "time"}
+                title="Sort by time"
+                disabled={!live}
+                className={cn(
+                  "flex size-6 items-center justify-center rounded-sm outline-none",
+                  "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
+                  sort === "time" ? "text-accent-primary" : "text-text-muted",
+                  !live && "pointer-events-none opacity-40",
+                )}
+                onClick={() => setSort("time")}
+              >
+                <Clock3 className="size-3.5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                aria-label="Sort by size"
+                aria-pressed={sort === "size"}
+                title="Sort by size (longest first)"
+                disabled={!live}
+                className={cn(
+                  "flex size-6 items-center justify-center rounded-sm outline-none",
+                  "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
+                  sort === "size" ? "text-accent-primary" : "text-text-muted",
+                  !live && "pointer-events-none opacity-40",
+                )}
+                onClick={() => setSort("size")}
+              >
+                <WholeWord className="size-3.5" aria-hidden />
+              </button>
+            </div>
+          </div>
+          <span className="shrink-0 text-[10px] font-medium tracking-tight text-text-muted">
+            {live ? `${pinnedCount}/3` : "—"}
+          </span>
+        </div>
+
         <div className="flex items-center justify-between gap-space-2">
           <p className="text-caption text-text-muted">
-            {live ? `${pinnedCount}/3 pinned` : "Sign in to manage notes"}
+            {live ? "Pin up to 3 · view, edit, delete" : "Sign in to manage notes"}
           </p>
           {live ? (
             <Button
@@ -279,7 +404,7 @@ export function SubjectNotesPanel({
               ) : (
                 <Plus className="size-3.5" aria-hidden />
               )}
-              {adding ? "Hide" : "Add note"}
+              {adding ? "Hide" : "Add"}
             </Button>
           ) : null}
         </div>
@@ -331,22 +456,19 @@ export function SubjectNotesPanel({
           </div>
         ) : null}
 
-        {!live ? (
-          <p className="text-body-sm text-text-muted">
-            No live notes for this subject.
+        {!live || loading || visible.length === 0 ? (
+          <p className="rounded-md border border-border-subtle bg-bg-subtle px-space-3 py-space-4 text-[11px] tracking-tight text-text-muted">
+            {emptyCopy}
           </p>
-        ) : loading ? (
-          <p className="text-body-sm text-text-muted">Loading notes…</p>
-        ) : notes.length === 0 ? (
-          <p className="text-body-sm text-text-muted">No notes yet.</p>
         ) : (
           <ul
             className="flex max-h-[28rem] w-full flex-col gap-space-2 overflow-y-auto"
             aria-label="Subject notes"
           >
-            {notes.map((note) => {
+            {visible.map((note) => {
               const editing = editingId === note.id;
-              const open = openId === note.id;
+              const menuOpen = menuId === note.id;
+              const viewing = viewingId === note.id;
               const pinDisabled = !note.pinned && pinnedCount >= 3;
               const busy = busyId === note.id;
 
@@ -368,7 +490,7 @@ export function SubjectNotesPanel({
                         aria-label="Edit note title"
                       />
                       <Textarea
-                        rows={3}
+                        rows={4}
                         value={editBody}
                         onChange={(e) => setEditBody(e.target.value)}
                         aria-label="Edit note body"
@@ -398,11 +520,42 @@ export function SubjectNotesPanel({
                         <p className="truncate text-[11px] font-semibold tracking-tight text-text-primary">
                           {note.title.trim() || "Untitled"}
                         </p>
-                        <p className="mt-0.5 line-clamp-3 text-[11px] leading-snug tracking-tight text-text-secondary">
+                        <p
+                          className={cn(
+                            "mt-0.5 text-[11px] leading-snug tracking-tight text-text-secondary",
+                            viewing
+                              ? "whitespace-pre-wrap"
+                              : "line-clamp-2",
+                          )}
+                        >
                           {note.body}
                         </p>
+                        {viewing ? (
+                          <p className="mt-1 text-[10px] text-text-muted">
+                            {noteSize(note)} characters
+                          </p>
+                        ) : null}
                       </div>
                       <div className="relative flex shrink-0 items-center gap-space-1">
+                        <button
+                          type="button"
+                          aria-label={viewing ? "Collapse note" : "View note"}
+                          title={viewing ? "Collapse" : "View"}
+                          className={cn(
+                            "flex size-7 items-center justify-center rounded-sm outline-none",
+                            "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
+                            viewing
+                              ? "text-accent-primary"
+                              : "text-text-muted",
+                          )}
+                          onClick={() => toggleView(note.id)}
+                        >
+                          {viewing ? (
+                            <EyeOff className="size-3.5" aria-hidden />
+                          ) : (
+                            <Eye className="size-3.5" aria-hidden />
+                          )}
+                        </button>
                         <button
                           type="button"
                           disabled={busy || pinDisabled}
@@ -437,14 +590,14 @@ export function SubjectNotesPanel({
                           <button
                             type="button"
                             aria-label="More note actions"
-                            aria-expanded={open}
+                            aria-expanded={menuOpen}
                             className={cn(
                               "flex size-7 items-center justify-center rounded-sm text-text-muted outline-none",
                               "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
-                              open && "bg-bg-muted text-text-primary",
+                              menuOpen && "bg-bg-muted text-text-primary",
                             )}
                             onClick={() =>
-                              setOpenId((id) =>
+                              setMenuId((id) =>
                                 id === note.id ? null : note.id,
                               )
                             }
@@ -452,7 +605,7 @@ export function SubjectNotesPanel({
                             <MoreHorizontal className="size-3.5" aria-hidden />
                           </button>
 
-                          {open ? (
+                          {menuOpen ? (
                             <div
                               role="group"
                               aria-label="Note actions"

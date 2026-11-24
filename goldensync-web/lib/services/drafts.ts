@@ -68,9 +68,11 @@ export async function putDraft(
   const existing = await db.orm.public.Draft.where({ userId, kind }).first();
   const expiresAt = expiresAtFromNow();
 
+  const jsonPayload = structuredClone(payload) as never;
+
   if (existing) {
     await db.orm.public.Draft.where({ id: existing.id }).update({
-      payload,
+      payload: jsonPayload,
       expiresAt,
     });
     const updated = await db.orm.public.Draft.where({ id: existing.id }).first();
@@ -81,7 +83,7 @@ export async function putDraft(
   const created = await db.orm.public.Draft.create({
     userId,
     kind,
-    payload,
+    payload: jsonPayload,
     expiresAt,
   });
   return mapDraft(created);

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, for-review]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: goldensync-web
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # Placeholder build-time public keys so `next build` can compile.
+      # Real secrets belong in Vercel / host env — never commit them.
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ci_placeholder
+      CLERK_SECRET_KEY: sk_test_ci_placeholder
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci?sslmode=disable
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      GOLDENSYNC_STANDALONE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: goldensync-web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build

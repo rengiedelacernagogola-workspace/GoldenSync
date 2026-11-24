@@ -16,6 +16,8 @@ EXPOSE 3000
 CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
 
 FROM base AS builder
+# Standalone output required by the runner stage (junctions OK on Linux images).
+ENV GOLDENSYNC_STANDALONE=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import type { Metadata, Viewport } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
+import type { ReactNode } from "react";
 
 import { ProtoFab } from "@/components/dev/proto-fab";
 
@@ -35,7 +36,9 @@ export const viewport: Viewport = {
 
 const themeBootScript = `(function(){try{var t=localStorage.getItem("gs-theme");var d=document.documentElement;if(t==="light")d.classList.remove("dark");else d.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html
       lang="en"

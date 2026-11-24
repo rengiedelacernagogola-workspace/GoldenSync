@@ -7,6 +7,10 @@ import { defineConfig as ormConfig } from "@prisma/orm-postgres/config";
  */
 
 export default definePrismaConfig({
+  /** Agent skill sync (`npm run postinstall` → prisma skills sync). */
+  skills: {
+    agents: ["claude", "cursor", "agents", "devin"],
+  },
   orm: ormConfig({
     contract: "./prisma/contract.prisma",
     output: "lib/db",

@@ -3,10 +3,11 @@
  */
 
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
+import { type NextRequest } from "next/server";
 
 import { db } from "@/lib/db";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (!process.env.CLERK_WEBHOOK_SECRET) {
     return Response.json(
       {
@@ -43,7 +44,9 @@ export async function POST(request: Request) {
         action: "clerk.user.deleted",
         entity: "User",
         entityId: local.id,
-        metadata: { clerkUserId },
+        metadata: structuredClone({
+          clerkUserId: clerkUserId ?? null,
+        }) as never,
       });
       await db.orm.public.User.where({ id: local.id }).delete();
     }

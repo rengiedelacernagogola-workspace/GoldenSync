@@ -70,7 +70,7 @@ export function AppShell({
       data-slot="gs-app-shell"
       data-sidebar={sidebarVariant}
       className={cn(
-        "bg-ambient relative flex min-h-dvh w-full min-w-0 items-stretch overflow-x-hidden bg-bg-base",
+        "bg-ambient relative flex h-dvh max-h-dvh w-full min-w-0 items-stretch overflow-hidden bg-bg-base",
         className,
       )}
       {...props}
@@ -85,7 +85,7 @@ export function AppShell({
         onToggleCollapse={onToggleCollapse}
         onNav={onNav}
         onSwitcherClick={onSwitcherClick}
-        className="sticky top-0 hidden h-dvh shrink-0 md:flex"
+        className="hidden h-full shrink-0 md:flex"
       />
 
       {switcherOpen ? (
@@ -99,19 +99,19 @@ export function AppShell({
         </div>
       ) : null}
 
-      <div className="flex min-h-dvh min-w-0 flex-1 flex-col overflow-x-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           {...topBar}
           /* Menu button only below md — drawer owns nav on phone */
           showMenuButton
           className={cn(
-            "sticky top-0 z-20 bg-bg-base/80 backdrop-blur-md [&_[data-slot=gs-top-bar-menu]]:md:hidden",
+            "z-20 shrink-0 bg-bg-base/80 backdrop-blur-md [&_[data-slot=gs-top-bar-menu]]:md:hidden",
             topBar?.className,
           )}
         />
         <main
           data-slot="gs-app-shell-main"
-          className="flex min-w-0 flex-1 flex-col gap-space-8 overflow-x-hidden overflow-y-auto px-space-3 pt-space-4 pb-space-10 sm:gap-space-10 sm:px-space-6 sm:pt-space-6 sm:pb-space-12 lg:gap-space-12 lg:px-space-8"
+          className="flex min-h-0 min-w-0 flex-1 flex-col gap-space-8 overflow-x-hidden overflow-y-auto px-space-3 pt-space-4 pb-space-10 sm:gap-space-10 sm:px-space-6 sm:pt-space-6 sm:pb-space-12 lg:gap-space-12 lg:px-space-8"
         >
           {children}
         </main>

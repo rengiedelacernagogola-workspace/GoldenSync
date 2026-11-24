@@ -107,6 +107,12 @@ export function useLiveDataState(): LiveDataState {
           setError(null);
         } catch (err) {
           if (cancelled) return;
+          setMe(null);
+          setSemesters([]);
+          setActiveSemesterId(null);
+          setSubjects([]);
+          setHasSemester(false);
+          setSubjectCount(0);
           setError(
             err instanceof ApiClientError
               ? err.message

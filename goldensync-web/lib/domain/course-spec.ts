@@ -1,7 +1,16 @@
 /**
- * Structured Subject.policies JSON — class policies blurb + PART I course spec.
+ * Structured Subject.policies JSON — class policies blurb + PART I course spec
+ * + Part II outcomes syllabus (vision/mission/IOs + PEO·PO·CO lists).
  * Legacy: policies was a free-text string (treated as classPolicies).
  */
+
+import {
+  cloneOutcomesSyllabus,
+  EMPTY_OUTCOMES_SYLLABUS,
+  parseOutcomesSyllabus,
+  serializeOutcomesSyllabus,
+  type OutcomesSyllabusDoc,
+} from "@/lib/domain/outcomes-syllabus";
 
 export type CourseSpecExtras = {
   lectureUnits: number | null;
@@ -18,6 +27,7 @@ export type CourseSpecExtras = {
 export type PoliciesDoc = {
   classPolicies: string;
   courseSpec: CourseSpecExtras;
+  outcomesSyllabus: OutcomesSyllabusDoc;
 };
 
 export const EMPTY_COURSE_SPEC: CourseSpecExtras = {
@@ -35,6 +45,7 @@ export const EMPTY_COURSE_SPEC: CourseSpecExtras = {
 export const EMPTY_POLICIES_DOC: PoliciesDoc = {
   classPolicies: "",
   courseSpec: { ...EMPTY_COURSE_SPEC },
+  outcomesSyllabus: cloneOutcomesSyllabus(EMPTY_OUTCOMES_SYLLABUS),
 };
 
 function asNonNegNumber(value: unknown): number | null {
@@ -72,23 +83,35 @@ function parseCourseSpec(raw: unknown): CourseSpecExtras {
 
 /** Parse Subject.policies Json / legacy string into structured doc. */
 export function parsePoliciesDoc(raw: unknown): PoliciesDoc {
-  if (raw == null) return { ...EMPTY_POLICIES_DOC, courseSpec: { ...EMPTY_COURSE_SPEC } };
+  if (raw == null) {
+    return {
+      classPolicies: "",
+      courseSpec: { ...EMPTY_COURSE_SPEC },
+      outcomesSyllabus: cloneOutcomesSyllabus(EMPTY_OUTCOMES_SYLLABUS),
+    };
+  }
 
   if (typeof raw === "string") {
     return {
       classPolicies: raw.trim(),
       courseSpec: { ...EMPTY_COURSE_SPEC },
+      outcomesSyllabus: cloneOutcomesSyllabus(EMPTY_OUTCOMES_SYLLABUS),
     };
   }
 
   if (typeof raw !== "object" || Array.isArray(raw)) {
-    return { ...EMPTY_POLICIES_DOC, courseSpec: { ...EMPTY_COURSE_SPEC } };
+    return {
+      classPolicies: "",
+      courseSpec: { ...EMPTY_COURSE_SPEC },
+      outcomesSyllabus: cloneOutcomesSyllabus(EMPTY_OUTCOMES_SYLLABUS),
+    };
   }
 
   const obj = raw as Record<string, unknown>;
   return {
     classPolicies: asString(obj.classPolicies).trim(),
     courseSpec: parseCourseSpec(obj.courseSpec),
+    outcomesSyllabus: parseOutcomesSyllabus(obj.outcomesSyllabus),
   };
 }
 
@@ -107,6 +130,7 @@ export function serializePoliciesDoc(doc: PoliciesDoc): PoliciesDoc {
       outcomesBasedEvidence: doc.courseSpec.outcomesBasedEvidence.trim(),
       courseDescription: doc.courseSpec.courseDescription.trim(),
     },
+    outcomesSyllabus: serializeOutcomesSyllabus(doc.outcomesSyllabus),
   };
 }
 
