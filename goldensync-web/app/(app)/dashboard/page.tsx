@@ -163,13 +163,21 @@ function DashboardBody() {
         .map((s, i) => {
           const detail = detailById[s.id];
           const faculty = parseFaculty(detail?.faculty ?? s.faculty);
-          const weeksTotal = Math.max(
-            18,
-            detail?.planWeeks.length || 18,
-            detail?.checklist.length || 0,
+          /** Progress follows Learning Plan week numbers (not a fixed 18). */
+          const planWeekNumbers = [
+            ...new Set(
+              (detail?.planWeeks ?? []).map((w) => w.weekNumber),
+            ),
+          ];
+          const weeksTotal = planWeekNumbers.length;
+          const doneWeekNumbers = new Set(
+            (detail?.checklist ?? [])
+              .filter((c) => c.done)
+              .map((c) => c.weekNumber),
           );
-          const weeksDone =
-            detail?.checklist.filter((c) => c.done).length ?? 0;
+          const weeksDone = planWeekNumbers.filter((n) =>
+            doneWeekNumbers.has(n),
+          ).length;
           const coCount =
             detail?.outcomes.filter((o) => o.kind === "CO").length ?? 0;
           const start =

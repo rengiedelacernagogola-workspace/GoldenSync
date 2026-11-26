@@ -5,10 +5,12 @@
  */
 
 import {
+  ArrowDownUp,
   Bell,
   BookOpen,
   CalendarDays,
   NotebookPen,
+  Trash2,
   User,
 } from "lucide-react";
 import * as React from "react";
@@ -16,6 +18,7 @@ import * as React from "react";
 import { Button } from "@/components/core/button";
 import { Menu } from "@/components/core/menu";
 import {
+  deleteActivity,
   formatActivityTime,
   loadActivities,
   markActivitiesRead,
@@ -30,6 +33,8 @@ export interface NotificationsMenuProps {
   /** Bump to refresh list after an action. */
   refreshKey?: number;
 }
+
+type SortOrder = "newest" | "oldest";
 
 function kindIcon(kind: ActivityKind) {
   switch (kind) {
@@ -53,6 +58,8 @@ export function NotificationsMenu({
 }: NotificationsMenuProps) {
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState<ActivityItem[]>([]);
+  const [sortOrder, setSortOrder] = React.useState<SortOrder>("newest");
+  const [busy, setBusy] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -88,6 +95,16 @@ export function NotificationsMenu({
 
   const unread = unreadActivityCount(items);
 
+  const sortedItems = React.useMemo(() => {
+    const list = [...items];
+    list.sort((a, b) =>
+      sortOrder === "newest"
+        ? b.createdAt - a.createdAt
+        : a.createdAt - b.createdAt,
+    );
+    return list;
+  }, [items, sortOrder]);
+
   function handleOpen() {
     setOpen((o) => {
       const next = !o;
@@ -96,6 +113,23 @@ export function NotificationsMenu({
       }
       return next;
     });
+  }
+
+  function toggleSort(e: React.MouseEvent) {
+    e.stopPropagation();
+    setSortOrder((s) => (s === "newest" ? "oldest" : "newest"));
+  }
+
+  async function handleDeleteOne(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    if (busy) return;
+    setBusy(true);
+    try {
+      const next = await deleteActivity(id);
+      setItems(next);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -131,22 +165,36 @@ export function NotificationsMenu({
           role="menu"
           aria-label="Activity"
         >
-          <div className="border-b border-border-subtle px-space-3 py-space-2">
-            <p className="text-[11px] font-semibold tracking-tight text-text-primary">
+          <div className="flex items-center gap-space-2 border-b border-border-subtle px-space-3 py-space-2">
+            <p className="min-w-0 flex-1 text-[11px] font-semibold tracking-tight text-text-primary">
               Activity
             </p>
+            <Button
+              variant="IconOnly"
+              size="sm"
+              aria-label={
+                sortOrder === "newest"
+                  ? "Sort oldest first"
+                  : "Sort newest first"
+              }
+              title={sortOrder === "newest" ? "Newest" : "Oldest"}
+              onClick={toggleSort}
+              className="size-7 shrink-0 text-text-muted hover:text-text-primary"
+            >
+              <ArrowDownUp className="size-3.5" aria-hidden />
+            </Button>
           </div>
           <ul className="max-h-72 overflow-y-auto py-space-1">
-            {items.length === 0 ? (
+            {sortedItems.length === 0 ? (
               <li className="px-space-3 py-space-4 text-[11px] tracking-tight text-text-muted">
                 No activity yet.
               </li>
             ) : (
-              items.map((item) => (
+              sortedItems.map((item) => (
                 <li
                   key={item.id}
                   role="menuitem"
-                  className="flex gap-space-2 px-space-3 py-space-2"
+                  className="group flex gap-space-2 px-space-3 py-space-2"
                 >
                   <span className="mt-0.5 text-text-muted">
                     {kindIcon(item.kind)}
@@ -162,6 +210,16 @@ export function NotificationsMenu({
                       {formatActivityTime(item.createdAt)}
                     </p>
                   </div>
+                  <Button
+                    variant="IconOnly"
+                    size="sm"
+                    aria-label={`Delete ${item.title}`}
+                    disabled={busy}
+                    onClick={(e) => handleDeleteOne(e, item.id)}
+                    className="size-7 shrink-0 self-start text-text-muted opacity-0 hover:text-status-error group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 disabled:opacity-40"
+                  >
+                    <Trash2 className="size-3.5" aria-hidden />
+                  </Button>
                 </li>
               ))
             )}

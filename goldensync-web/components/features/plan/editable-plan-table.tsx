@@ -7,6 +7,7 @@
 
 import { Check, Copy, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
+import { createPortal } from "react-dom";
 
 import { Button } from "@/components/core/button";
 import { WeekTableHeader } from "@/components/core/week-row";
@@ -99,27 +100,94 @@ function StatusPicker({
   disabled?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  const [menuPos, setMenuPos] = React.useState({ top: 0, left: 0 });
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const menuRef = React.useRef<HTMLUListElement>(null);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const placeMenu = React.useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const menuWidth = 152;
+    const pad = 8;
+    const left = Math.min(
+      Math.max(pad, rect.right - menuWidth),
+      window.innerWidth - menuWidth - pad,
+    );
+    const top = Math.min(rect.bottom + 4, window.innerHeight - pad);
+    setMenuPos({ top, left });
+  }, []);
 
   React.useEffect(() => {
     if (!open) return;
+    placeMenu();
     function onDoc(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (rootRef.current?.contains(t) || menuRef.current?.contains(t)) return;
+      setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
+    function onReposition() {
+      placeMenu();
+    }
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onReposition);
+    window.addEventListener("scroll", onReposition, true);
     return () => {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onReposition);
+      window.removeEventListener("scroll", onReposition, true);
     };
-  }, [open]);
+  }, [open, placeMenu]);
+
+  const menu =
+    open && mounted
+      ? createPortal(
+          <ul
+            ref={menuRef}
+            role="listbox"
+            className="fixed z-[80] min-w-[9.5rem] overflow-hidden rounded-md border border-border-default bg-bg-elevated py-1 shadow-lg"
+            style={{ top: menuPos.top, left: menuPos.left }}
+          >
+            {STATUSES.map((s) => (
+              <li key={s} role="option" aria-selected={s === value}>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex w-full items-center gap-1.5 px-space-2 py-1.5 text-left text-[11px] font-medium leading-none tracking-tight",
+                    s === value
+                      ? "bg-bg-subtle text-text-primary"
+                      : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
+                  )}
+                  onClick={() => {
+                    onChange(s);
+                    setOpen(false);
+                  }}
+                >
+                  <StatusIndicator status={s} />
+                  <span className="leading-none">{s}</span>
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )
+      : null;
 
   return (
     <div ref={rootRef} className="relative shrink-0">
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         aria-label={`Week ${weekNumber} status`}
@@ -138,33 +206,7 @@ function StatusPicker({
           {value === "No class" ? "No class" : value}
         </span>
       </button>
-      {open ? (
-        <ul
-          role="listbox"
-          className="absolute right-0 z-20 mt-1 min-w-[9.5rem] overflow-hidden rounded-md border border-border-default bg-bg-elevated py-1 shadow-md"
-        >
-          {STATUSES.map((s) => (
-            <li key={s} role="option" aria-selected={s === value}>
-              <button
-                type="button"
-                className={cn(
-                  "flex w-full items-center gap-1.5 px-space-2 py-1.5 text-left text-[11px] font-medium leading-none tracking-tight",
-                  s === value
-                    ? "bg-bg-subtle text-text-primary"
-                    : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
-                )}
-                onClick={() => {
-                  onChange(s);
-                  setOpen(false);
-                }}
-              >
-                <StatusIndicator status={s} />
-                <span className="leading-none">{s}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      {menu}
     </div>
   );
 }

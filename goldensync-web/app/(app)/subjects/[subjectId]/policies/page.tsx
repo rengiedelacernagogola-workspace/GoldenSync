@@ -2,6 +2,7 @@
 
 /**
  * Class Policies — read-only (Figma `133:1202` · Empty `134:1396`, UI-093).
+ * Live empty subjects show EmptyModulePanel (no seed policies blurb).
  */
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -25,10 +26,13 @@ function PoliciesBody() {
   const searchParams = useSearchParams();
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
-  const isEmpty = searchParams.get("empty") === "1";
+  const forceEmpty = searchParams.get("empty") === "1";
   const classPolicies = parsePoliciesDoc(subject.detail?.policies).classPolicies;
-  const body =
-    classPolicies.trim() || goldenSyncSeed.activeSubject.policiesBlurb;
+  const saved = classPolicies.trim();
+  const body = subject.live
+    ? saved
+    : saved || goldenSyncSeed.activeSubject.policiesBlurb;
+  const showEmpty = forceEmpty || (subject.live && !body);
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -61,7 +65,7 @@ function PoliciesBody() {
             {subject.code} · {subject.semesterLabel}
             {subject.live ? " · Live" : ""}
           </p>
-          {isEmpty ? (
+          {showEmpty ? (
             <EmptyModulePanel subjectId={subject.id} />
           ) : (
             <>

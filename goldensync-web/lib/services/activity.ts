@@ -106,6 +106,32 @@ export async function markActivitiesRead(
   return listActivities(userId);
 }
 
+/** Delete one owned activity; no-op if missing / not owned. Returns updated feed. */
+export async function deleteActivity(
+  userId: string,
+  activityId: string,
+): Promise<ActivityDto[]> {
+  const row = await db.orm.public.ActivityEvent.where({
+    id: activityId,
+    userId,
+  }).first();
+  if (row) {
+    await db.orm.public.ActivityEvent.where({ id: row.id }).delete();
+  }
+  return listActivities(userId);
+}
+
+/** Hard-delete all activities for the signed-in user. Returns empty feed. */
+export async function clearActivities(
+  userId: string,
+): Promise<ActivityDto[]> {
+  const rows = await db.orm.public.ActivityEvent.where({ userId }).all();
+  for (const row of rows) {
+    await db.orm.public.ActivityEvent.where({ id: row.id }).delete();
+  }
+  return listActivities(userId);
+}
+
 /**
  * Purge activities older than retentionDays (default 90).
  * Intended for cron / scheduled job — not a user route.

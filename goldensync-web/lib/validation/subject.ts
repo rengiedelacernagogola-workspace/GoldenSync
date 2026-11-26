@@ -9,6 +9,22 @@ const createPlanWeekSchema = z.object({
   topic: z.string().trim().max(500).nullable().optional(),
 });
 
+const createOutcomeSchema = z.object({
+  kind: z.enum(["PEO", "PO", "CO"]),
+  code: z.string().trim().min(1).max(24),
+  description: z.string().trim().max(500),
+  position: z.number().int().min(0).max(500).optional(),
+});
+
+const createAssessmentSeedSchema = z.object({
+  label: z.string().trim().min(1).max(120),
+  maxScore: z
+    .union([z.number().positive().max(1000), z.string().regex(/^\d+(\.\d{1,2})?$/)])
+    .nullable()
+    .optional(),
+  position: z.number().int().min(0).max(500).optional(),
+});
+
 export const createSubjectSchema = z.object({
   semesterId: z.string().min(1),
   courseCode: z.string().trim().min(1).max(32),
@@ -18,6 +34,12 @@ export const createSubjectSchema = z.object({
   effectivity: z.string().trim().max(120).nullable().optional(),
   /** Optional syllabus-extracted weeks; always merged onto a semester skeleton. */
   planWeeks: z.array(createPlanWeekSchema).max(30).optional(),
+  /** Optional Sync-found JSON / child rows — omit when empty (manual create). */
+  grading: z.unknown().optional(),
+  policies: z.unknown().optional(),
+  faculty: z.unknown().optional(),
+  outcomes: z.array(createOutcomeSchema).max(150).optional(),
+  assessments: z.array(createAssessmentSeedSchema).max(150).optional(),
 });
 
 export const patchSubjectSchema = z

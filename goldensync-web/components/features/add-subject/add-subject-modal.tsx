@@ -45,6 +45,10 @@ import {
 import { replaceSubject } from "@/lib/api/subjects";
 import { normalizeCourseCode } from "@/lib/domain/course-code";
 import {
+  serializeGradingTemplate,
+  tryParseGradingTemplate,
+} from "@/lib/domain/grading-template";
+import {
   MAX_SUBJECTS,
   useDuplicateCode,
   usePdfOutcome,
@@ -123,6 +127,15 @@ export function AddSubjectModal({
   const [ingestPlanWeeks, setIngestPlanWeeks] = React.useState<
     Array<{ weekNumber: number; topic?: string | null }>
   >([]);
+  const [ingestOutcomes, setIngestOutcomes] = React.useState<
+    Array<{ kind: "PEO" | "PO" | "CO"; code: string; description: string }>
+  >([]);
+  const [ingestAssessments, setIngestAssessments] = React.useState<
+    Array<{ label: string; maxScore: string | null }>
+  >([]);
+  const [ingestGradingTemplate, setIngestGradingTemplate] = React.useState<
+    ReturnType<typeof tryParseGradingTemplate>
+  >(null);
   const [step, setStep] = React.useState<SubjectFormStepIndex>(1);
   const [values, setValues] = React.useState<SubjectFormValues>(() =>
     defaultSubjectFormValues(false),
@@ -152,12 +165,78 @@ export function AddSubjectModal({
       ? "Selected"
       : "Idle";
 
+  function clearIngestDraft() {
+    setIngestPlanWeeks([]);
+    setIngestOutcomes([]);
+    setIngestAssessments([]);
+    setIngestGradingTemplate(null);
+  }
+
   function enterForm(pdf: boolean, patch?: Partial<SubjectFormValues>) {
     setFromPdf(pdf);
-    if (!pdf) setIngestPlanWeeks([]);
+    if (!pdf) clearIngestDraft();
     setValues({ ...defaultSubjectFormValues(pdf), ...patch });
     setStep(1);
     setPhase("form");
+  }
+
+  /** Build Outcome rows from form peos/pos text + ingest draft (Sync-found). */
+  function buildOutcomesPayload() {
+    const rows: Array<{
+      kind: "PEO" | "PO" | "CO";
+      code: string;
+      description: string;
+      position: number;
+    }> = [];
+    const seen = new Set<string>();
+    let position = 0;
+
+    const pushOutcome = (
+      kind: "PEO" | "PO" | "CO",
+      code: string,
+      description: string,
+    ) => {
+      const normalized = code.replace(/\s+/g, "").toUpperCase().slice(0, 24);
+      if (!normalized || description.trim().length < 1) return;
+      const key = `${kind}:${normalized}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push({
+        kind,
+        code: normalized,
+        description: description.trim().slice(0, 500),
+        position: position++,
+      });
+    };
+
+    const pushLines = (kind: "PEO" | "PO", raw: string) => {
+      /* Newlines only — PO descriptions contain commas ("Design, implement…"). */
+      for (const part of raw.split(/\n+/)) {
+        const line = part.trim();
+        if (!line) continue;
+        const m = line.match(
+          /^((?:PEO|PO|CO)\s*[-.]?\s*\d{1,2}(?:-\(?[A-Z]{1,4}\)?)?)\s*(?:[:.)]\s*|[-–—]\s+)(?=[A-Za-z])(.*)$/i,
+        );
+        if (m) {
+          const code = (m[1] ?? "")
+            .replace(/[()]/g, "")
+            .replace(/\s+/g, "")
+            .replace(/–|—/g, "-")
+            .toUpperCase();
+          const description = (m[2] ?? "").trim() || line;
+          pushOutcome(kind, code || `${kind}${position + 1}`, description);
+        } else {
+          pushOutcome(kind, `${kind}${position + 1}`, line);
+        }
+      }
+    };
+    pushLines("PEO", values.peos);
+    pushLines("PO", values.pos);
+
+    for (const o of ingestOutcomes) {
+      pushOutcome(o.kind, o.code, o.description);
+    }
+    return rows;
   }
 
   const [uploadDetail, setUploadDetail] = React.useState<string | null>(null);
@@ -257,6 +336,39 @@ export function AddSubjectModal({
               )
             : [],
         );
+        const draftOutcomes = Array.isArray(draft?.outcomes)
+          ? draft.outcomes.filter(
+              (o): o is { kind: "PEO" | "PO" | "CO"; code: string; description: string } =>
+                !!o &&
+                typeof o === "object" &&
+                (o.kind === "PEO" || o.kind === "PO" || o.kind === "CO") &&
+                typeof o.code === "string" &&
+                typeof o.description === "string",
+            )
+          : [];
+        setIngestOutcomes(draftOutcomes);
+        setIngestAssessments(
+          Array.isArray(draft?.assessments)
+            ? draft.assessments.filter(
+                (a): a is { label: string; maxScore: string | null } =>
+                  !!a &&
+                  typeof a === "object" &&
+                  typeof a.label === "string" &&
+                  a.label.trim().length > 0,
+              )
+            : [],
+        );
+        setIngestGradingTemplate(
+          tryParseGradingTemplate(draft?.gradingTemplate ?? null),
+        );
+        const peos = draftOutcomes
+          .filter((o) => o.kind === "PEO")
+          .map((o) => `${o.code}: ${o.description}`)
+          .join("\n");
+        const pos = draftOutcomes
+          .filter((o) => o.kind === "PO")
+          .map((o) => `${o.code}: ${o.description}`)
+          .join("\n");
         setValues({
           ...defaultSubjectFormValues(false),
           code: draft?.courseCode?.trim() || "",
@@ -267,6 +379,11 @@ export function AddSubjectModal({
               : "3",
           prerequisite: draft?.prerequisite?.trim() || "",
           effectivity: draft?.effectivity?.trim() || "",
+          peos: peos || "",
+          pos: pos || "",
+          grading: draft?.gradingBlurb?.trim() || "",
+          policies: draft?.classPolicies?.trim() || "",
+          facultyName: draft?.facultyName?.trim() || "",
         });
         setStep(1);
         setPhase("form");
@@ -355,11 +472,91 @@ export function AddSubjectModal({
           setShowReplaceSummary(true);
           setPendingReplace(false);
         } else {
+          const outcomes = buildOutcomesPayload();
+          const policiesText = values.policies.trim();
+          const gradingText = values.grading.trim();
+          const gradingPayload = ingestGradingTemplate
+            ? serializeGradingTemplate(ingestGradingTemplate)
+            : gradingText
+              ? gradingText
+              : null;
+          const facultyName = values.facultyName.trim();
+          const facultyCollege = values.facultyCollege.trim();
+          const facultyConsultation = values.facultyConsultation.trim();
+          const hoursRaw = values.estimatedContactHours.trim();
+          const hours =
+            hoursRaw !== "" && Number.isFinite(Number(hoursRaw))
+              ? Number(hoursRaw)
+              : null;
+          const hasFaculty =
+            facultyName ||
+            facultyCollege ||
+            facultyConsultation ||
+            hours != null ||
+            values.facultyTitle;
+
           const created = await createSubject({
             semesterId,
             ...payload,
             ...(ingestPlanWeeks.length > 0
               ? { planWeeks: ingestPlanWeeks }
+              : {}),
+            ...(outcomes.length > 0 ? { outcomes } : {}),
+            ...(ingestAssessments.length > 0
+              ? {
+                  assessments: ingestAssessments.map((a, i) => ({
+                    label: a.label,
+                    maxScore: a.maxScore,
+                    position: i,
+                  })),
+                }
+              : {}),
+            ...(gradingPayload ? { grading: gradingPayload } : {}),
+            ...(policiesText || outcomes.length > 0
+              ? {
+                  policies: {
+                    classPolicies: policiesText,
+                    ...(outcomes.length > 0
+                      ? {
+                          outcomesSyllabus: {
+                            vision: "",
+                            mission: "",
+                            graduateAttributes: "",
+                            institutionalOutcomes: [],
+                            peos: outcomes
+                              .filter((o) => o.kind === "PEO")
+                              .map((o) => ({
+                                code: o.code,
+                                description: o.description,
+                              })),
+                            pos: outcomes
+                              .filter((o) => o.kind === "PO")
+                              .map((o) => ({
+                                code: o.code,
+                                description: o.description,
+                              })),
+                            cos: outcomes
+                              .filter((o) => o.kind === "CO")
+                              .map((o) => ({
+                                code: o.code,
+                                description: o.description,
+                              })),
+                          },
+                        }
+                      : {}),
+                  },
+                }
+              : {}),
+            ...(hasFaculty
+              ? {
+                  faculty: {
+                    title: values.facultyTitle || "",
+                    name: facultyName,
+                    college: facultyCollege,
+                    consultation: facultyConsultation,
+                    estimatedContactHours: hours,
+                  },
+                }
               : {}),
           });
           nextId = created.id;

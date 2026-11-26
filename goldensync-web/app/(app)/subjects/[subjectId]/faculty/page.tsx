@@ -2,6 +2,7 @@
 
 /**
  * College Faculty — read-only (Figma `133:1319` · Empty `134:1503`, UI-093).
+ * Live empty subjects show EmptyModulePanel (no seed faculty blurb).
  */
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -28,12 +29,19 @@ function FacultyBody() {
   const searchParams = useSearchParams();
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
-  const isEmpty = searchParams.get("empty") === "1";
+  const forceEmpty = searchParams.get("empty") === "1";
   const faculty = parseFaculty(
-    subject.detail?.faculty ?? {
-      name: goldenSyncSeed.activeSubject.facultyBlurb,
-    },
+    subject.detail?.faculty ??
+      (subject.live
+        ? null
+        : { name: goldenSyncSeed.activeSubject.facultyBlurb }),
   );
+  const hasContent =
+    Boolean(faculty.name.trim()) ||
+    Boolean(faculty.college.trim()) ||
+    Boolean(faculty.consultation.trim()) ||
+    faculty.estimatedContactHours != null;
+  const showEmpty = forceEmpty || (subject.live && !hasContent);
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -66,7 +74,7 @@ function FacultyBody() {
             {subject.code} · {subject.semesterLabel}
             {subject.live ? " · Live" : ""}
           </p>
-          {isEmpty ? (
+          {showEmpty ? (
             <EmptyModulePanel subjectId={subject.id} />
           ) : (
             <>

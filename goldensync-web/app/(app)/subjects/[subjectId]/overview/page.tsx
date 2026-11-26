@@ -89,6 +89,7 @@ function OverviewBody() {
             <SubjectNotesPanel
               subjectId={subject.id}
               live={subject.live}
+              ready={subject.ready}
               onActivity={notifyActivity}
             />
           </div>

@@ -232,7 +232,11 @@ export function mergeOutcomesFromDb(
   return next;
 }
 
-/** Prefer saved syllabus; else seed institutional + DB/seed lists. */
+/**
+ * Prefer saved syllabus; merge DB Outcome rows when lists are empty.
+ * `useSeed` (proto / unsigned) fills CSU demo when nothing is saved.
+ * Live subjects stay empty so users add or Sync content.
+ */
 export function resolveOutcomesSyllabus(input: {
   policiesRaw: unknown;
   outcomes: Array<{
@@ -241,7 +245,10 @@ export function resolveOutcomesSyllabus(input: {
     description: string;
     position: number;
   }>;
+  /** When false (live subjects), never paint SEED_OUTCOMES_SYLLABUS. Default true for proto. */
+  useSeed?: boolean;
 }): OutcomesSyllabusDoc {
+  const useSeed = input.useSeed !== false;
   const fromPolicies = parseOutcomesSyllabus(
     typeof input.policiesRaw === "object" &&
       input.policiesRaw != null &&
@@ -252,6 +259,10 @@ export function resolveOutcomesSyllabus(input: {
 
   if (!isOutcomesSyllabusEmpty(fromPolicies)) {
     return mergeOutcomesFromDb(fromPolicies, input.outcomes);
+  }
+
+  if (!useSeed) {
+    return mergeOutcomesFromDb(cloneSyllabus(EMPTY_OUTCOMES_SYLLABUS), input.outcomes);
   }
 
   const seed = cloneSyllabus(SEED_OUTCOMES_SYLLABUS);

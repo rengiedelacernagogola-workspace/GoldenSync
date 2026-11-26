@@ -62,6 +62,20 @@ export function createSubject(body: {
   prerequisite?: string | null;
   effectivity?: string | null;
   planWeeks?: Array<{ weekNumber: number; topic?: string | null }>;
+  grading?: unknown;
+  policies?: unknown;
+  faculty?: unknown;
+  outcomes?: Array<{
+    kind: "PEO" | "PO" | "CO";
+    code: string;
+    description: string;
+    position?: number;
+  }>;
+  assessments?: Array<{
+    label: string;
+    maxScore?: string | number | null;
+    position?: number;
+  }>;
 }) {
   return apiFetch<SubjectDto>("/api/subjects", {
     method: "POST",

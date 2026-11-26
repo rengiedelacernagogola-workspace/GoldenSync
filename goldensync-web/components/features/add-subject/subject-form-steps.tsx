@@ -224,16 +224,19 @@ export function SubjectFormSteps({
       ) : null}
 
       {step === 4 ? (
-        <label className="flex w-full flex-col gap-space-2">
-          <span className="text-body-sm font-medium text-text-secondary">
+        <div className="flex w-full flex-col gap-space-2">
+          <p className="text-body-sm font-medium text-text-secondary">
             Grading
-          </span>
-          <Textarea
-            value={values.grading}
-            onChange={set("grading")}
-            placeholder="Grading breakdown"
-          />
-        </label>
+          </p>
+          <p className="text-body-sm text-text-muted">
+            Part IV (grade status, equivalents, and CO assessment weights) is
+            edited under{" "}
+            <span className="text-text-secondary">
+              Grade Calculator → Grading System
+            </span>
+            .
+          </p>
+        </div>
       ) : null}
 
       {step === 5 ? (

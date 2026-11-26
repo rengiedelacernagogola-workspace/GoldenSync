@@ -5,6 +5,7 @@
  * FLOW: fetchPlanNotes → filter/sort client-side · PATCH/POST/DELETE via notes API.
  */
 
+import { useAuth } from "@clerk/nextjs";
 import {
   Check,
   Clock3,
@@ -38,6 +39,8 @@ type SortMode = "time" | "size";
 export type SubjectNotesPanelProps = {
   subjectId: string;
   live: boolean;
+  /** False while Clerk/subject detail are still resolving. */
+  ready?: boolean;
   onActivity?: (entry: {
     kind: "notes";
     title: string;
@@ -80,8 +83,10 @@ function filterAndSort(
 export function SubjectNotesPanel({
   subjectId,
   live,
+  ready = true,
   onActivity,
 }: SubjectNotesPanelProps) {
+  const { isSignedIn } = useAuth();
   const [notes, setNotes] = React.useState<PlanNoteDto[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -303,8 +308,15 @@ export function SubjectNotesPanel({
     }
   }
 
+  const lockedHint = !ready
+    ? "Loading notes…"
+    : isSignedIn
+      ? "Open a saved subject to manage notes"
+      : "Sign in to manage notes";
   const emptyCopy = !live
-    ? "Sign in to manage notes."
+    ? ready
+      ? `${lockedHint}.`
+      : "Loading notes…"
     : loading
       ? "Loading notes…"
       : notes.length === 0
@@ -387,7 +399,7 @@ export function SubjectNotesPanel({
 
         <div className="flex items-center justify-between gap-space-2">
           <p className="text-caption text-text-muted">
-            {live ? "Pin up to 3 · view, edit, delete" : "Sign in to manage notes"}
+            {live ? "Pin up to 3 · view, edit, delete" : lockedHint}
           </p>
           {live ? (
             <Button

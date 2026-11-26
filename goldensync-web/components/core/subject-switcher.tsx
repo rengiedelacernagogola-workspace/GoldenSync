@@ -52,7 +52,7 @@ export const SubjectSwitcher = React.forwardRef<
         "transition-[background-color,border-color,opacity] duration-150 ease-out outline-none",
         collapsed
           ? "size-11 shrink-0 justify-center"
-          : "h-10 min-h-9 w-full max-w-56 justify-start gap-space-2 px-space-2.5 py-space-1.5",
+          : "h-10 min-h-9 w-full justify-start gap-space-2 px-space-2.5 py-space-1.5",
         !open &&
           !disabled &&
           "hover:border-border-strong hover:bg-bg-muted",

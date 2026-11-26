@@ -24,6 +24,8 @@ const files = [
   "2026-11-21-plan-week-editable.sql",
   "2026-11-23-checklist-item-unique.sql",
   "2026-11-23-grade-scale-confirm.sql",
+  "2026-11-26-grade-scale-detailed.sql",
+  "2026-11-26-missing-plan-indexes.sql",
 ];
 
 const client = new pg.Client({
