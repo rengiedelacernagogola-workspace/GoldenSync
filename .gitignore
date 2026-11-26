@@ -68,3 +68,6 @@ Thumbs.db
 *.bkp
 *.drawio.bkp
 
+# Local syllabus samples (not for git)
+Process-csc-106 files/
+
