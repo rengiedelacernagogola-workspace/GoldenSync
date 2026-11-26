@@ -42,8 +42,10 @@ export async function parseSyllabusPdf(
   }
 
   try {
+    /* Worker must load first — polyfills DOMMatrix via @napi-rs/canvas (Vercel Node). */
+    const { CanvasFactory } = await import("pdf-parse/worker");
     const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: buffer });
+    const parser = new PDFParse({ data: buffer, CanvasFactory });
     const result = await parser.getText();
     await parser.destroy();
 

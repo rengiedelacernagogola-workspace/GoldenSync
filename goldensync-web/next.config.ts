@@ -46,6 +46,8 @@ const nextConfig: NextConfig = {
     /** pdf-parse/pdfjs break under webpack ESM interop (Object.defineProperty). */
     "pdf-parse",
     "pdfjs-dist",
+    /** Native canvas polyfill for DOMMatrix on Vercel Node. */
+    "@napi-rs/canvas",
   ],
   turbopack: {
     rules: {
