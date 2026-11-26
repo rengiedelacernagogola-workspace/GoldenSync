@@ -9,21 +9,20 @@
 
 import {
   BookOpen,
-  Calculator,
   CalendarClock,
+  Calculator,
   CalendarDays,
   ChevronRight,
-  ClipboardList,
   Download,
   LayoutDashboard,
   LogOut,
   MoreHorizontal,
-  Network,
   PanelLeftClose,
   PanelLeftOpen,
   ScrollText,
   SquareCheck,
   StickyNote,
+  TableProperties,
   Target,
   User,
   Users,
@@ -46,10 +45,9 @@ export type SidebarActiveId =
   | "outcomes"
   | "plan"
   | "notes"
-  | "grading"
   | "policies"
   | "faculty"
-  | "assessments"
+  | "grade-calculator"
   | "checklist"
   | "export"
   | "this-week"
@@ -88,14 +86,13 @@ const MODULE_ITEMS: {
     icon: <CalendarDays />,
   },
   { id: "notes", label: "Notes", icon: <StickyNote /> },
-  { id: "grading", label: "Grading", icon: <ClipboardList /> },
   { id: "policies", label: "Class Policies", icon: <ScrollText /> },
   { id: "faculty", label: "College Faculty", icon: <Users /> },
-  { id: "assessments", label: "Assessment Map", icon: <Network /> },
+  { id: "grade-calculator", label: "Grade Calculator", icon: <Calculator /> },
   { id: "checklist", label: "Checklist", icon: <SquareCheck /> },
   { id: "export", label: "Export", icon: <Download /> },
   { id: "this-week", label: "This Week", icon: <CalendarClock /> },
-  { id: "calculator", label: "Grade Calculator", icon: <Calculator /> },
+  { id: "calculator", label: "Grading System", icon: <TableProperties /> },
 ];
 
 /** Shell sidebar — Expanded | Collapsed | Drawer. Wire Proto from the app layout. */
@@ -184,7 +181,7 @@ export function Sidebar({
       <nav
         data-slot="gs-sidebar-nav"
         className={cn(
-          "flex min-h-0 w-full flex-1 flex-col gap-space-1 overflow-x-clip overflow-y-auto",
+          "flex min-h-0 w-full flex-1 flex-col justify-between overflow-x-clip overflow-y-auto",
           collapsed ? "items-center" : "items-stretch",
         )}
       >
@@ -250,7 +247,7 @@ export function Sidebar({
           ) : (
             <div
               className={cn(
-                "flex h-8 w-full max-w-56 items-center justify-start gap-space-1 rounded-md",
+                "flex h-8 w-full items-center justify-start gap-space-1 rounded-md",
                 "bg-bg-muted px-space-2 text-[11px] leading-snug font-medium tracking-tight antialiased text-text-secondary",
                 modulesDisabled && "pointer-events-none opacity-40",
               )}
@@ -302,7 +299,7 @@ export function Sidebar({
                 "z-40 mt-space-1",
                 collapsed
                   ? "absolute top-full left-full ml-space-2"
-                  : "w-full max-w-56",
+                  : "w-full",
               )}
             >
               <MenuItem

@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 !**/.env.example
+Import.env
+**/Import.env
 *.pem
 *.p12
 *.key
@@ -67,4 +69,7 @@ Thumbs.db
 # Editor / draw.io backups
 *.bkp
 *.drawio.bkp
+
+# Local syllabus samples (not for git)
+Process-csc-106 files/
 

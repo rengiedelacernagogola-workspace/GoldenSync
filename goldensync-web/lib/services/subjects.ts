@@ -9,7 +9,10 @@ import {
   courseCodeMatches,
   normalizeCourseCode,
 } from "@/lib/domain/course-code";
-import { unitsToDecimalString } from "@/lib/domain/units";
+import {
+  maxScoreToDecimalString,
+  unitsToDecimalString,
+} from "@/lib/domain/units";
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
 import { AppError, notFound } from "@/lib/http/errors";
@@ -68,11 +71,55 @@ export async function createSubject(
     units: unitsToDecimalString(input.units),
     prerequisite: input.prerequisite ?? null,
     effectivity: input.effectivity ?? null,
+    ...(input.grading !== undefined
+      ? { grading: structuredClone(input.grading) as never }
+      : {}),
+    ...(input.policies !== undefined
+      ? { policies: structuredClone(input.policies) as never }
+      : {}),
+    ...(input.faculty !== undefined
+      ? { faculty: structuredClone(input.faculty) as never }
+      : {}),
   });
 
   try {
     /** Checklist stays useful: blank weeks for manual, topics overlaid for syllabus. */
     await writeSubjectPlanWeeks(userId, row.id, input.planWeeks ?? []);
+
+    const outcomes = input.outcomes ?? [];
+    if (outcomes.length > 0) {
+      const seenOutcome = new Set<string>();
+      for (let i = 0; i < outcomes.length; i++) {
+        const item = outcomes[i]!;
+        const code = item.code.replace(/\s+/g, "").toUpperCase().slice(0, 24);
+        const key = `${item.kind}:${code}`;
+        if (!code || seenOutcome.has(key)) continue;
+        seenOutcome.add(key);
+        await db.orm.public.Outcome.create({
+          subjectId: row.id,
+          kind: item.kind,
+          code,
+          description: item.description,
+          position: item.position ?? i,
+        });
+      }
+    }
+
+    const assessments = input.assessments ?? [];
+    for (let i = 0; i < assessments.length; i++) {
+      const item = assessments[i]!;
+      const maxRaw = item.maxScore;
+      const maxScore =
+        maxRaw == null || String(maxRaw).trim() === ""
+          ? "100.00"
+          : maxScoreToDecimalString(maxRaw);
+      await db.orm.public.Assessment.create({
+        subjectId: row.id,
+        label: item.label,
+        maxScore,
+        position: item.position ?? i,
+      });
+    }
   } catch (err) {
     await db.orm.public.Subject.where({ id: row.id }).delete();
     throw err;

@@ -72,10 +72,7 @@ function EditBody() {
       effectivity: subject.effectivity,
       peos,
       pos,
-      grading:
-        typeof subject.detail?.grading === "string"
-          ? subject.detail.grading
-          : "",
+      grading: "",
       policies: parsePoliciesDoc(subject.detail?.policies).classPolicies,
       ...(() => {
         const faculty = parseFaculty(subject.detail?.faculty);
@@ -122,7 +119,6 @@ function EditBody() {
         units: values.units.trim() || "3",
         prerequisite: values.prerequisite.trim() || null,
         effectivity: values.effectivity.trim() || null,
-        grading: values.grading.trim() || null,
         policies: serializePoliciesDoc({
           classPolicies: values.policies.trim(),
           courseSpec: existingPolicies.courseSpec,

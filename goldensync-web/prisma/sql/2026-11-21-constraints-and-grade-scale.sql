@@ -26,8 +26,15 @@ WHERE NOT EXISTS (SELECT 1 FROM "GradeScaleMeta");
 INSERT INTO "GradeScale" ("id", "minAverage", "maxAverage", "grade", "position")
 SELECT v.id, v.min_a, v.max_a, v.grade, v.pos
 FROM (VALUES
-  ('gs-band-1', 0::numeric, 59.99::numeric, 5.0::numeric, 1),
-  ('gs-band-2', 60::numeric, 74.99::numeric, 3.0::numeric, 2),
-  ('gs-band-3', 75::numeric, 100::numeric, 1.0::numeric, 3)
+  ('gs-band-fail', 0::numeric, 59.99::numeric, 5.0::numeric, 1),
+  ('gs-band-3-0', 60::numeric, 64.99::numeric, 3.0::numeric, 2),
+  ('gs-band-2-75', 65::numeric, 69.99::numeric, 2.75::numeric, 3),
+  ('gs-band-2-5', 70::numeric, 74.99::numeric, 2.5::numeric, 4),
+  ('gs-band-2-25', 75::numeric, 79.99::numeric, 2.25::numeric, 5),
+  ('gs-band-2-0', 80::numeric, 84.99::numeric, 2.0::numeric, 6),
+  ('gs-band-1-75', 85::numeric, 88.99::numeric, 1.75::numeric, 7),
+  ('gs-band-1-5', 89::numeric, 92.99::numeric, 1.5::numeric, 8),
+  ('gs-band-1-25', 93::numeric, 96.99::numeric, 1.25::numeric, 9),
+  ('gs-band-1-0', 97::numeric, 100::numeric, 1.0::numeric, 10)
 ) AS v(id, min_a, max_a, grade, pos)
 WHERE NOT EXISTS (SELECT 1 FROM "GradeScale");

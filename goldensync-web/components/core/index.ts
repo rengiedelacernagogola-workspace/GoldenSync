@@ -228,12 +228,6 @@ export {
 } from "@/components/core/outcome-map";
 
 export {
-  CoverageMatrix,
-  type CoverageMatrixProps,
-  type CoverageMatrixRow,
-} from "@/components/core/coverage-matrix";
-
-export {
   FlaggedField,
   type FlaggedFieldProps,
 } from "@/components/core/flagged-field";

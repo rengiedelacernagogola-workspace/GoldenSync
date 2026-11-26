@@ -45,3 +45,14 @@ export function postActivity(body: {
 export function markActivitiesReadApi() {
   return apiFetch<ActivityDto[]>("/api/activity", { method: "PATCH" });
 }
+
+/** DELETE /api/activity?id= — delete one */
+export function deleteActivityApi(id: string) {
+  const q = new URLSearchParams({ id });
+  return apiFetch<ActivityDto[]>(`/api/activity?${q}`, { method: "DELETE" });
+}
+
+/** DELETE /api/activity — clear all */
+export function clearActivitiesApi() {
+  return apiFetch<ActivityDto[]>("/api/activity", { method: "DELETE" });
+}

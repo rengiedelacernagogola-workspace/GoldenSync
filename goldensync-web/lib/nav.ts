@@ -22,14 +22,12 @@ export function pathForNav(
       return `/subjects/${sid}/plan`;
     case "notes":
       return `/notes?subject=${encodeURIComponent(sid)}`;
-    case "grading":
-      return `/subjects/${sid}/grading`;
     case "policies":
       return `/subjects/${sid}/policies`;
     case "faculty":
       return `/subjects/${sid}/faculty`;
-    case "assessments":
-      return `/subjects/${sid}/assessments`;
+    case "grade-calculator":
+      return `/calculator?subject=${encodeURIComponent(sid)}`;
     case "checklist":
       return `/subjects/${sid}/checklist`;
     case "export":
@@ -37,7 +35,7 @@ export function pathForNav(
     case "this-week":
       return `/subjects/${sid}/this-week`;
     case "calculator":
-      return `/calculator?subject=${encodeURIComponent(sid)}`;
+      return `/grading-system?subject=${encodeURIComponent(sid)}`;
     case "account":
       return "/account";
     case "add-subject":

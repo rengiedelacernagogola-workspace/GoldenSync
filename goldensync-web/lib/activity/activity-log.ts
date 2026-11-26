@@ -4,6 +4,8 @@
  */
 
 import {
+  clearActivitiesApi,
+  deleteActivityApi,
   fetchActivities,
   markActivitiesReadApi,
   postActivity,
@@ -69,6 +71,30 @@ export async function markActivitiesRead(): Promise<ActivityItem[]> {
   try {
     const rows = await markActivitiesReadApi();
     return rows.map(fromDto);
+  } catch {
+    return loadActivities();
+  }
+}
+
+/** Delete one activity; returns the updated list. */
+export async function deleteActivity(id: string): Promise<ActivityItem[]> {
+  try {
+    const rows = await deleteActivityApi(id);
+    return rows
+      .map(fromDto)
+      .sort((a, b) => b.createdAt - a.createdAt);
+  } catch {
+    return loadActivities();
+  }
+}
+
+/** Clear all activities; returns the updated list. */
+export async function clearActivities(): Promise<ActivityItem[]> {
+  try {
+    const rows = await clearActivitiesApi();
+    return rows
+      .map(fromDto)
+      .sort((a, b) => b.createdAt - a.createdAt);
   } catch {
     return loadActivities();
   }

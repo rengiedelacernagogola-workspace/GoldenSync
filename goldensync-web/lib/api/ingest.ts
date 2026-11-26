@@ -16,15 +16,31 @@ export type IngestJobDto = {
   updatedAt: string;
 };
 
+export type IngestDraftOutcome = {
+  kind: "PEO" | "PO" | "CO";
+  code: string;
+  description: string;
+};
+
+export type IngestDraftAssessment = {
+  label: string;
+  maxScore: string | null;
+};
+
 export type IngestDraft = {
   courseCode: string | null;
   title: string | null;
   units: string | number | null;
-  outcomes: unknown[];
+  outcomes: IngestDraftOutcome[];
   planWeeks: Array<{ weekNumber: number; topic?: string | null }>;
-  assessments: unknown[];
+  assessments: IngestDraftAssessment[];
   prerequisite?: string | null;
   effectivity?: string | null;
+  classPolicies?: string | null;
+  facultyName?: string | null;
+  gradingBlurb?: string | null;
+  /** Structured Part IV template when extractors found CO weight groups. */
+  gradingTemplate?: unknown | null;
   previewLines?: string[];
 };
 

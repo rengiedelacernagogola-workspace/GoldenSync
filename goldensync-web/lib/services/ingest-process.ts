@@ -10,6 +10,8 @@ import { get } from "@vercel/blob";
 import { limits } from "@/lib/config/limits";
 import { db } from "@/lib/db";
 import { isPdfMagic } from "@/lib/domain/pdf-magic";
+import { extractGradingTemplateFromText } from "@/lib/domain/grading-template";
+import { extractSyllabusFields } from "@/lib/domain/syllabus-extract";
 import { extractPlanWeeksFromText } from "@/lib/domain/syllabus-plan";
 import { parseSyllabusPdf } from "@/lib/pdf/syllabus-parser";
 
@@ -131,8 +133,9 @@ export async function processIngestJob(
       return { status: "FAILED", errorCode };
     }
 
-    const titleHint = parsed.previewLines[0]?.slice(0, 80) ?? null;
     const planWeeks = extractPlanWeeksFromText(parsed.text);
+    const fields = extractSyllabusFields(parsed.text, parsed.previewLines);
+    const gradingTemplate = extractGradingTemplateFromText(parsed.text);
     await db.orm.public.IngestJob.where({ id: job.id }).update({
       status: "NEEDS_REVIEW",
       errorCode: null,
@@ -149,14 +152,23 @@ export async function processIngestJob(
           pages: parsed.pages,
           processedBy: "next-api",
           planWeekCount: planWeeks.length,
+          outcomeCount: fields.outcomes.length,
+          assessmentCount: fields.assessments.length,
+          gradingCoGroupCount: gradingTemplate?.coGroups.length ?? 0,
         },
         draft: {
-          courseCode: null,
-          title: titleHint,
-          units: null,
-          outcomes: [],
+          courseCode: fields.courseCode,
+          title: fields.title,
+          units: fields.units,
+          prerequisite: fields.prerequisite,
+          effectivity: fields.effectivity,
+          outcomes: fields.outcomes,
           planWeeks,
-          assessments: [],
+          assessments: fields.assessments,
+          classPolicies: fields.classPolicies,
+          facultyName: fields.facultyName,
+          gradingBlurb: fields.gradingBlurb,
+          gradingTemplate,
           previewLines: parsed.previewLines,
         },
       },

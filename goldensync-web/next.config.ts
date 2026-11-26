@@ -24,6 +24,16 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       { source: "/verify", destination: "/sign-in", permanent: true },
+      {
+        source: "/subjects/:subjectId/grading",
+        destination: "/grading-system?subject=:subjectId",
+        permanent: false,
+      },
+      {
+        source: "/subjects/:subjectId/assessments",
+        destination: "/calculator?subject=:subjectId",
+        permanent: false,
+      },
     ];
   },
   cacheComponents: true,

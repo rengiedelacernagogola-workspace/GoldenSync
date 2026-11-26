@@ -1,0 +1,210 @@
+"use client";
+
+/**
+ * Grading System template — load/edit/save Subject.grading on Grade Calculator.
+ * FLOW: fetchSubjectDetail → tryParse → empty or edit tables → patchSubject.
+ * Live null grading stays empty until user applies default or Syncs.
+ */
+
+import * as React from "react";
+
+import { Button } from "@/components/core";
+import { CoAssessmentTable } from "@/components/features/calculator/co-assessment-table";
+import { GradeEquivalentTable } from "@/components/features/calculator/grade-equivalent-table";
+import { GradeStatusTable } from "@/components/features/calculator/grade-status-table";
+import { ApiClientError } from "@/lib/api/client";
+import { fetchSubjectDetail, patchSubject } from "@/lib/api/subjects";
+import {
+  cloneGradingTemplate,
+  DEFAULT_GRADING_TEMPLATE,
+  serializeGradingTemplate,
+  tryParseGradingTemplate,
+  type GradingTemplateDoc,
+} from "@/lib/domain/grading-template";
+
+export type GradingTemplatePanelProps = {
+  subjectId: string | null;
+  live: boolean;
+};
+
+/** Full Part IV editor for the calculator Grading System view. */
+export function GradingTemplatePanel({
+  subjectId,
+  live,
+}: GradingTemplatePanelProps) {
+  const [doc, setDoc] = React.useState<GradingTemplateDoc | null>(() =>
+    live ? null : cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
+  );
+  const [baseline, setBaseline] = React.useState(() =>
+    live
+      ? ""
+      : JSON.stringify(serializeGradingTemplate(DEFAULT_GRADING_TEMPLATE)),
+  );
+  const [loading, setLoading] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [saved, setSaved] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const dirty =
+    doc != null &&
+    baseline !== "" &&
+    JSON.stringify(serializeGradingTemplate(doc)) !== baseline;
+
+  React.useEffect(() => {
+    if (!live || !subjectId) {
+      const defaults = cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE);
+      const handle = window.setTimeout(() => {
+        setDoc(defaults);
+        setBaseline(JSON.stringify(serializeGradingTemplate(defaults)));
+        setError(null);
+        setLoading(false);
+      }, 0);
+      return () => window.clearTimeout(handle);
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const handle = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const detail = await fetchSubjectDetail(subjectId);
+          if (cancelled) return;
+          const next = tryParseGradingTemplate(detail.grading);
+          setDoc(next);
+          setBaseline(
+            next ? JSON.stringify(serializeGradingTemplate(next)) : "",
+          );
+        } catch (err) {
+          if (cancelled) return;
+          setError(
+            err instanceof ApiClientError
+              ? err.message
+              : "Could not load grading template.",
+          );
+          setDoc(null);
+          setBaseline("");
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [live, subjectId]);
+
+  function applyDefaultTemplate() {
+    const defaults = cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE);
+    setDoc(defaults);
+    setBaseline("");
+    setSaved(false);
+    setError(null);
+  }
+
+  async function handleSave() {
+    if (!live || !subjectId || !doc || saving) return;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const payload = serializeGradingTemplate(doc);
+      await patchSubject(subjectId, { grading: payload });
+      setDoc(payload);
+      setBaseline(JSON.stringify(payload));
+      setSaved(true);
+    } catch (err) {
+      setError(
+        err instanceof ApiClientError
+          ? err.message
+          : "Could not save grading template.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-space-6">
+      <div className="flex flex-col gap-space-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-body-sm text-text-secondary">
+            Grading System Breakdown
+          </p>
+          <p className="text-caption text-text-muted">
+            {!live
+              ? "Demo defaults — sign in and open a saved subject to persist"
+              : doc == null
+                ? "No grading template yet — Sync a syllabus or start from the default"
+                : dirty
+                  ? "Unsaved changes"
+                  : saved
+                    ? "Saved"
+                    : "Inline-edit tables, then save"}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-space-2">
+          {live && doc == null && !loading ? (
+            <Button
+              variant="Secondary"
+              size="md"
+              onClick={applyDefaultTemplate}
+            >
+              Use default template
+            </Button>
+          ) : null}
+          <Button
+            variant="Primary"
+            size="md"
+            disabled={!live || !subjectId || !doc || !dirty || saving || loading}
+            onClick={() => void handleSave()}
+          >
+            {saving ? "Saving…" : "Save Template"}
+          </Button>
+        </div>
+      </div>
+
+      {error ? (
+        <p className="text-caption text-status-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {loading ? (
+        <p className="text-body-sm text-text-muted">Loading template…</p>
+      ) : doc == null ? (
+        <p className="text-body-sm text-text-muted">
+          This subject has no grading system yet. Use the default template or
+          add content under Edit subject after Sync.
+        </p>
+      ) : (
+        <>
+          <GradeStatusTable
+            rows={doc.statusRows}
+            onChange={(statusRows) =>
+              setDoc((prev) => (prev ? { ...prev, statusRows } : prev))
+            }
+          />
+          <GradeEquivalentTable
+            rows={doc.equivalentRows}
+            onChange={(equivalentRows) =>
+              setDoc((prev) => (prev ? { ...prev, equivalentRows } : prev))
+            }
+          />
+          <CoAssessmentTable
+            groups={doc.coGroups}
+            domainNote={doc.domainNote}
+            onChangeGroups={(coGroups) =>
+              setDoc((prev) => (prev ? { ...prev, coGroups } : prev))
+            }
+            onChangeDomainNote={(domainNote) =>
+              setDoc((prev) => (prev ? { ...prev, domainNote } : prev))
+            }
+          />
+        </>
+      )}
+    </div>
+  );
+}

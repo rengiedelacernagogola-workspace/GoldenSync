@@ -247,8 +247,13 @@ export function OutcomesSyllabusPanel({
   onActivity,
 }: OutcomesSyllabusPanelProps) {
   const resolved = React.useMemo(
-    () => resolveOutcomesSyllabus({ policiesRaw: policies, outcomes }),
-    [policies, outcomes],
+    () =>
+      resolveOutcomesSyllabus({
+        policiesRaw: policies,
+        outcomes,
+        useSeed: !live,
+      }),
+    [policies, outcomes, live],
   );
 
   const [editing, setEditing] = React.useState(false);

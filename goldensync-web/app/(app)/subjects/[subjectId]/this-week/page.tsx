@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * This Week — weekState Proto branches (Figma `138:2736`+, UI-097).
- * FLOW: BEFORE_START / AFTER_END / NO_CLASS / NO_PLAN / normal card.
+ * This Week — live plan week for current calendar week, or empty.
+ * Proto (unsigned) keeps seed semester/clock demo card.
  */
 
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -17,9 +17,11 @@ import {
   StatusChip,
   type SidebarActiveId,
 } from "@/components/core";
+import { EmptyModulePanel } from "@/components/features/modules/empty-module-panel";
 import { appendixA } from "@/copy";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveSubject } from "@/hooks/use-live-subject";
+import { weekNumberFromStart } from "@/lib/domain/planner";
 import { pathForNav } from "@/lib/nav";
 import { useWeekState } from "@/state";
 
@@ -30,6 +32,14 @@ function SpecRow({ label, value }: { label: string; value: string }) {
       <span className="text-body-sm text-text-primary">{value}</span>
     </div>
   );
+}
+
+function statusChip(
+  status: string | undefined,
+): "Not Started" | "In Progress" | "Completed" {
+  if (status === "Done") return "Completed";
+  if (status === "In progress") return "In Progress";
+  return "Not Started";
 }
 
 function ThisWeekBody() {
@@ -43,8 +53,6 @@ function ThisWeekBody() {
     code: subject.code,
     title: subject.title,
   };
-  const semester = goldenSyncSeed.semester;
-  const clock = goldenSyncSeed.clock;
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -54,26 +62,146 @@ function ThisWeekBody() {
     if (path) router.push(path);
   }
 
-  const today = React.useMemo(() => {
-    try {
-      return parseISO(clock.todayIso);
-    } catch {
-      return new Date();
-    }
-  }, [clock.todayIso]);
+  const todayIso = format(new Date(), "yyyy-MM-dd");
+  const todayLabel = format(new Date(), "EEE d MMM yyyy");
 
-  const todayLabel = React.useMemo(
-    () => format(today, "EEE d MMM yyyy"),
-    [today],
-  );
+  if (subject.live) {
+    const start =
+      subject.detail?.semesterStartDate?.slice(0, 10) ??
+      null;
+    const end = subject.detail?.semesterEndDate?.slice(0, 10) ?? null;
+    const planWeeks = subject.detail?.planWeeks ?? [];
+    const weekNumber =
+      start != null ? weekNumberFromStart(start, todayIso) : null;
 
-  const daysUntilStart = React.useMemo(() => {
-    try {
-      return differenceInCalendarDays(parseISO(semester.startIso), today);
-    } catch {
-      return 0;
+    let emptyTitle = "No topic scheduled";
+    let emptyBody = "Add weeks in Learning Plan or Sync a syllabus.";
+    let chip: "Not Started" | "In Progress" | "Completed" = "Not Started";
+
+    if (start && end && todayIso < start) {
+      emptyTitle = "Semester starts soon";
+      emptyBody = `Starts ${start}. Week 1 will appear here when the term begins.`;
+    } else if (start && end && todayIso > end) {
+      emptyTitle = "Semester ended";
+      emptyBody = "This term is over. Review Learning Plan for the full archive.";
+      chip = "Completed";
+    } else if (planWeeks.length === 0) {
+      emptyTitle = "No plan weeks yet";
+      emptyBody = "Generate study weeks in Learning Plan or Sync a syllabus.";
     }
-  }, [semester.startIso, today]);
+
+    const current =
+      weekNumber != null
+        ? planWeeks.find((w) => w.weekNumber === weekNumber)
+        : undefined;
+    const hasTopic = Boolean(current?.topic?.trim());
+    const showCard =
+      current != null &&
+      start != null &&
+      end != null &&
+      todayIso >= start &&
+      todayIso <= end;
+
+    return (
+      <>
+        <AppShell
+          sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
+          subjectSelected
+          activeId="this-week"
+          activeSubjectId={card.id}
+          subjectCode={card.code}
+          subjectTitle={card.title}
+          onToggleCollapse={() => setCollapsed((c) => !c)}
+          onNav={handleNav}
+          topBar={{
+            title: "This Week",
+            semesterLabel: subject.semesterLabel,
+            hideAddSubject: true,
+            hideSemester: true,
+            onMenuClick: () => setDrawerOpen(true),
+          }}
+        >
+          <div className="gs-fade-up flex w-full max-w-xl flex-col gap-space-6">
+            <p className="text-overline uppercase text-text-muted">
+              {card.code} · {subject.semesterLabel} · Live
+            </p>
+            {showCard && hasTopic ? (
+              <>
+                <p className="text-body-sm text-text-muted">
+                  Today: {todayLabel}
+                  {weekNumber != null ? ` · Week ${weekNumber}` : ""}
+                </p>
+                <Card className="flex flex-col gap-space-4 p-space-6">
+                  <div className="flex items-center justify-between gap-space-3">
+                    <h2 className="text-heading-md text-text-primary">
+                      Week {current.weekNumber}
+                    </h2>
+                    <StatusChip status={statusChip(current.status)} />
+                  </div>
+                  <div className="flex flex-col gap-space-3">
+                    <SpecRow
+                      label="Topic"
+                      value={current.topic?.trim() || "—"}
+                    />
+                    <SpecRow
+                      label="Outcome"
+                      value={current.outcome?.trim() || "—"}
+                    />
+                    <SpecRow
+                      label="Activities"
+                      value={current.activities?.trim() || "—"}
+                    />
+                  </div>
+                </Card>
+              </>
+            ) : showCard && !hasTopic ? (
+              <>
+                <StatusChip status={statusChip(current?.status)} />
+                <EmptyState
+                  title="No topic for this week"
+                  body={`Week ${current?.weekNumber ?? weekNumber} has no topic yet. Edit Learning Plan or Sync a syllabus.`}
+                  hasAction={false}
+                />
+              </>
+            ) : planWeeks.length === 0 &&
+              !(start && end && (todayIso < start || todayIso > end)) ? (
+              <EmptyModulePanel subjectId={subject.id} />
+            ) : (
+              <>
+                <StatusChip status={chip} />
+                <EmptyState
+                  title={emptyTitle}
+                  body={emptyBody}
+                  hasAction={false}
+                />
+              </>
+            )}
+          </div>
+        </AppShell>
+        <MobileDrawer
+          open={drawerOpen}
+          subjectSelected
+          activeId="this-week"
+          activeSubjectId={card.id}
+          subjectCode={card.code}
+          subjectTitle={card.title}
+          onClose={() => setDrawerOpen(false)}
+          onNav={handleNav}
+        />
+      </>
+    );
+  }
+
+  /* Proto / unsigned — seed demo branches. */
+  const semester = goldenSyncSeed.semester;
+  const clock = goldenSyncSeed.clock;
+  const todayLabelProto = (() => {
+    try {
+      return format(new Date(clock.todayIso), "EEE d MMM yyyy");
+    } catch {
+      return clock.todayIso;
+    }
+  })();
 
   if (weekState !== "normal") {
     const empty = (() => {
@@ -81,7 +209,7 @@ function ThisWeekBody() {
         case "before_start":
           return {
             title: "Semester starts soon",
-            body: `BEFORE_START: starts in ${Math.max(0, daysUntilStart)} days, Week 1 preview`,
+            body: "BEFORE_START: Week 1 preview",
             chip: "Not Started" as const,
           };
         case "after_end":
@@ -120,7 +248,7 @@ function ThisWeekBody() {
             title: "This Week",
             semesterLabel: semester.label,
             hideAddSubject: true,
-          hideSemester: true,
+            hideSemester: true,
             onMenuClick: () => setDrawerOpen(true),
           }}
         >
@@ -177,7 +305,7 @@ function ThisWeekBody() {
             {card.code} · {semester.label}
           </p>
           <p className="text-body-sm text-text-muted">
-            Today: {todayLabel} · Week {semester.currentWeek}
+            Today: {todayLabelProto} · Week {semester.currentWeek}
           </p>
           <Card className="flex flex-col gap-space-4 p-space-6">
             <div className="flex items-center justify-between gap-space-3">

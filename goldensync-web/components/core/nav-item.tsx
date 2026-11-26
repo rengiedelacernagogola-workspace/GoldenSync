@@ -57,7 +57,7 @@ export const NavItem = React.forwardRef<HTMLButtonElement, NavItemProps>(
           "outline-none select-none",
           collapsed
             ? "size-11 shrink-0 justify-center px-0"
-            : "w-full min-h-8 max-w-56 justify-start py-space-1",
+            : "w-full min-h-8 justify-start py-space-1",
           /* Default */
           !active &&
             !disabled &&

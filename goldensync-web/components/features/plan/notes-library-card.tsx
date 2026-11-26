@@ -1,13 +1,15 @@
 "use client";
 
 /**
- * NotesLibraryCard — search / sort / pin + bottom shelf (Archived · Deleted · History).
+ * NotesLibraryCard — filter icon · search / sort / pin + shelf (Archived · Deleted · History).
  * Soft-deleted notes stay 30 days before system purge.
  */
 
 import {
   Archive,
+  Check,
   Clock3,
+  Filter,
   History,
   MoreHorizontal,
   Pencil,
@@ -18,9 +20,12 @@ import {
   Trash2,
 } from "lucide-react";
 import * as React from "react";
+import { createPortal } from "react-dom";
 
 import { Badge } from "@/components/core/badge";
 import { Card } from "@/components/core/card";
+import { MenuItem } from "@/components/core/menu-item";
+import { Popover } from "@/components/core/menu";
 import { limits } from "@/lib/config/limits";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +51,19 @@ export interface PlanNoteItem {
 type SortMode = "time" | "importance";
 type ShelfView = "active" | "archived" | "deleted" | "history";
 
+export interface NotesLibraryFilterSubject {
+  id: string;
+  courseCode: string;
+}
+
 export interface NotesLibraryCardProps {
   subjectId: string;
   notes: PlanNoteItem[];
   className?: string;
+  /** Subject options for the header filter icon menu. */
+  subjects?: NotesLibraryFilterSubject[];
+  filterSubjectId?: string;
+  onFilterSubjectChange?: (subjectId: string) => void;
   onEditNote?: (note: PlanNoteItem) => void;
   onDeleteNote?: (noteId: string) => void;
   onArchiveNote?: (noteId: string) => void;
@@ -73,6 +87,9 @@ function daysLeftUntilPurge(deletedAt: string | null | undefined): number | null
 export function NotesLibraryCard({
   notes,
   className,
+  subjects = [],
+  filterSubjectId = "all",
+  onFilterSubjectChange,
   onEditNote,
   onDeleteNote,
   onArchiveNote,
@@ -83,6 +100,45 @@ export function NotesLibraryCard({
   const [sort, setSort] = React.useState<SortMode>("time");
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [view, setView] = React.useState<ShelfView>("active");
+  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [filterMenuPos, setFilterMenuPos] = React.useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const filterBtnRef = React.useRef<HTMLButtonElement>(null);
+
+  const showFilter = typeof onFilterSubjectChange === "function";
+
+  React.useEffect(() => {
+    if (!filterOpen) return;
+    function place() {
+      const el = filterBtnRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setFilterMenuPos({ top: r.bottom + 6, left: r.left });
+    }
+    place();
+    function onDoc(e: MouseEvent) {
+      const t = e.target as Node;
+      if (filterBtnRef.current?.contains(t)) return;
+      const menu = document.querySelector('[data-slot="gs-notes-filter-menu"]');
+      if (menu?.contains(t)) return;
+      setFilterOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setFilterOpen(false);
+    }
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [filterOpen]);
 
   function toggleActions(id: string) {
     setOpenId((cur) => (cur === id ? null : id));
@@ -190,7 +246,7 @@ export function NotesLibraryCard({
   return (
     <Card
       title={title}
-      hasHeader
+      hasHeader={false}
       hasFooter
       footer={
         <div
@@ -280,6 +336,88 @@ export function NotesLibraryCard({
       className={cn("flex h-full min-h-0 w-full flex-col", className)}
     >
       <div className="flex w-full flex-col gap-space-3">
+        <div
+          data-slot="gs-notes-library-header"
+          className="relative flex w-full items-center gap-space-2 border-b border-border-subtle pb-space-4"
+        >
+          {showFilter ? (
+            <button
+              ref={filterBtnRef}
+              type="button"
+              aria-label="Filter notes by subject"
+              aria-expanded={filterOpen}
+              aria-haspopup="menu"
+              title="Filter by subject"
+              className={cn(
+                "flex size-8 shrink-0 items-center justify-center rounded-md outline-none",
+                "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
+                filterOpen || filterSubjectId !== "all"
+                  ? "text-accent-primary"
+                  : "text-text-muted",
+              )}
+              onClick={() => setFilterOpen((o) => !o)}
+            >
+              <Filter className="size-4" aria-hidden strokeWidth={2} />
+            </button>
+          ) : null}
+          <h3 className="min-w-0 flex-1 truncate text-heading-lg text-text-primary">
+            {title}
+          </h3>
+        </div>
+
+        {showFilter &&
+        filterOpen &&
+        filterMenuPos &&
+        typeof document !== "undefined"
+          ? createPortal(
+              <div
+                data-slot="gs-notes-filter-menu"
+                className="fixed z-50"
+                style={{
+                  top: filterMenuPos.top,
+                  left: filterMenuPos.left,
+                }}
+              >
+                <Popover aria-label="Filter notes by subject" className="w-56">
+                  <MenuItem
+                    label="All subjects"
+                    selected={filterSubjectId === "all"}
+                    icon={
+                      filterSubjectId === "all" ? (
+                        <Check className="size-4" aria-hidden />
+                      ) : (
+                        <span className="size-4" aria-hidden />
+                      )
+                    }
+                    onClick={() => {
+                      onFilterSubjectChange?.("all");
+                      setFilterOpen(false);
+                    }}
+                  />
+                  {subjects.map((s) => (
+                    <MenuItem
+                      key={s.id}
+                      label={s.courseCode}
+                      selected={filterSubjectId === s.id}
+                      icon={
+                        filterSubjectId === s.id ? (
+                          <Check className="size-4" aria-hidden />
+                        ) : (
+                          <span className="size-4" aria-hidden />
+                        )
+                      }
+                      onClick={() => {
+                        onFilterSubjectChange?.(s.id);
+                        setFilterOpen(false);
+                      }}
+                    />
+                  ))}
+                </Popover>
+              </div>,
+              document.body,
+            )
+          : null}
+
         <div className="flex w-full items-center gap-space-2">
           <div
             data-slot="gs-notes-search"
