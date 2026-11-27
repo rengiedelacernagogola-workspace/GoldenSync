@@ -160,71 +160,83 @@ export function NotificationsMenu({
         ) : null}
       </Button>
       {open ? (
-        <Menu
-          className="absolute right-0 top-full z-50 mt-space-2 w-72"
-          role="menu"
-          aria-label="Activity"
-        >
-          <div className="flex items-center gap-space-2 border-b border-border-subtle px-space-3 py-space-2">
-            <p className="min-w-0 flex-1 text-[11px] font-semibold tracking-tight text-text-primary">
-              Activity
-            </p>
-            <Button
-              variant="IconOnly"
-              size="sm"
-              aria-label={
-                sortOrder === "newest"
-                  ? "Sort oldest first"
-                  : "Sort newest first"
-              }
-              title={sortOrder === "newest" ? "Newest" : "Oldest"}
-              onClick={toggleSort}
-              className="size-7 shrink-0 text-text-muted hover:text-text-primary"
-            >
-              <ArrowDownUp className="size-3.5" aria-hidden />
-            </Button>
-          </div>
-          <ul className="max-h-72 overflow-y-auto py-space-1">
-            {sortedItems.length === 0 ? (
-              <li className="px-space-3 py-space-4 text-[11px] tracking-tight text-text-muted">
-                No activity yet.
-              </li>
-            ) : (
-              sortedItems.map((item) => (
-                <li
-                  key={item.id}
-                  role="menuitem"
-                  className="group flex gap-space-2 px-space-3 py-space-2"
-                >
-                  <span className="mt-0.5 text-text-muted">
-                    {kindIcon(item.kind)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium tracking-tight text-text-primary">
-                      {item.title}
-                    </p>
-                    <p className="truncate text-[10px] tracking-tight text-text-muted">
-                      {item.detail}
-                    </p>
-                    <p className="mt-0.5 text-[10px] tracking-tight text-text-disabled">
-                      {formatActivityTime(item.createdAt)}
-                    </p>
-                  </div>
-                  <Button
-                    variant="IconOnly"
-                    size="sm"
-                    aria-label={`Delete ${item.title}`}
-                    disabled={busy}
-                    onClick={(e) => handleDeleteOne(e, item.id)}
-                    className="size-7 shrink-0 self-start text-text-muted opacity-0 hover:text-status-error group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 disabled:opacity-40"
-                  >
-                    <Trash2 className="size-3.5" aria-hidden />
-                  </Button>
-                </li>
-              ))
+        <>
+          <button
+            type="button"
+            aria-label="Dismiss activity"
+            className="fixed inset-0 z-40 bg-black/40 md:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <Menu
+            className={cn(
+              "z-50 flex max-h-[70dvh] w-auto flex-col overflow-hidden",
+              "fixed inset-x-space-3 top-14",
+              "md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-space-2 md:max-h-none md:w-72",
             )}
-          </ul>
-        </Menu>
+            role="menu"
+            aria-label="Activity"
+          >
+            <div className="flex shrink-0 items-center gap-space-2 border-b border-border-subtle px-space-3 py-space-2">
+              <p className="min-w-0 flex-1 text-[11px] font-semibold tracking-tight text-text-primary">
+                Activity
+              </p>
+              <Button
+                variant="IconOnly"
+                size="sm"
+                aria-label={
+                  sortOrder === "newest"
+                    ? "Sort oldest first"
+                    : "Sort newest first"
+                }
+                title={sortOrder === "newest" ? "Newest" : "Oldest"}
+                onClick={toggleSort}
+                className="size-7 shrink-0 text-text-muted hover:text-text-primary"
+              >
+                <ArrowDownUp className="size-3.5" aria-hidden />
+              </Button>
+            </div>
+            <ul className="min-h-0 flex-1 overflow-y-auto py-space-1 md:max-h-72">
+              {sortedItems.length === 0 ? (
+                <li className="px-space-3 py-space-4 text-[11px] tracking-tight text-text-muted">
+                  No activity yet.
+                </li>
+              ) : (
+                sortedItems.map((item) => (
+                  <li
+                    key={item.id}
+                    role="menuitem"
+                    className="group flex gap-space-2 px-space-3 py-space-2"
+                  >
+                    <span className="mt-0.5 text-text-muted">
+                      {kindIcon(item.kind)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-medium tracking-tight text-text-primary">
+                        {item.title}
+                      </p>
+                      <p className="break-words text-[10px] tracking-tight text-text-muted md:truncate">
+                        {item.detail}
+                      </p>
+                      <p className="mt-0.5 text-[10px] tracking-tight text-text-disabled">
+                        {formatActivityTime(item.createdAt)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="IconOnly"
+                      size="sm"
+                      aria-label={`Delete ${item.title}`}
+                      disabled={busy}
+                      onClick={(e) => handleDeleteOne(e, item.id)}
+                      className="size-7 shrink-0 self-start text-text-muted opacity-0 hover:text-status-error group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 disabled:opacity-40"
+                    >
+                      <Trash2 className="size-3.5" aria-hidden />
+                    </Button>
+                  </li>
+                ))
+              )}
+            </ul>
+          </Menu>
+        </>
       ) : null}
     </div>
   );

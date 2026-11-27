@@ -78,7 +78,7 @@ function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid w-full min-w-0 grid-cols-1 items-start gap-space-1 sm:grid-cols-[minmax(120px,180px)_minmax(0,1fr)] sm:gap-space-4">
+    <div className="grid w-full min-w-0 grid-cols-1 items-start gap-space-1 md:grid-cols-[minmax(120px,180px)_minmax(0,1fr)] md:gap-space-4">
       <SpecLabel>{label}</SpecLabel>
       <div className="min-w-0 w-full">{children}</div>
     </div>
@@ -299,7 +299,7 @@ export function CourseSpecCard({
 
         <Row label="Credit units">
           {editing ? (
-            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 md:grid-cols-2">
               <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Lecture</span>
                 <Input
@@ -336,7 +336,7 @@ export function CourseSpecCard({
 
         <Row label="Pre-req / Co-req">
           {editing ? (
-            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 md:grid-cols-2">
               <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">
                   Pre-requisite
@@ -365,17 +365,20 @@ export function CourseSpecCard({
               </label>
             </div>
           ) : (
-            <SpecValue>
-              Pre-req: {dash(prerequisite)}
-              {" · "}
-              Co-req: {dash(spec.corequisite)}
-            </SpecValue>
+            <div className="flex w-full min-w-0 flex-col gap-space-1">
+              <SpecValue>
+                Pre-req: {dash(prerequisite)}
+              </SpecValue>
+              <SpecValue>
+                Co-req: {dash(spec.corequisite)}
+              </SpecValue>
+            </div>
           )}
         </Row>
 
         <Row label="Contact hours">
           {editing ? (
-            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 md:grid-cols-2">
               <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Lecture</span>
                 <Input

@@ -137,34 +137,36 @@ export function CoAssessmentTable({
     >
       <div className="flex w-full min-w-0 flex-col gap-space-4">
         <div className="w-full min-w-0 overflow-x-auto">
-          <table className="w-full table-fixed border-collapse text-left">
+          <table className="w-full min-w-[720px] table-fixed border-collapse text-left">
             <thead>
               <tr className="border-b border-border-subtle bg-bg-subtle">
                 {(
                   [
-                    "CO",
-                    "Weight %",
-                    "Assessment Task",
-                    "Weight",
-                    "Final Weight",
-                    "C/P/A",
-                    "",
+                    { full: "CO", short: "CO" },
+                    { full: "Weight %", short: "Wt %" },
+                    { full: "Assessment Task", short: "Task" },
+                    { full: "Weight", short: "Wt" },
+                    { full: "Final Weight", short: "Final" },
+                    { full: "C/P/A", short: "C/P/A" },
+                    { full: "", short: "" },
                   ] as const
-                ).map((label, i) => (
+                ).map((col, i) => (
                   <th
-                    key={label || `a-${i}`}
+                    key={col.full || `a-${i}`}
                     className={cn(
-                      "px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted",
+                      "px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-text-muted",
                       (i === 0 || i === 1) &&
-                        "w-[72px] whitespace-nowrap px-space-1 text-center",
+                        "w-[72px] px-space-1 text-center",
                       i === 2 && "min-w-0",
                       (i === 3 || i === 4) && "w-[88px]",
                       i === 5 && "w-[64px]",
                       i === 6 && "w-10 px-space-1",
                     )}
-                    aria-label={label || "Actions"}
+                    aria-label={col.full || "Actions"}
+                    title={col.full || undefined}
                   >
-                    {label}
+                    <span className="md:hidden">{col.short}</span>
+                    <span className="hidden md:inline">{col.full}</span>
                   </th>
                 ))}
               </tr>

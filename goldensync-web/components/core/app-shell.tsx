@@ -104,12 +104,14 @@ export function AppShell({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           {...topBar}
-          hideSemester={false}
+          hideSemester={topBar?.hideSemester ?? false}
           semesterSlot={
-            <SemesterSwitcher
-              listPlacement="bottom"
-              triggerClassName="w-[min(220px,36vw)] sm:w-[min(260px,40vw)] md:w-[280px]"
-            />
+            topBar?.semesterSlot ?? (
+              <SemesterSwitcher
+                listPlacement="bottom"
+                triggerClassName="w-[min(140px,32vw)] sm:w-[min(260px,40vw)] md:w-[280px]"
+              />
+            )
           }
           /* Menu button only below md — drawer owns nav on phone */
           showMenuButton

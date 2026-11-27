@@ -125,13 +125,13 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         {hasHeader ? (
           <div
             data-slot="gs-card-header"
-            className="relative flex w-full items-center justify-between gap-space-3 border-b border-border-subtle pb-space-4"
+            className="relative flex w-full flex-col items-stretch gap-space-2 border-b border-border-subtle pb-space-4 sm:flex-row sm:items-center sm:justify-between sm:gap-space-3"
           >
-            <h3 className="text-heading-lg whitespace-nowrap text-text-primary">
+            <h3 className="min-w-0 text-heading-lg whitespace-normal text-text-primary">
               {title}
             </h3>
             {hasHeaderBadge ? (
-              <div className="shrink-0">
+              <div className="w-full sm:w-auto sm:shrink-0">
                 {headerBadge ?? <Badge label="Badge" size="md" variant="Default" />}
               </div>
             ) : null}

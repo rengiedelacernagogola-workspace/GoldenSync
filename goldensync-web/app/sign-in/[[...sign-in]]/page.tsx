@@ -36,6 +36,11 @@ export default function SignInPage() {
               elements: {
                 rootBox: "mx-auto w-full max-w-md",
                 card: "w-full border border-border-strong bg-bg-muted shadow-hover",
+                socialButtonsBlockButton:
+                  "border border-border-default bg-bg-base text-text-primary hover:bg-bg-subtle",
+                socialButtonsBlockButtonText:
+                  "text-text-primary font-medium",
+                socialButtonsProviderIcon: "brightness-100",
               },
             }}
           />

@@ -16,9 +16,24 @@ export default function SignUpPage() {
       >
         <SignUp
           appearance={{
+            variables: {
+              colorPrimary: "var(--accent-primary)",
+              colorBackground: "var(--bg-muted)",
+              colorForeground: "var(--text-primary)",
+              colorMutedForeground: "var(--text-muted)",
+              colorNeutral: "var(--border-default)",
+              colorInput: "var(--bg-base)",
+              colorInputForeground: "var(--text-primary)",
+              borderRadius: "0.5rem",
+            },
             elements: {
               rootBox: "mx-auto",
               card: "bg-bg-muted border border-border-strong shadow-hover",
+              socialButtonsBlockButton:
+                "border border-border-default bg-bg-base text-text-primary hover:bg-bg-subtle",
+              socialButtonsBlockButtonText:
+                "text-text-primary font-medium",
+              socialButtonsProviderIcon: "brightness-100",
             },
           }}
         />
