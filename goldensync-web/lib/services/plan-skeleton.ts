@@ -10,9 +10,10 @@ import {
   planWeekCountFromSemester,
   type SkeletonWeek,
 } from "@/lib/domain/plan-skeleton";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
-import { notFound } from "@/lib/http/errors";
+import { AppError, notFound } from "@/lib/http/errors";
 import { listPlanWeeksForSubject } from "@/lib/queries/plan";
 import type { PlanWeekDto } from "@/lib/services/mappers";
 import { toManilaDateISO } from "@/lib/time/manila";
@@ -78,7 +79,18 @@ export async function ensurePlanWeekSkeleton(
   userId: string,
   subjectId: string,
 ): Promise<PlanWeekDto[]> {
-  await requireOwnedSubject(userId, subjectId);
+  const subject = await requireOwnedSubject(userId, subjectId);
+  const semester = await db.orm.public.Semester.where({
+    id: subject.semesterId,
+    userId,
+  }).first();
+  if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only. Archive or delete instead of generating weeks.",
+    );
+  }
   const existing = await db.orm.public.PlanWeek.where({ subjectId }).all();
   if (existing.length > 0) {
     return listPlanWeeksForSubject(userId, subjectId);

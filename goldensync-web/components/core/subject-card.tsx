@@ -111,6 +111,15 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
 
     const [editRevealed, setEditRevealed] = React.useState(false);
     const actionsRef = React.useRef<HTMLDivElement>(null);
+    const eyeRef = React.useRef<HTMLButtonElement>(null);
+    const editRef = React.useRef<HTMLButtonElement>(null);
+
+    function collapseEditReveal(opts?: { restoreEye?: boolean }) {
+      setEditRevealed(false);
+      if (opts?.restoreEye) {
+        window.setTimeout(() => eyeRef.current?.focus(), 0);
+      }
+    }
 
     React.useEffect(() => {
       if (!editRevealed) return;
@@ -119,11 +128,11 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
         const el = actionsRef.current;
         if (!el) return;
         if (e.target instanceof Node && el.contains(e.target)) return;
-        setEditRevealed(false);
+        collapseEditReveal({ restoreEye: true });
       }
 
       function onKeyDown(e: KeyboardEvent) {
-        if (e.key === "Escape") setEditRevealed(false);
+        if (e.key === "Escape") collapseEditReveal({ restoreEye: true });
       }
 
       document.addEventListener("pointerdown", onPointerDown);
@@ -132,6 +141,11 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
         document.removeEventListener("pointerdown", onPointerDown);
         document.removeEventListener("keydown", onKeyDown);
       };
+    }, [editRevealed]);
+
+    React.useEffect(() => {
+      if (!editRevealed) return;
+      window.setTimeout(() => editRef.current?.focus(), 0);
     }, [editRevealed]);
 
     return (
@@ -170,9 +184,12 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
               {onEdit ? (
                 <div className="relative inline-flex size-8 items-center justify-center">
                   <Button
+                    ref={eyeRef}
                     type="button"
                     variant="Ghost"
                     size="sm"
+                    tabIndex={editRevealed ? -1 : 0}
+                    aria-hidden={editRevealed}
                     aria-label={`Show edit for ${code}`}
                     title="Show edit"
                     className={cn(
@@ -190,9 +207,12 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
                     <Eye className="size-3.5" aria-hidden />
                   </Button>
                   <Button
+                    ref={editRef}
                     type="button"
                     variant="Ghost"
                     size="sm"
+                    tabIndex={editRevealed ? 0 : -1}
+                    aria-hidden={!editRevealed}
                     aria-label={`Edit ${code}`}
                     className={cn(
                       "absolute inset-0 min-h-8 min-w-8 px-space-2 text-text-muted hover:text-text-primary",

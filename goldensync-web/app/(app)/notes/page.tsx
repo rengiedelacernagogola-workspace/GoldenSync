@@ -195,6 +195,7 @@ function NotesBody() {
   }
 
   const subjectSelected = subjects.length > 0;
+  const notesReadOnly = live.isActiveSemesterPast;
 
   return (
     <>
@@ -221,6 +222,7 @@ function NotesBody() {
           <p className="text-overline uppercase text-text-muted">
             All subjects · note-taker
             {live.signedIn ? " · Live" : ""}
+            {notesReadOnly ? " · Past (view only)" : ""}
           </p>
 
           {!subjectSelected ? (
@@ -230,86 +232,95 @@ function NotesBody() {
           ) : (
             <div className="grid w-full items-stretch gap-space-4 lg:grid-cols-2">
               <Card className="h-full w-full">
-                <div className="flex w-full flex-col gap-space-2 border-b border-border-subtle pb-space-3">
-                  <label className="flex flex-col gap-space-1">
-                    <span className="text-[11px] font-medium tracking-tight text-text-secondary">
-                      Subject
-                    </span>
-                    <select
-                      className={cn(
-                        "h-9 w-full rounded-md border border-border-default bg-bg-subtle px-space-2",
-                        "text-[11px] font-medium tracking-tight text-text-primary outline-none",
-                        "focus-visible:border-border-focus",
-                      )}
-                      value={activeSubject?.id ?? ""}
+                {notesReadOnly ? (
+                  <p className="text-body-sm text-text-muted">
+                    Past semester — notes are view only. Open the library to
+                    read existing notes.
+                  </p>
+                ) : (
+                  <>
+                    <div className="flex w-full flex-col gap-space-2 border-b border-border-subtle pb-space-3">
+                      <label className="flex flex-col gap-space-1">
+                        <span className="text-[11px] font-medium tracking-tight text-text-secondary">
+                          Subject
+                        </span>
+                        <select
+                          className={cn(
+                            "h-9 w-full rounded-md border border-border-default bg-bg-subtle px-space-2",
+                            "text-[11px] font-medium tracking-tight text-text-primary outline-none",
+                            "focus-visible:border-border-focus",
+                          )}
+                          value={activeSubject?.id ?? ""}
+                          onChange={(e) => {
+                            setActiveSubjectId(e.target.value);
+                            setNotesSaved(false);
+                          }}
+                          aria-label="Note subject"
+                        >
+                          {subjects.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.courseCode} — {s.title}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <Input
+                        size="Compact"
+                        placeholder="Notes title — name this note"
+                        value={noteTitle}
+                        onChange={(e) => {
+                          setNotesSaved(false);
+                          setNoteTitle(e.target.value);
+                        }}
+                        aria-label="Notes title"
+                      />
+                      <Input
+                        size="Compact"
+                        placeholder="Topic name — what this note covers"
+                        value={topicName}
+                        onChange={(e) => {
+                          setNotesSaved(false);
+                          setTopicName(e.target.value);
+                        }}
+                        aria-label="Topic name"
+                      />
+                    </div>
+                    <Textarea
+                      value={notes}
                       onChange={(e) => {
-                        setActiveSubjectId(e.target.value);
                         setNotesSaved(false);
+                        setNotes(e.target.value);
                       }}
-                      aria-label="Note subject"
-                    >
-                      {subjects.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.courseCode} — {s.title}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <Input
-                    size="Compact"
-                    placeholder="Notes title — name this note"
-                    value={noteTitle}
-                    onChange={(e) => {
-                      setNotesSaved(false);
-                      setNoteTitle(e.target.value);
-                    }}
-                    aria-label="Notes title"
-                  />
-                  <Input
-                    size="Compact"
-                    placeholder="Topic name — what this note covers"
-                    value={topicName}
-                    onChange={(e) => {
-                      setNotesSaved(false);
-                      setTopicName(e.target.value);
-                    }}
-                    aria-label="Topic name"
-                  />
-                </div>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => {
-                    setNotesSaved(false);
-                    setNotes(e.target.value);
-                  }}
-                  placeholder="Write a note for the selected subject"
-                  rows={6}
-                  aria-label="Note body"
-                />
-                <div className="mt-space-3 flex flex-wrap items-center gap-space-3">
-                  <Button
-                    variant="Primary"
-                    size="md"
-                    disabled={
-                      savingNotes ||
-                      !notes.trim() ||
-                      !noteTitle.trim() ||
-                      !activeSubject
-                    }
-                    onClick={() => void saveNotes()}
-                  >
-                    {savingNotes
-                      ? "Saving…"
-                      : editingNoteId
-                        ? "Update note"
-                        : "Save note"}
-                  </Button>
-                  {notesSaved ? (
-                    <span className="text-body-sm text-status-success">
-                      Saved — canvas ready for another note.
-                    </span>
-                  ) : null}
-                </div>
+                      placeholder="Write a note for the selected subject"
+                      rows={6}
+                      aria-label="Note body"
+                    />
+                    <div className="mt-space-3 flex flex-wrap items-center gap-space-3">
+                      <Button
+                        variant="Primary"
+                        size="md"
+                        disabled={
+                          savingNotes ||
+                          !notes.trim() ||
+                          !noteTitle.trim() ||
+                          !activeSubject
+                        }
+                        onClick={() => void saveNotes()}
+                      >
+                        {savingNotes
+                          ? "Saving…"
+                          : editingNoteId
+                            ? "Update note"
+                            : "Save note"}
+                      </Button>
+                      {notesSaved ? (
+                        <span className="text-body-sm text-status-success">
+                          Saved — canvas ready for another note.
+                        </span>
+                      ) : null}
+                    </div>
+                  </>
+                )}
               </Card>
 
               <NotesLibraryCard
@@ -322,23 +333,43 @@ function NotesBody() {
                 filterSubjectId={filterSubjectId}
                 onFilterSubjectChange={setFilterSubjectId}
                 className="min-h-0 flex-1"
-                onEditNote={(n) => void handleEditNote(n)}
-                onDeleteNote={(id) => {
-                  const note = library.find((n) => n.id === id);
-                  if (note) void handleDeleteNote(note);
-                }}
-                onArchiveNote={(id) => {
-                  const note = library.find((n) => n.id === id);
-                  if (note) void handleArchiveNote(note);
-                }}
-                onRestoreNote={(id) => {
-                  const note = library.find((n) => n.id === id);
-                  if (note) void handleRestoreNote(note);
-                }}
-                onUpdateMeta={(id, patch) => {
-                  const note = library.find((n) => n.id === id);
-                  if (note) void handleUpdateMeta(note, patch);
-                }}
+                onEditNote={
+                  notesReadOnly
+                    ? undefined
+                    : (n) => void handleEditNote(n)
+                }
+                onDeleteNote={
+                  notesReadOnly
+                    ? undefined
+                    : (id) => {
+                        const note = library.find((n) => n.id === id);
+                        if (note) void handleDeleteNote(note);
+                      }
+                }
+                onArchiveNote={
+                  notesReadOnly
+                    ? undefined
+                    : (id) => {
+                        const note = library.find((n) => n.id === id);
+                        if (note) void handleArchiveNote(note);
+                      }
+                }
+                onRestoreNote={
+                  notesReadOnly
+                    ? undefined
+                    : (id) => {
+                        const note = library.find((n) => n.id === id);
+                        if (note) void handleRestoreNote(note);
+                      }
+                }
+                onUpdateMeta={
+                  notesReadOnly
+                    ? undefined
+                    : (id, patch) => {
+                        const note = library.find((n) => n.id === id);
+                        if (note) void handleUpdateMeta(note, patch);
+                      }
+                }
               />
             </div>
           )}

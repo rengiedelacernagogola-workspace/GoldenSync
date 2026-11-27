@@ -41,7 +41,8 @@ export type LiveDataState = {
   isActiveSemesterPast: boolean;
   subjects: SubjectDto[];
   error: string | null;
-  refresh: () => void;
+  /** Reload me/semesters/subjects. Optional preferId selects that semester after refresh. */
+  refresh: (preferSemesterId?: string) => void;
   /** Switch active semester and reload its subjects (persists per user). */
   selectSemester: (semesterId: string) => Promise<void>;
 };
@@ -79,6 +80,10 @@ export function useLiveDataState(): LiveDataState {
   const [error, setError] = React.useState<string | null>(null);
   const [tick, setTick] = React.useState(0);
   const activeSemesterIdRef = React.useRef<string | null>(null);
+  /** Explicit semester to prefer on next refresh (beats current valid ref). */
+  const preferSemesterIdRef = React.useRef<string | null>(null);
+  /** Monotonic owner for in-flight subject loads (selection / refresh / sign-out). */
+  const requestOwnerRef = React.useRef(0);
 
   React.useEffect(() => {
     activeSemesterIdRef.current = activeSemesterId;
@@ -88,14 +93,16 @@ export function useLiveDataState(): LiveDataState {
     if (!isLoaded) return;
 
     let cancelled = false;
+    const owner = ++requestOwnerRef.current;
     const handle = window.setTimeout(() => {
       void (async () => {
         if (!isSignedIn) {
-          if (cancelled) return;
+          if (cancelled || owner !== requestOwnerRef.current) return;
           setMe(null);
           setSemesters([]);
           setActiveSemesterId(null);
           setSubjects([]);
+          setSubjectCount(0);
           setReady(true);
           setError(null);
           return;
@@ -105,7 +112,7 @@ export function useLiveDataState(): LiveDataState {
             fetchMe(),
             fetchSemesters(),
           ]);
-          if (cancelled) return;
+          if (cancelled || owner !== requestOwnerRef.current) return;
           setMe({
             id: profile.id,
             email: profile.email,
@@ -122,8 +129,13 @@ export function useLiveDataState(): LiveDataState {
           setSessionActive(true);
           setHasSemester(mapped.length > 0);
 
+          const override = preferSemesterIdRef.current;
+          preferSemesterIdRef.current = null;
           const stored = readStoredSemesterId(profile.id);
           const preferred =
+            (override && mapped.some((s) => s.id === override)
+              ? override
+              : null) ??
             (activeSemesterIdRef.current &&
             mapped.some((s) => s.id === activeSemesterIdRef.current)
               ? activeSemesterIdRef.current
@@ -141,13 +153,14 @@ export function useLiveDataState(): LiveDataState {
             setSubjectCount(0);
           } else {
             const subjectList = await fetchSubjects(preferred);
-            if (cancelled) return;
+            if (cancelled || owner !== requestOwnerRef.current) return;
+            if (activeSemesterIdRef.current !== preferred) return;
             setSubjects(subjectList);
             setSubjectCount(subjectList.length);
           }
           setError(null);
         } catch (err) {
-          if (cancelled) return;
+          if (cancelled || owner !== requestOwnerRef.current) return;
           setMe(null);
           setSemesters([]);
           setActiveSemesterId(null);
@@ -160,7 +173,7 @@ export function useLiveDataState(): LiveDataState {
               : "Could not load account data.",
           );
         } finally {
-          if (!cancelled) setReady(true);
+          if (!cancelled && owner === requestOwnerRef.current) setReady(true);
         }
       })();
     }, 0);
@@ -178,20 +191,30 @@ export function useLiveDataState(): LiveDataState {
     setSubjectCount,
   ]);
 
-  const refresh = React.useCallback(() => setTick((t) => t + 1), []);
+  const refresh = React.useCallback((preferSemesterId?: string) => {
+    if (preferSemesterId) preferSemesterIdRef.current = preferSemesterId;
+    setTick((t) => t + 1);
+  }, []);
 
   const selectSemester = React.useCallback(
     async (semesterId: string) => {
       const match = semesters.find((s) => s.id === semesterId);
       if (!match) return;
+      const owner = ++requestOwnerRef.current;
       setActiveSemesterId(semesterId);
+      setSubjects([]);
+      setSubjectCount(0);
       if (me?.id) writeStoredSemesterId(me.id, semesterId);
       try {
         const subjectList = await fetchSubjects(semesterId);
+        if (owner !== requestOwnerRef.current) return;
+        if (activeSemesterIdRef.current !== semesterId) return;
         setSubjects(subjectList);
         setSubjectCount(subjectList.length);
         setError(null);
       } catch (err) {
+        if (owner !== requestOwnerRef.current) return;
+        if (activeSemesterIdRef.current !== semesterId) return;
         setSubjects([]);
         setSubjectCount(0);
         setError(

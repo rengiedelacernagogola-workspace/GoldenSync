@@ -35,6 +35,8 @@ export function CardEditReveal({
 }: CardEditRevealProps) {
   const [revealed, setRevealed] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const eyeRef = React.useRef<HTMLButtonElement>(null);
+  const editRef = React.useRef<HTMLButtonElement>(null);
   const wasEditing = React.useRef(false);
 
   React.useEffect(() => {
@@ -44,6 +46,13 @@ export function CardEditReveal({
     wasEditing.current = editing;
   }, [editing]);
 
+  function collapseReveal(opts?: { restoreEye?: boolean }) {
+    setRevealed(false);
+    if (opts?.restoreEye) {
+      window.setTimeout(() => eyeRef.current?.focus(), 0);
+    }
+  }
+
   React.useEffect(() => {
     if (!revealed || editing) return;
 
@@ -51,11 +60,11 @@ export function CardEditReveal({
       const el = rootRef.current;
       if (!el) return;
       if (e.target instanceof Node && el.contains(e.target)) return;
-      setRevealed(false);
+      collapseReveal({ restoreEye: true });
     }
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setRevealed(false);
+      if (e.key === "Escape") collapseReveal({ restoreEye: true });
     }
 
     document.addEventListener("pointerdown", onPointerDown);
@@ -66,9 +75,14 @@ export function CardEditReveal({
     };
   }, [revealed, editing]);
 
+  React.useEffect(() => {
+    if (!revealed || editing) return;
+    window.setTimeout(() => editRef.current?.focus(), 0);
+  }, [revealed, editing]);
+
   function handleCancel() {
     onCancel();
-    setRevealed(false);
+    collapseReveal({ restoreEye: true });
   }
 
   if (editing) {
@@ -102,10 +116,13 @@ export function CardEditReveal({
       {/* Fixed footprint ≈ Edit button so Eye↔Edit share the same spot */}
       <div className="relative inline-flex h-8 min-w-[4.75rem] items-center justify-end">
         <Button
+          ref={eyeRef}
           variant="Ghost"
           size="sm"
           type="button"
           disabled={saving}
+          tabIndex={revealed ? -1 : 0}
+          aria-hidden={revealed}
           onClick={() => setRevealed(true)}
           aria-label="Show edit controls"
           title="Show edit"
@@ -120,10 +137,13 @@ export function CardEditReveal({
         </Button>
 
         <Button
+          ref={editRef}
           variant="Secondary"
           size="sm"
           type="button"
           disabled={saving}
+          tabIndex={revealed ? 0 : -1}
+          aria-hidden={!revealed}
           onClick={onBeginEdit}
           aria-label={editAriaLabel}
           className={cn(

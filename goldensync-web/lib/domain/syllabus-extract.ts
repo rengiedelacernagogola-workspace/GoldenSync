@@ -289,9 +289,9 @@ export function extractCsuProgramOutcomes(text: string): ExtractedOutcome[] {
       .replace(/\s+/g, " ")
       .trim();
     if (rawCode.length < 2 || description.length < 12) continue;
-    /* PO6(CS) → PO6-CS */
+    /* PO6-(CS) / PO6(CS) → PO6-CS */
     const code = rawCode
-      .replace(/\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
+      .replace(/-?\s*\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
       .replace(/[()]/g, "")
       .replace(/\s+/g, "")
       .replace(/–|—/g, "-")
@@ -375,7 +375,7 @@ export function extractOutcomesFromText(text: string): ExtractedOutcome[] {
     const kind = kindMatch[1]!.toUpperCase() as "PEO" | "PO" | "CO";
     /* PO6-(CS) / PO6(CS) / PO6-IS → PO6-CS / PO6-IS */
     const code = rawCode
-      .replace(/\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
+      .replace(/-?\s*\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
       .replace(/[()]/g, "")
       .replace(/\s+/g, "")
       .replace(/–|—/g, "-")
@@ -480,10 +480,11 @@ export function extractAssessmentsFromText(
     const label = cleanLine(match[1] ?? "").slice(0, 120);
     if (label.length < 3) continue;
     if (/^CO\d/i.test(label)) continue;
-    if (/^exam$/i.test(label)) continue;
+    const max = match[2] ? match[2] : null;
+    /* Skip bare unscored "Exam"; keep "Exam" when maxScore was extracted. */
+    if (/^exam$/i.test(label) && !max) continue;
     const key = label.toLowerCase();
     if (found.has(key)) continue;
-    const max = match[2] ? match[2] : null;
     found.set(key, { label, maxScore: max });
     if (found.size >= 40) break;
   }

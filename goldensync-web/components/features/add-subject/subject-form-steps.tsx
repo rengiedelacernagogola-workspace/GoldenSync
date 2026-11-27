@@ -229,9 +229,9 @@ export function SubjectFormSteps({
             Grading
           </p>
           <p className="text-body-sm text-text-muted">
-            A default Part IV template (grade status, equivalents, and CO
-            weights) is applied when you create this subject—same as Sync when
-            the PDF has no grading section. Refine it anytime under{" "}
+            If the PDF includes a grading template, Sync saves that. Otherwise a
+            default Part IV template (grade status, equivalents, and CO weights)
+            is applied on create. Refine it anytime under{" "}
             <span className="text-text-secondary">
               Grade Calculator → Grading System
             </span>

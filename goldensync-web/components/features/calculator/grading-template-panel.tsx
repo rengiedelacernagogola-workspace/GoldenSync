@@ -103,7 +103,7 @@ export function GradingTemplatePanel({
   function applyDefaultTemplate() {
     const defaults = cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE);
     setDoc(defaults);
-    setBaseline("");
+    /* Keep loaded baseline so Save stays off when already at default. */
     setSaved(false);
     setError(null);
   }

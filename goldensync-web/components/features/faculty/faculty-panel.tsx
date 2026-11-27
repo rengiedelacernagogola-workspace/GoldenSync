@@ -214,11 +214,12 @@ export function FacultyPanel({
                 <span className="text-caption text-text-muted">Title</span>
                 <select
                   value={draftTitle}
+                  disabled={saving}
                   onChange={(e) =>
                     setDraftTitle(e.target.value as FacultyTitle)
                   }
                   aria-label="Instructor title"
-                  className="h-8 w-full min-w-0 rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary"
+                  className="h-8 w-full min-w-0 rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary disabled:opacity-60"
                 >
                   <option value="">—</option>
                   <option value="Mr">Mr</option>
@@ -230,6 +231,7 @@ export function FacultyPanel({
                 <Input
                   size="Compact"
                   value={draftName}
+                  disabled={saving}
                   onChange={(e) => setDraftName(e.target.value)}
                   aria-label="Instructor name"
                   placeholder="e.g. Juan Dela Cruz"
@@ -247,6 +249,7 @@ export function FacultyPanel({
             <Input
               size="Compact"
               value={draftCollege}
+              disabled={saving}
               onChange={(e) => setDraftCollege(e.target.value)}
               aria-label="College"
               placeholder="e.g. College of Computing and Information Sciences"
@@ -262,6 +265,7 @@ export function FacultyPanel({
             <Input
               size="Compact"
               value={draftConsultation}
+              disabled={saving}
               onChange={(e) => setDraftConsultation(e.target.value)}
               aria-label="Consultation"
               placeholder="e.g. Mon 1–3 PM, Room IT-201"
@@ -280,6 +284,7 @@ export function FacultyPanel({
               min={0}
               step="1"
               value={draftHours}
+              disabled={saving}
               onChange={(e) => setDraftHours(e.target.value)}
               aria-label="Estimated contact hours"
               placeholder="e.g. 54"

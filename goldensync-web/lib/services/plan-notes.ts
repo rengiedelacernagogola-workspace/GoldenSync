@@ -7,6 +7,7 @@ import "server-only";
  */
 
 import { limits } from "@/lib/config/limits";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
 import { AppError, notFound } from "@/lib/http/errors";
@@ -14,6 +15,22 @@ import type {
   CreatePlanNoteInput,
   UpdatePlanNoteInput,
 } from "@/lib/validation/plan-note";
+
+async function requireEditableSubject(userId: string, subjectId: string) {
+  const subject = await requireOwnedSubject(userId, subjectId);
+  const semester = await db.orm.public.Semester.where({
+    id: subject.semesterId,
+    userId,
+  }).first();
+  if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only. Notes cannot be changed.",
+    );
+  }
+  return subject;
+}
 
 export type PlanNoteDto = {
   id: string;
@@ -126,7 +143,7 @@ export async function createPlanNote(
   subjectId: string,
   input: CreatePlanNoteInput,
 ): Promise<PlanNoteDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
 
   const pinned = input.pinned === true;
   if (pinned) {
@@ -159,7 +176,7 @@ export async function updatePlanNote(
   noteId: string,
   input: UpdatePlanNoteInput,
 ): Promise<PlanNoteDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
 
   const existing = await db.orm.public.PlanNote.where({
     id: noteId,
@@ -211,7 +228,7 @@ export async function deletePlanNote(
   subjectId: string,
   noteId: string,
 ): Promise<void> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.PlanNote.where({
     id: noteId,
     subjectId,
@@ -231,7 +248,7 @@ export async function restorePlanNote(
   subjectId: string,
   noteId: string,
 ): Promise<PlanNoteDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.PlanNote.where({
     id: noteId,
     subjectId,

@@ -134,6 +134,7 @@ export function ClassPoliciesPanel({
           <Textarea
             rows={12}
             value={draft}
+            disabled={saving}
             onChange={(e) => setDraft(e.target.value)}
             aria-label="Class policies"
             placeholder="Class policies…"

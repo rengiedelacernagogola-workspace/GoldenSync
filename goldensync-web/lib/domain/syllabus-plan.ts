@@ -33,7 +33,7 @@ function isPlanNoiseLine(line: string): boolean {
     /^[●•▪]/.test(line) ||
     /^\d+\.\s/.test(line) ||
     /^[a-z]/.test(line) ||
-    /^(Discussion|Output|Laboratory|Lab\s*Activity|Long\s*Quiz|Midterm|Final\s*Exam|Software\s*Project|Interactive|Learning\s*Material|Video\s*Lecture|Flipped|Topic\s*Discussion|Online|Problem-based|Collaborative|Guided|Materials\s*uploaded)/i.test(
+    /^(Discussion|Output|Laboratory\s*(?:Worksheet|Activity)|Lab\s*(?:Worksheet|Activity)|Long\s*Quiz|Midterm|Final\s*Exam|Software\s*Project|Interactive|Learning\s*Material|Video\s*Lecture|Flipped|Topic\s*Discussion|Online|Problem-based|Collaborative|Guided|Materials\s*uploaded)/i.test(
       line,
     )
   );

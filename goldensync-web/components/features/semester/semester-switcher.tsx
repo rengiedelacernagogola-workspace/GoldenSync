@@ -17,7 +17,6 @@ import { ApiClientError } from "@/lib/api/client";
 import { deleteSemester } from "@/lib/api/semesters";
 import { pushActivity } from "@/lib/activity/activity-log";
 import {
-  activeSemesterStorageKey,
   formatSemesterDisplayLabel,
   isSemesterPast,
   yearLevelName,
@@ -205,17 +204,12 @@ export function SemesterSwitcher({
               onClose={() => setCreateOpen(false)}
               onCreated={(created) => {
                 onActivity?.();
-                if (created.id && live.me?.id) {
-                  try {
-                    window.localStorage.setItem(
-                      activeSemesterStorageKey(live.me.id),
-                      created.id,
-                    );
-                  } catch {
-                    /* ignore */
-                  }
+                setCreateOpen(false);
+                if (created.id) {
+                  live.refresh(created.id);
+                } else {
+                  live.refresh();
                 }
-                live.refresh();
               }}
             />
           </div>,
