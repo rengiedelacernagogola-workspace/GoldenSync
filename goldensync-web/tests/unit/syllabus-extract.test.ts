@@ -7,6 +7,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { extractGradingTemplateFromText } from "../../lib/domain/grading-template.ts";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
   extractAssessmentsFromText,
   extractClassPolicies,
@@ -24,6 +28,11 @@ import {
   extractCsuOneWeekBlocks,
   extractPlanWeeksFromText,
 } from "../../lib/domain/syllabus-plan.ts";
+
+const FIXTURE_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../fixtures",
+);
 
 const CSU_PART_I = `
 PART I: COURSE SPECIFICATION
@@ -289,4 +298,120 @@ PART IV. GRADING SYSTEM
   assert.equal(weeks[6]?.topic, weeks[4]?.topic);
   assert.match(weeks[7]?.topic ?? "", /Summative Assessment/i);
   assert.equal(weeks[8]?.weekNumber, 9);
+});
+
+test("F-CID-009 ITE 14 syllabus: Part I + faculty + policies adapt", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "ite14-fcid009-syllabus.txt"),
+    "utf8",
+  );
+  const fields = extractSyllabusFields(text);
+  assert.equal(fields.courseCode, "ITE 14");
+  assert.match(fields.title ?? "", /Data Structures/i);
+  assert.equal(fields.units, "3");
+  assert.match(fields.prerequisite ?? "", /ITE\s*13/i);
+  assert.doesNotMatch(fields.prerequisite ?? "", /Total Contact/i);
+  assert.match(fields.effectivity ?? "", /2025-2026/);
+  assert.match(fields.facultyName ?? "", /NAKAZATO/i);
+  assert.doesNotMatch(fields.facultyName ?? "", /ABAO/);
+  assert.ok((fields.classPolicies?.length ?? 0) > 100);
+});
+
+test("F-CID-009 ITE 14: PEO Keywords, multiline PO, CO list", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "ite14-fcid009-syllabus.txt"),
+    "utf8",
+  );
+  const outcomes = extractOutcomesFromText(text);
+  const peos = outcomes.filter((o) => o.kind === "PEO");
+  const pos = outcomes.filter((o) => o.kind === "PO");
+  const cos = outcomes.filter((o) => o.kind === "CO");
+  assert.ok(peos.some((p) => p.code === "PEO1"));
+  assert.ok(peos.some((p) => p.code === "PEO-IS1"));
+  assert.ok(peos.some((p) => /Keywords|Problem Solving/i.test(p.description)));
+  assert.ok(pos.some((p) => p.code === "PO1"));
+  assert.match(
+    pos.find((p) => p.code === "PO1")?.description ?? "",
+    /complex computing problem/i,
+  );
+  assert.doesNotMatch(
+    pos.find((p) => p.code === "PO1")?.description ?? "",
+    /\b1,2\b/,
+  );
+  assert.equal(cos.length, 4);
+  assert.equal(cos[0]?.code, "CO1");
+});
+
+test("F-CID-009 ITE 14: plan-embedded assessments when Part IV table is image", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "ite14-fcid009-syllabus.txt"),
+    "utf8",
+  );
+  const rows = extractAssessmentsFromText(text);
+  assert.ok(rows.some((r) => /Long Quiz 1/i.test(r.label)));
+  assert.ok(rows.some((r) => /Problem Set 1/i.test(r.label)));
+  assert.ok(rows.some((r) => /Midterm Exam/i.test(r.label)));
+  assert.ok(rows.some((r) => /Final Exam/i.test(r.label)));
+  assert.ok(!rows.some((r) => /^exam$/i.test(r.label)));
+});
+
+test("F-CID-009 ITE 14: plan prefers CO titles over jammed LO lines", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "ite14-fcid009-syllabus.txt"),
+    "utf8",
+  );
+  const weeks = extractPlanWeeksFromText(text);
+  assert.ok(weeks.length >= 10);
+  assert.match(weeks[0]?.topic ?? "", /oriented with the course/i);
+  assert.match(weeks[1]?.topic ?? "", /Review and Mastery of ITE 13/i);
+  assert.doesNotMatch(weeks[1]?.topic ?? "", /^1\.\s*Use arrays/i);
+  assert.ok(weeks.some((w) => /MIDTERM\s*EXAM/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /ACADEMIC\s*BREAK/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /FINAL\s*EXAM/i.test(w.topic)));
+});
+
+test("F-CID-010 CSC 103: Part I units + bullet PEOs + Lab Activity assessments", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "csc103-fcid010-syllabus.txt"),
+    "utf8",
+  );
+  const fields = extractSyllabusFields(text);
+  assert.equal(fields.courseCode, "CSC 103");
+  assert.match(fields.title ?? "", /Discrete Structures 2/i);
+  assert.equal(fields.units, "3");
+  assert.match(fields.prerequisite ?? "", /CSC\s*102/i);
+  assert.match(fields.facultyName ?? "", /CORREA/i);
+
+  const outcomes = extractOutcomesFromText(text);
+  const peos = outcomes.filter((o) => o.kind === "PEO");
+  const pos = outcomes.filter((o) => o.kind === "PO");
+  assert.ok(peos.length >= 3);
+  assert.ok(peos.some((p) => /problem-solving/i.test(p.description)));
+  assert.ok(pos.some((p) => p.code === "PO6-CS"));
+  assert.doesNotMatch(
+    pos.find((p) => p.code === "PO3")?.description ?? "",
+    /\bPEO3\b/,
+  );
+
+  const rows = extractAssessmentsFromText(text);
+  assert.ok(rows.some((r) => /Lab Activity 1/i.test(r.label)));
+  assert.ok(rows.some((r) => /Long Quiz 1/i.test(r.label)));
+  assert.ok(rows.some((r) => /Midterm Exam/i.test(r.label)));
+});
+
+test("F-CID-010 CSC 103: plan uses CO-digit topics not LO bullets", () => {
+  const text = readFileSync(
+    join(FIXTURE_DIR, "csc103-fcid010-syllabus.txt"),
+    "utf8",
+  );
+  const weeks = extractPlanWeeksFromText(text);
+  assert.ok(weeks.length >= 16);
+  assert.match(weeks[0]?.topic ?? "", /Orientation/i);
+  assert.match(weeks[1]?.topic ?? "", /Number Theory/i);
+  assert.doesNotMatch(weeks[1]?.topic ?? "", /Midterm Exam/i);
+  assert.ok(weeks.some((w) => /Probability/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /Graph Theory/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /Automata.*Grammars/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /Summative Assessment \(Midterm/i.test(w.topic)));
+  assert.ok(weeks.some((w) => /Intervention/i.test(w.topic)));
 });

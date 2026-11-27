@@ -4,6 +4,13 @@
 
 import { apiFetch } from "@/lib/api/client";
 import { type SubjectDto } from "@/lib/api/semesters";
+import {
+  cloneGradingTemplate,
+  DEFAULT_GRADING_TEMPLATE,
+  serializeGradingTemplate,
+  tryParseGradingTemplate,
+  type GradingTemplateDoc,
+} from "@/lib/domain/grading-template";
 
 export type { SubjectDto };
 
@@ -125,6 +132,23 @@ export function patchSubject(
     method: "PATCH",
     body,
   });
+}
+
+/**
+ * Return parsed grading template, or persist DEFAULT and return it when missing.
+ * Used so manual / empty Sync subjects match Sync behavior in Calculator.
+ */
+export async function ensureSubjectGradingTemplate(
+  subjectId: string,
+  gradingRaw: unknown,
+): Promise<GradingTemplateDoc> {
+  const parsed = tryParseGradingTemplate(gradingRaw);
+  if (parsed) return parsed;
+  const doc = serializeGradingTemplate(
+    cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
+  );
+  await patchSubject(subjectId, { grading: doc });
+  return doc;
 }
 
 /** PUT /api/subjects/:id/outcomes */

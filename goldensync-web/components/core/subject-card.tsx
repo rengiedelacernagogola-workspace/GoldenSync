@@ -6,7 +6,7 @@
  * Shows prerequisite, semester dates, checklist task, instructor, CO count, hours.
  */
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Badge } from "@/components/core/badge";
@@ -35,6 +35,11 @@ export interface SubjectCardProps
   courseOutcomeCount?: number;
   contactHoursTotal?: number | null;
   contactHoursRemaining?: number | null;
+  /** From Grade Calculator scores (local) + grading template. */
+  estimatedGradePercent?: number | null;
+  estimatedGradeLabel?: string | null;
+  estimatedGradeScale?: string | null;
+  estimatedGradeHasScores?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -82,6 +87,10 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
       courseOutcomeCount,
       contactHoursTotal,
       contactHoursRemaining,
+      estimatedGradePercent = null,
+      estimatedGradeLabel = null,
+      estimatedGradeScale = null,
+      estimatedGradeHasScores = false,
       onEdit,
       onDelete,
       onClick,
@@ -99,6 +108,31 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
           : contactHoursRemaining <= 0
             ? `0 / ${contactHoursTotal} hrs — semester ended`
             : `${contactHoursRemaining} / ${contactHoursTotal} hrs left`;
+
+    const [editRevealed, setEditRevealed] = React.useState(false);
+    const actionsRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+      if (!editRevealed) return;
+
+      function onPointerDown(e: PointerEvent) {
+        const el = actionsRef.current;
+        if (!el) return;
+        if (e.target instanceof Node && el.contains(e.target)) return;
+        setEditRevealed(false);
+      }
+
+      function onKeyDown(e: KeyboardEvent) {
+        if (e.key === "Escape") setEditRevealed(false);
+      }
+
+      document.addEventListener("pointerdown", onPointerDown);
+      document.addEventListener("keydown", onKeyDown);
+      return () => {
+        document.removeEventListener("pointerdown", onPointerDown);
+        document.removeEventListener("keydown", onKeyDown);
+      };
+    }, [editRevealed]);
 
     return (
       <Card
@@ -127,21 +161,55 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
           className="relative flex w-full flex-col items-center gap-space-3 text-center"
         >
           {onEdit || onDelete ? (
-            <div className="absolute top-0 right-0 z-10 flex items-center gap-px">
+            <div
+              ref={actionsRef}
+              className="absolute top-0 right-0 z-10 flex items-center gap-px"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
               {onEdit ? (
-                <Button
-                  type="button"
-                  variant="Ghost"
-                  size="sm"
-                  aria-label={`Edit ${code}`}
-                  className="min-h-8 min-w-8 px-space-2 text-text-muted hover:text-text-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit();
-                  }}
-                >
-                  <Pencil className="size-3.5" aria-hidden />
-                </Button>
+                <div className="relative inline-flex size-8 items-center justify-center">
+                  <Button
+                    type="button"
+                    variant="Ghost"
+                    size="sm"
+                    aria-label={`Show edit for ${code}`}
+                    title="Show edit"
+                    className={cn(
+                      "absolute inset-0 min-h-8 min-w-8 px-space-2 text-text-muted hover:text-text-primary",
+                      "transition-opacity duration-150 ease-out",
+                      editRevealed
+                        ? "pointer-events-none opacity-0"
+                        : "opacity-100",
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditRevealed(true);
+                    }}
+                  >
+                    <Eye className="size-3.5" aria-hidden />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="Ghost"
+                    size="sm"
+                    aria-label={`Edit ${code}`}
+                    className={cn(
+                      "absolute inset-0 min-h-8 min-w-8 px-space-2 text-text-muted hover:text-text-primary",
+                      "transition-opacity duration-150 ease-out",
+                      editRevealed
+                        ? "opacity-100"
+                        : "pointer-events-none opacity-0",
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                      setEditRevealed(false);
+                    }}
+                  >
+                    <Pencil className="size-3.5" aria-hidden />
+                  </Button>
+                </div>
               ) : null}
               {onDelete ? (
                 <Button
@@ -227,6 +295,53 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
               }
             />
             <DetailRow label="Hours" value={hoursLabel} />
+          </div>
+
+          <div className="mt-space-2 flex w-full flex-col gap-space-2 border-t border-border-subtle pt-space-3 text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+              Estimated Subjects Grade
+            </p>
+            <div className="flex items-end justify-between gap-space-2">
+              <p className="text-[15px] font-semibold tabular-nums tracking-tight text-text-primary">
+                {estimatedGradeLabel?.trim() ||
+                  (estimatedGradeHasScores && estimatedGradePercent != null
+                    ? `${estimatedGradePercent.toFixed(2)}%`
+                    : "—")}
+              </p>
+              {estimatedGradeHasScores && estimatedGradeScale ? (
+                <p className="text-[10px] font-medium tabular-nums text-text-secondary">
+                  Scale {estimatedGradeScale}
+                </p>
+              ) : (
+                <p className="text-[10px] text-text-muted">No scores yet</p>
+              )}
+            </div>
+            <div
+              className="h-2 w-full overflow-hidden rounded-full bg-bg-muted"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={
+                estimatedGradeHasScores && estimatedGradePercent != null
+                  ? Math.round(estimatedGradePercent)
+                  : 0
+              }
+              aria-label="Estimated subject grade"
+            >
+              <div
+                className={cn(
+                  "h-full rounded-full transition-[width] duration-300 ease-out",
+                  "bg-gradient-to-r from-accent-tertiary to-accent-primary",
+                )}
+                style={{
+                  width: `${
+                    estimatedGradeHasScores && estimatedGradePercent != null
+                      ? Math.max(0, Math.min(100, estimatedGradePercent))
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
           </div>
         </div>
       </Card>

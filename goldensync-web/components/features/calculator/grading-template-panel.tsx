@@ -1,9 +1,8 @@
 "use client";
 
 /**
- * Grading System template — load/edit/save Subject.grading on Grade Calculator.
- * FLOW: fetchSubjectDetail → tryParse → empty or edit tables → patchSubject.
- * Live null grading stays empty until user applies default or Syncs.
+ * Grading System template — load/edit/save Subject.grading.
+ * FLOW: fetchSubjectDetail → ensureSubjectGradingTemplate → edit → patchSubject.
  */
 
 import * as React from "react";
@@ -13,12 +12,15 @@ import { CoAssessmentTable } from "@/components/features/calculator/co-assessmen
 import { GradeEquivalentTable } from "@/components/features/calculator/grade-equivalent-table";
 import { GradeStatusTable } from "@/components/features/calculator/grade-status-table";
 import { ApiClientError } from "@/lib/api/client";
-import { fetchSubjectDetail, patchSubject } from "@/lib/api/subjects";
+import {
+  ensureSubjectGradingTemplate,
+  fetchSubjectDetail,
+  patchSubject,
+} from "@/lib/api/subjects";
 import {
   cloneGradingTemplate,
   DEFAULT_GRADING_TEMPLATE,
   serializeGradingTemplate,
-  tryParseGradingTemplate,
   type GradingTemplateDoc,
 } from "@/lib/domain/grading-template";
 
@@ -70,11 +72,13 @@ export function GradingTemplatePanel({
         try {
           const detail = await fetchSubjectDetail(subjectId);
           if (cancelled) return;
-          const next = tryParseGradingTemplate(detail.grading);
-          setDoc(next);
-          setBaseline(
-            next ? JSON.stringify(serializeGradingTemplate(next)) : "",
+          const next = await ensureSubjectGradingTemplate(
+            subjectId,
+            detail.grading,
           );
+          if (cancelled) return;
+          setDoc(next);
+          setBaseline(JSON.stringify(serializeGradingTemplate(next)));
         } catch (err) {
           if (cancelled) return;
           setError(
@@ -136,23 +140,21 @@ export function GradingTemplatePanel({
           <p className="text-caption text-text-muted">
             {!live
               ? "Demo defaults — sign in and open a saved subject to persist"
-              : doc == null
-                ? "No grading template yet — Sync a syllabus or start from the default"
-                : dirty
-                  ? "Unsaved changes"
-                  : saved
-                    ? "Saved"
-                    : "Inline-edit tables, then save"}
+              : dirty
+                ? "Unsaved changes"
+                : saved
+                  ? "Saved"
+                  : "Inline-edit tables, then save"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-space-2">
-          {live && doc == null && !loading ? (
+          {live && !loading ? (
             <Button
               variant="Secondary"
               size="md"
               onClick={applyDefaultTemplate}
             >
-              Use default template
+              Reset to default
             </Button>
           ) : null}
           <Button
@@ -176,8 +178,7 @@ export function GradingTemplatePanel({
         <p className="text-body-sm text-text-muted">Loading template…</p>
       ) : doc == null ? (
         <p className="text-body-sm text-text-muted">
-          This subject has no grading system yet. Use the default template or
-          add content under Edit subject after Sync.
+          Could not load a grading template. Retry or use Reset to default.
         </p>
       ) : (
         <>

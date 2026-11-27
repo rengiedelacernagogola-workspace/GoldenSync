@@ -5,6 +5,7 @@
 export type SemesterDto = {
   id: string;
   label: string;
+  yearLevel: number;
   startDate: string;
   endDate: string;
   skippedWeeks: number[];
@@ -103,14 +104,20 @@ export function parseSkippedWeeks(raw: unknown): number[] {
 export function mapSemester(row: {
   id: string;
   label: string;
+  yearLevel?: number | null;
   startDate: unknown;
   endDate: unknown;
   skippedWeeks: unknown;
   createdAt: unknown;
 }): SemesterDto {
+  const yearLevel =
+    typeof row.yearLevel === "number" && row.yearLevel >= 1
+      ? row.yearLevel
+      : 1;
   return {
     id: row.id,
     label: row.label,
+    yearLevel,
     startDate: toIso(row.startDate),
     endDate: toIso(row.endDate),
     skippedWeeks: parseSkippedWeeks(row.skippedWeeks),

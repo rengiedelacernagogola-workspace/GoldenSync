@@ -105,6 +105,10 @@ function ChecklistBody() {
   }
 
   async function handleDoneChange(index: number, done: boolean) {
+    if (subject.semesterPast) {
+      setToggleError("Past semester — checklist is view only.");
+      return;
+    }
     const row = weeks[index];
     if (!row) return;
     const weekNumber = Number(row.week);

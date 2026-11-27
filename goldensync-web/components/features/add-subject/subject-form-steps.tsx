@@ -229,8 +229,9 @@ export function SubjectFormSteps({
             Grading
           </p>
           <p className="text-body-sm text-text-muted">
-            Part IV (grade status, equivalents, and CO assessment weights) is
-            edited under{" "}
+            A default Part IV template (grade status, equivalents, and CO
+            weights) is applied when you create this subject—same as Sync when
+            the PDF has no grading section. Refine it anytime under{" "}
             <span className="text-text-secondary">
               Grade Calculator → Grading System
             </span>

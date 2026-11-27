@@ -5,10 +5,11 @@
  * FLOW: view → Edit → Save (policies.outcomesSyllabus + Outcome rows) / Cancel.
  */
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Button, Card, Input, Textarea } from "@/components/core";
+import { CardEditReveal } from "@/components/features/shared/card-edit-reveal";
 import { ApiClientError } from "@/lib/api/client";
 import { replaceOutcomes, patchSubject } from "@/lib/api/subjects";
 import {
@@ -58,7 +59,7 @@ function ProseBlock({
   value: string;
 }) {
   return (
-    <div className="flex flex-col gap-space-2">
+    <div className="flex w-full min-w-0 flex-col gap-space-2">
       <SectionHeading>{label}</SectionHeading>
       <p className="whitespace-pre-wrap text-body-sm text-text-primary">
         {value.trim() || "—"}
@@ -75,7 +76,7 @@ function ListBlock({
   items: OutcomesListItem[];
 }) {
   return (
-    <div className="flex flex-col gap-space-3">
+    <div className="flex w-full min-w-0 flex-col gap-space-3">
       <SectionHeading>{title}</SectionHeading>
       {items.length === 0 ? (
         <p className="text-body-sm text-text-muted">—</p>
@@ -109,13 +110,14 @@ function EditableProse({
   rows?: number;
 }) {
   return (
-    <div className="flex flex-col gap-space-2">
+    <div className="flex w-full min-w-0 flex-col gap-space-2">
       <SectionHeading>{label}</SectionHeading>
       <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
         aria-label={label}
+        className="w-full min-w-0"
       />
     </div>
   );
@@ -147,8 +149,8 @@ function EditableList({
   }
 
   return (
-    <div className="flex flex-col gap-space-3">
-      <div className="flex items-center justify-between gap-space-2">
+    <div className="flex w-full min-w-0 flex-col gap-space-3">
+      <div className="flex w-full items-center justify-between gap-space-2">
         <SectionHeading>{title}</SectionHeading>
         <Button variant="Ghost" size="sm" type="button" onClick={addRow}>
           <Plus className="size-3.5" aria-hidden />
@@ -158,13 +160,13 @@ function EditableList({
       {items.length === 0 ? (
         <p className="text-caption text-text-muted">No items yet. Add one.</p>
       ) : (
-        <ul className="flex list-none flex-col gap-space-3 p-0">
+        <ul className="flex w-full list-none flex-col gap-space-3 p-0">
           {items.map((item, index) => (
             <li
               key={`edit-${title}-${index}`}
-              className="flex flex-col gap-space-2 rounded-md border border-border-subtle p-space-3"
+              className="flex w-full min-w-0 flex-col gap-space-2 rounded-md border border-border-subtle p-space-3"
             >
-              <div className="flex items-start gap-space-2">
+              <div className="flex w-full items-start gap-space-2">
                 <Input
                   size="Compact"
                   value={item.code}
@@ -191,6 +193,7 @@ function EditableList({
                 rows={3}
                 aria-label={`${title} description ${index + 1}`}
                 placeholder="Description"
+                className="w-full min-w-0"
               />
             </li>
           ))}
@@ -316,36 +319,14 @@ export function OutcomesSyllabusPanel({
   }
 
   const headerAction = live ? (
-    editing ? (
-      <div className="flex items-center gap-space-2">
-        <Button
-          variant="Primary"
-          size="sm"
-          disabled={saving}
-          onClick={() => void saveAll()}
-        >
-          {saving ? "Saving…" : "Save"}
-        </Button>
-        <Button
-          variant="Ghost"
-          size="sm"
-          disabled={saving}
-          onClick={cancelEdit}
-        >
-          Cancel
-        </Button>
-      </div>
-    ) : (
-      <Button
-        variant="Secondary"
-        size="sm"
-        onClick={beginEdit}
-        aria-label="Edit outcomes syllabus"
-      >
-        <Pencil className="size-3.5" aria-hidden />
-        Edit
-      </Button>
-    )
+    <CardEditReveal
+      editing={editing}
+      saving={saving}
+      editAriaLabel="Edit outcomes syllabus"
+      onBeginEdit={beginEdit}
+      onCancel={cancelEdit}
+      onSave={() => void saveAll()}
+    />
   ) : undefined;
 
   const view = editing ? draft : resolved;
@@ -356,9 +337,9 @@ export function OutcomesSyllabusPanel({
       hasHeader
       hasHeaderBadge={Boolean(headerAction)}
       headerBadge={headerAction}
-      className="w-full"
+      className="w-full min-w-0 [&_[data-slot=gs-card-content]]:w-full [&_[data-slot=gs-card-content]]:items-stretch"
     >
-      <div className={cn("flex flex-col gap-space-6")}>
+      <div className={cn("flex w-full min-w-0 flex-col gap-space-6")}>
         {!live ? (
           <p className="text-caption text-text-muted">
             Sign in and open a live subject to edit. Seed content shown for
@@ -378,13 +359,13 @@ export function OutcomesSyllabusPanel({
               label="Vision"
               value={draft.vision}
               onChange={(vision) => setDraft((d) => ({ ...d, vision }))}
-              rows={3}
+              rows={5}
             />
             <EditableProse
               label="Mission"
               value={draft.mission}
               onChange={(mission) => setDraft((d) => ({ ...d, mission }))}
-              rows={3}
+              rows={5}
             />
             <EditableProse
               label="Graduate attributes"
@@ -392,7 +373,7 @@ export function OutcomesSyllabusPanel({
               onChange={(graduateAttributes) =>
                 setDraft((d) => ({ ...d, graduateAttributes }))
               }
-              rows={3}
+              rows={5}
             />
             <EditableList
               title="Institutional outcomes"

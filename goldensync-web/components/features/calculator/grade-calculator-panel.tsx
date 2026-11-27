@@ -2,19 +2,29 @@
 
 /**
  * Live Grade Calculator — CO score cards + summary + passing dashboard.
- * FLOW: load grading template shape → local score state → computeCalculatorSnapshot.
- * Live subjects with no saved grading stay empty until template exists.
+ * FLOW: load/ensure grading template → hydrate local scores → Save Scores / Reset.
  */
 
-import { Printer, RotateCcw } from "lucide-react";
+import { RotateCcw, Save } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/core";
 import { CoPassingDashboard } from "@/components/features/calculator/co-passing-dashboard";
 import { CoScoreCard } from "@/components/features/calculator/co-score-card";
 import { GradeSummaryPanel } from "@/components/features/calculator/grade-summary-panel";
+import { SemesterEstimatedFinalBar } from "@/components/features/calculator/semester-estimated-final-bar";
 import { ApiClientError } from "@/lib/api/client";
-import { fetchSubjectDetail } from "@/lib/api/subjects";
+import {
+  ensureSubjectGradingTemplate,
+  fetchSubjectDetail,
+} from "@/lib/api/subjects";
+import {
+  clearCalculatorScores,
+  loadCalculatorScores,
+  mergeScoresOntoTemplate,
+  saveCalculatorScores,
+  templateTaskIds,
+} from "@/lib/domain/calculator-scores-storage";
 import {
   computeCalculatorSnapshot,
   defaultMaxScores,
@@ -23,39 +33,88 @@ import {
 import {
   cloneGradingTemplate,
   DEFAULT_GRADING_TEMPLATE,
-  tryParseGradingTemplate,
   type GradingTemplateDoc,
 } from "@/lib/domain/grading-template";
 
 export type GradeCalculatorPanelProps = {
   subjectId: string | null;
   live: boolean;
+  subjectCode?: string;
+  subjectTitle?: string;
 };
+
+function storageSubjectId(subjectId: string | null): string {
+  if (subjectId?.trim()) return subjectId.trim();
+  return "seed";
+}
+
+function applyTemplateScores(
+  next: GradingTemplateDoc,
+  storageId: string,
+): {
+  yourScores: Record<string, string>;
+  maxScores: Record<string, string>;
+} {
+  const empty = emptyYourScores(next);
+  const defaults = defaultMaxScores(next);
+  const saved = loadCalculatorScores(storageId);
+  return mergeScoresOntoTemplate(
+    templateTaskIds(next),
+    empty,
+    defaults,
+    saved,
+  );
+}
 
 /** Full Scores / Grade Calculator view. */
 export function GradeCalculatorPanel({
   subjectId,
   live,
+  subjectCode = "",
+  subjectTitle = "",
 }: GradeCalculatorPanelProps) {
   const [template, setTemplate] = React.useState<GradingTemplateDoc | null>(
     () => (live ? null : cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE)),
   );
   const [yourScores, setYourScores] = React.useState(() =>
-    live ? {} : emptyYourScores(DEFAULT_GRADING_TEMPLATE),
+    live
+      ? {}
+      : applyTemplateScores(
+          cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
+          "seed",
+        ).yourScores,
   );
   const [maxScores, setMaxScores] = React.useState(() =>
-    live ? {} : defaultMaxScores(DEFAULT_GRADING_TEMPLATE),
+    live
+      ? {}
+      : applyTemplateScores(
+          cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
+          "seed",
+        ).maxScores,
   );
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [saveLabel, setSaveLabel] = React.useState("Save Scores");
+  const saveResetTimer = React.useRef<number | null>(null);
 
   React.useEffect(() => {
+    return () => {
+      if (saveResetTimer.current != null) {
+        window.clearTimeout(saveResetTimer.current);
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const storageId = storageSubjectId(subjectId);
+
     if (!live || !subjectId) {
       const defaults = cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE);
       const handle = window.setTimeout(() => {
         setTemplate(defaults);
-        setYourScores(emptyYourScores(defaults));
-        setMaxScores(defaultMaxScores(defaults));
+        const merged = applyTemplateScores(defaults, storageId);
+        setYourScores(merged.yourScores);
+        setMaxScores(merged.maxScores);
         setError(null);
         setLoading(false);
       }, 0);
@@ -69,15 +128,15 @@ export function GradeCalculatorPanel({
         try {
           const detail = await fetchSubjectDetail(subjectId);
           if (cancelled) return;
-          const next = tryParseGradingTemplate(detail.grading);
+          const next = await ensureSubjectGradingTemplate(
+            subjectId,
+            detail.grading,
+          );
+          if (cancelled) return;
           setTemplate(next);
-          if (next) {
-            setYourScores(emptyYourScores(next));
-            setMaxScores(defaultMaxScores(next));
-          } else {
-            setYourScores({});
-            setMaxScores({});
-          }
+          const merged = applyTemplateScores(next, storageId);
+          setYourScores(merged.yourScores);
+          setMaxScores(merged.maxScores);
           setError(null);
         } catch (err) {
           if (cancelled) return;
@@ -111,12 +170,25 @@ export function GradeCalculatorPanel({
 
   function resetAll() {
     if (!template) return;
+    const storageId = storageSubjectId(subjectId);
+    clearCalculatorScores(storageId);
     setYourScores(emptyYourScores(template));
     setMaxScores(defaultMaxScores(template));
+    setSaveLabel("Save Scores");
   }
 
-  function handlePrint() {
-    window.print();
+  function handleSaveScores() {
+    if (!template) return;
+    const storageId = storageSubjectId(subjectId);
+    const ok = saveCalculatorScores(storageId, { yourScores, maxScores });
+    setSaveLabel(ok ? "Saved" : "Save failed");
+    if (saveResetTimer.current != null) {
+      window.clearTimeout(saveResetTimer.current);
+    }
+    saveResetTimer.current = window.setTimeout(() => {
+      setSaveLabel("Save Scores");
+      saveResetTimer.current = null;
+    }, 2000);
   }
 
   return (
@@ -126,7 +198,7 @@ export function GradeCalculatorPanel({
           <p className="text-body-sm text-text-secondary">Grade Calculator</p>
           <p className="text-caption text-text-muted">
             {template
-              ? "Live results from your CO assessment weights — scores stay on this device"
+              ? "Live results from your CO assessment weights — Save Scores keeps them on this device"
               : "Save a Grading System template first to run the calculator"}
           </p>
         </div>
@@ -144,10 +216,10 @@ export function GradeCalculatorPanel({
             variant="Secondary"
             size="md"
             disabled={!template}
-            onClick={handlePrint}
+            onClick={handleSaveScores}
           >
-            <Printer className="size-3.5" aria-hidden />
-            Print / Export
+            <Save className="size-3.5" aria-hidden />
+            {saveLabel}
           </Button>
         </div>
       </div>
@@ -184,6 +256,11 @@ export function GradeCalculatorPanel({
 
           <GradeSummaryPanel snapshot={snapshot} />
           <CoPassingDashboard snapshot={snapshot} />
+          <SemesterEstimatedFinalBar
+            snapshot={snapshot}
+            subjectCode={subjectCode}
+            subjectTitle={subjectTitle}
+          />
         </>
       )}
     </div>

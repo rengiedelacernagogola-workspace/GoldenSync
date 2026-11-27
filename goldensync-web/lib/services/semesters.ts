@@ -64,6 +64,7 @@ export async function createSemester(
   const row = await db.orm.public.Semester.create({
     userId,
     label: input.label,
+    yearLevel: input.yearLevel,
     startDate: start,
     endDate: end,
     skippedWeeks: input.skippedWeeks,
@@ -115,6 +116,7 @@ export async function updateSemester(
 
   await db.orm.public.Semester.where({ id: semesterId, userId }).update({
     ...(input.label !== undefined ? { label: input.label } : {}),
+    ...(input.yearLevel !== undefined ? { yearLevel: input.yearLevel } : {}),
     ...(input.startDate !== undefined ? { startDate: start } : {}),
     ...(input.endDate !== undefined ? { endDate: end } : {}),
     ...(input.skippedWeeks !== undefined

@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * College Faculty — read-only (Figma `133:1319` · Empty `134:1503`, UI-093).
- * Live empty subjects show EmptyModulePanel (no seed faculty blurb).
+ * College Faculty — Faculty + Class policies side-by-side (50/50).
+ * FLOW: Sidebar College Faculty → Edit either card → Save.
  */
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -10,17 +10,17 @@ import * as React from "react";
 
 import {
   AppShell,
-  Card,
+  Banner,
   MobileDrawer,
   type SidebarActiveId,
 } from "@/components/core";
+import { FacultyPanel } from "@/components/features/faculty/faculty-panel";
 import { EmptyModulePanel } from "@/components/features/modules/empty-module-panel";
+import { ClassPoliciesPanel } from "@/components/features/policies/class-policies-panel";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveSubject } from "@/hooks/use-live-subject";
-import {
-  formatInstructorName,
-  parseFaculty,
-} from "@/lib/domain/faculty";
+import { pushActivity, type ActivityKind } from "@/lib/activity/activity-log";
+import { parsePoliciesDoc } from "@/lib/domain/course-spec";
 import { pathForNav } from "@/lib/nav";
 
 function FacultyBody() {
@@ -30,24 +30,39 @@ function FacultyBody() {
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
   const forceEmpty = searchParams.get("empty") === "1";
-  const faculty = parseFaculty(
+
+  const facultyRaw =
     subject.detail?.faculty ??
-      (subject.live
-        ? null
-        : { name: goldenSyncSeed.activeSubject.facultyBlurb }),
-  );
-  const hasContent =
-    Boolean(faculty.name.trim()) ||
-    Boolean(faculty.college.trim()) ||
-    Boolean(faculty.consultation.trim()) ||
-    faculty.estimatedContactHours != null;
-  const showEmpty = forceEmpty || (subject.live && !hasContent);
+    (subject.live
+      ? null
+      : { name: goldenSyncSeed.activeSubject.facultyBlurb });
+
+  const policiesRaw = React.useMemo(() => {
+    const fromDetail = subject.detail?.policies ?? null;
+    if (subject.live) return fromDetail;
+    const parsed = parsePoliciesDoc(fromDetail);
+    if (parsed.classPolicies.trim()) return fromDetail;
+    return {
+      ...parsed,
+      classPolicies: goldenSyncSeed.activeSubject.policiesBlurb,
+    };
+  }, [subject.detail?.policies, subject.live]);
+
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [activityTick, setActivityTick] = React.useState(0);
 
   function handleNav(id: SidebarActiveId) {
     const path = pathForNav(id, subject.id);
     if (path) router.push(path);
+  }
+
+  function notifyActivity(entry: {
+    kind: ActivityKind;
+    title: string;
+    detail: string;
+  }) {
+    void pushActivity(entry).then(() => setActivityTick((n) => n + 1));
   }
 
   return (
@@ -66,44 +81,47 @@ function FacultyBody() {
           semesterLabel: subject.semesterLabel,
           hideAddSubject: true,
           hideSemester: true,
+          notificationsRefreshKey: activityTick,
           onMenuClick: () => setDrawerOpen(true),
         }}
       >
-        <div className="gs-fade-up flex w-full max-w-3xl flex-col gap-space-6">
+        <div className="gs-fade-up flex w-full min-w-0 flex-col gap-space-6">
           <p className="text-overline uppercase text-text-muted">
             {subject.code} · {subject.semesterLabel}
             {subject.live ? " · Live" : ""}
+            {subject.semesterPast ? " · Past" : ""}
           </p>
-          {showEmpty ? (
+
+          {subject.semesterPast ? (
+            <Banner
+              variant="Info"
+              message="Past semester — view only. Archive or delete this subject from the sidebar if you want to hide it."
+              hasAction={false}
+              className="w-full"
+            />
+          ) : null}
+
+          {forceEmpty ? (
             <EmptyModulePanel subjectId={subject.id} />
           ) : (
-            <>
-              <p className="text-caption text-text-muted">
-                Read-only (from your saved syllabus)
-              </p>
-              <Card title="Faculty" hasHeader className="w-full">
-                <div className="flex flex-col gap-space-3 text-body-sm text-text-secondary">
-                  <p>
-                    <span className="text-text-muted">Instructor: </span>
-                    {formatInstructorName(faculty)}
-                  </p>
-                  <p>
-                    <span className="text-text-muted">College: </span>
-                    {faculty.college.trim() || "—"}
-                  </p>
-                  <p>
-                    <span className="text-text-muted">Consultation: </span>
-                    {faculty.consultation.trim() || "—"}
-                  </p>
-                  <p>
-                    <span className="text-text-muted">Contact hours: </span>
-                    {faculty.estimatedContactHours != null
-                      ? `${faculty.estimatedContactHours} hrs`
-                      : "—"}
-                  </p>
-                </div>
-              </Card>
-            </>
+            <div className="grid w-full min-w-0 grid-cols-1 items-stretch gap-space-4 sm:gap-space-6 md:grid-cols-2">
+              <FacultyPanel
+                subjectId={subject.id}
+                live={subject.live}
+                readOnly={subject.semesterPast}
+                faculty={facultyRaw}
+                onSaved={() => subject.refresh()}
+                onActivity={notifyActivity}
+              />
+              <ClassPoliciesPanel
+                subjectId={subject.id}
+                live={subject.live}
+                readOnly={subject.semesterPast}
+                policies={policiesRaw}
+                onSaved={() => subject.refresh()}
+                onActivity={notifyActivity}
+              />
+            </div>
           )}
         </div>
       </AppShell>

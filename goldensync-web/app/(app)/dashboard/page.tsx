@@ -14,10 +14,10 @@ import * as React from "react";
 import { SessionModals } from "@/components/auth/session-modals";
 import {
   AppShell,
+  Banner,
   Button,
   EmptyState,
   MobileDrawer,
-  SemesterPicker,
   Skeleton,
   SubjectCard,
   ToastHost,
@@ -25,14 +25,17 @@ import {
   type ToastItem,
 } from "@/components/core";
 import { AddSubjectModal } from "@/components/features/add-subject/add-subject-modal";
-import { SemesterDialog } from "@/components/features/semester/semester-dialog";
+import { openSemesterCreateDialog } from "@/components/features/semester/semester-switcher";
 import {
   SubjectCardEditModal,
   cardEditValuesFromDetail,
 } from "@/components/features/subject/subject-card-edit-modal";
 import { DeleteSubjectDialog } from "@/components/features/subject/delete-subject-dialog";
 import { goldenSyncSeed } from "@/data/seed";
-import { useLiveData } from "@/hooks/use-live-data";
+import { getActiveSemester, useLiveData } from "@/hooks/use-live-data";
+import {
+  formatSemesterDisplayLabel,
+} from "@/lib/domain/semester-year";
 import { ApiClientError } from "@/lib/api/client";
 import { pushActivity } from "@/lib/activity/activity-log";
 import {
@@ -40,6 +43,7 @@ import {
   fetchSubjectDetail,
   type SubjectDetailDto,
 } from "@/lib/api/subjects";
+import { estimateSubjectGrade } from "@/lib/domain/estimated-subject-grade";
 import {
   formatInstructorName,
   latestOngoingTask,
@@ -69,7 +73,6 @@ function DashboardBody() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
-  const [semesterOpen, setSemesterOpen] = React.useState(false);
   const [activeNav, setActiveNav] = React.useState<SidebarActiveId>("home");
   const [toasts, setToasts] = React.useState<ToastItem[]>([]);
   const [deleteSubjectId, setDeleteSubjectId] = React.useState<string | null>(
@@ -87,6 +90,22 @@ function DashboardBody() {
   const [removedSubjectIds, setRemovedSubjectIds] = React.useState<string[]>(
     [],
   );
+  /** Bump when calculator scores may have changed (focus / storage). */
+  const [scoresTick, setScoresTick] = React.useState(0);
+
+  React.useEffect(() => {
+    function bumpScores() {
+      setScoresTick((n) => n + 1);
+    }
+    window.addEventListener("focus", bumpScores);
+    window.addEventListener("storage", bumpScores);
+    window.addEventListener("gs-calculator-scores", bumpScores);
+    return () => {
+      window.removeEventListener("focus", bumpScores);
+      window.removeEventListener("storage", bumpScores);
+      window.removeEventListener("gs-calculator-scores", bumpScores);
+    };
+  }, []);
 
   function logActivity(
     entry: Parameters<typeof pushActivity>[0],
@@ -96,11 +115,12 @@ function DashboardBody() {
 
   /** Real API subjects only — never fall back to seed while signed in. */
   const useLiveSubjects = live.signedIn && live.semesters.length > 0;
-  const activeSemester = live.semesters[0] ?? null;
+  const activeSemester = getActiveSemester(live);
   const showLiveShell = live.signedIn;
   const semesterReady = showLiveShell
     ? live.semesters.length > 0
     : hasSemester;
+  const pastSemester = showLiveShell && live.isActiveSemesterPast;
 
   React.useEffect(() => {
     if (!useLiveSubjects) return;
@@ -212,6 +232,10 @@ function DashboardBody() {
             semesterStartLabel: formatDateLabel(start),
             semesterEndLabel: formatDateLabel(end),
             facultyRaw: detail?.faculty ?? s.faculty,
+            estimatedGrade: estimateSubjectGrade(
+              s.id,
+              detail?.grading ?? s.grading ?? null,
+            ),
             isActive:
               selectedLiveId != null ? s.id === selectedLiveId : i === 0,
           };
@@ -247,13 +271,21 @@ function DashboardBody() {
             consultation: "",
             estimatedContactHours: 54,
           },
+          estimatedGrade: estimateSubjectGrade(s.id, null, {
+            allowDefaultTemplate: true,
+          }),
           isActive:
             selectedLiveId != null ? s.id === selectedLiveId : i === 0,
         }));
+  void scoresTick;
   const active =
     gridSubjects.find((s) => s.isActive) ?? gridSubjects[0] ?? undefined;
-  const semester =
-    live.semesters[0]?.label ?? goldenSyncSeed.semester.label;
+  const semester = activeSemester
+    ? formatSemesterDisplayLabel(
+        activeSemester.label,
+        activeSemester.yearLevel,
+      )
+    : goldenSyncSeed.semester.label;
   const editingCard = editSubjectId
     ? gridSubjects.find((s) => s.id === editSubjectId)
     : null;
@@ -263,14 +295,10 @@ function DashboardBody() {
   const emptySubjects = showLiveShell
     ? live.ready && semesterReady && gridSubjects.length === 0
     : subjectCount === 0 || gridSubjects.length === 0;
-  const hideAddInBar = emptySubjects;
+  const hideAddInBar = emptySubjects || pastSemester;
   /* Loading skeleton via ?loading=1 — avoid setState-in-effect */
   const loading =
     searchParams.get("loading") === "1" || (showLiveShell && !live.ready);
-
-  function openAdd() {
-    setAddOpen(true);
-  }
 
   function pushToast(message: string) {
     const id = `t-${Date.now()}`;
@@ -279,6 +307,16 @@ function DashboardBody() {
       () => setToasts((prev) => prev.filter((t) => t.id !== id)),
       4000,
     );
+  }
+
+  function openAdd() {
+    if (pastSemester) {
+      pushToast(
+        "Past semesters are view-only. Archive or delete subjects instead.",
+      );
+      return;
+    }
+    setAddOpen(true);
   }
 
   function handleNav(id: SidebarActiveId) {
@@ -353,25 +391,15 @@ function DashboardBody() {
         onNav={handleNav}
         topBar={{
           title: "Dashboard",
-          semesterLabel: semesterReady ? semester : "No semester",
           hideAddSubject: hideAddInBar || !semesterReady,
           notificationsRefreshKey: activityTick,
           onMenuClick: () => setDrawerOpen(true),
           onAddSubject: openAdd,
-          onSemesterClick: () => setSemesterOpen(true),
         }}
         className="relative"
       >
-        {/* T/M: semester + Add move into body (DEC-059 / UI-121) */}
+        {/* T/M: Add moves into body (DEC-059 / UI-121) */}
         <div className="mb-space-6 flex w-full flex-col gap-space-3 sm:hidden">
-          {semesterReady ? (
-            <SemesterPicker
-              label={semester}
-              open={semesterOpen}
-              onClick={() => setSemesterOpen(true)}
-              className="w-full justify-between"
-            />
-          ) : null}
           {!hideAddInBar && semesterReady ? (
             <Button
               variant="Primary"
@@ -385,6 +413,15 @@ function DashboardBody() {
         </div>
 
         {/* Subject cards navigate to Overview */}
+        {pastSemester && semesterReady ? (
+          <Banner
+            variant="Info"
+            message="Past semester — view only. You can archive (hide) or delete subjects."
+            hasAction={false}
+            className="mb-space-4 w-full"
+          />
+        ) : null}
+
         {live.error && showLiveShell ? (
           <EmptyState
             icon={<BookOpen />}
@@ -399,7 +436,7 @@ function DashboardBody() {
             title="No semester yet"
             body="Create a semester to start adding subjects."
             actionLabel="New semester"
-            onAction={() => setSemesterOpen(true)}
+            onAction={() => openSemesterCreateDialog()}
           />
         ) : loading ? (
           <div className="grid w-full grid-cols-1 gap-space-6 md:grid-cols-2 xl:grid-cols-3">
@@ -411,7 +448,12 @@ function DashboardBody() {
           <EmptyState
             icon={<BookOpen />}
             title="No subjects yet"
-            body="Sync a syllabus PDF or enter it manually."
+            body={
+              pastSemester
+                ? "This past semester has no active subjects. Archive history is under Account."
+                : "Sync a syllabus PDF or enter it manually."
+            }
+            hasAction={!pastSemester}
             actionLabel="Add Subject"
             onAction={openAdd}
           />
@@ -440,6 +482,12 @@ function DashboardBody() {
                 courseOutcomeCount={s.courseOutcomeCount}
                 contactHoursTotal={s.contactHoursTotal}
                 contactHoursRemaining={s.contactHoursRemaining}
+                estimatedGradePercent={s.estimatedGrade?.percent ?? null}
+                estimatedGradeLabel={s.estimatedGrade?.percentLabel ?? null}
+                estimatedGradeScale={s.estimatedGrade?.scaleLabel ?? null}
+                estimatedGradeHasScores={
+                  s.estimatedGrade?.hasScores ?? false
+                }
                 onEdit={
                   showLiveShell
                     ? () => {
@@ -536,19 +584,6 @@ function DashboardBody() {
             kind: "subject",
             title: "Subject added",
             detail: "A new subject was created from Add Subject.",
-          });
-        }}
-      />
-
-      <SemesterDialog
-        open={semesterOpen}
-        onClose={() => setSemesterOpen(false)}
-        onCreated={() => {
-          live.refresh();
-          logActivity({
-            kind: "semester",
-            title: "Semester created",
-            detail: "A new semester is ready for subjects.",
           });
         }}
       />

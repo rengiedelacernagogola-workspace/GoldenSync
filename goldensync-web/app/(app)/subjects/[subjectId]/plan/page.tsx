@@ -124,7 +124,7 @@ function PlanBody() {
                 <button
                   type="button"
                   className="w-fit text-body-sm font-medium text-accent-primary underline-offset-2 hover:underline disabled:opacity-50"
-                  disabled={generating}
+                  disabled={generating || subject.semesterPast}
                   onClick={() => void generateWeeks()}
                 >
                   {generating ? "Generating…" : "Generate study weeks"}
@@ -132,6 +132,7 @@ function PlanBody() {
                 <EditablePlanTable
                   subjectId={subject.id}
                   initialRows={[]}
+                  readOnly={subject.semesterPast}
                   onSaved={() => subject.refresh()}
                 />
               </div>
@@ -139,6 +140,7 @@ function PlanBody() {
               <EditablePlanTable
                 subjectId={subject.id}
                 initialRows={draftRows}
+                readOnly={subject.semesterPast}
                 onSaved={() => subject.refresh()}
               />
             )

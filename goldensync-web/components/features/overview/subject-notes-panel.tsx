@@ -39,6 +39,8 @@ type SortMode = "time" | "size";
 export type SubjectNotesPanelProps = {
   subjectId: string;
   live: boolean;
+  /** Past semester — browse only (no add/edit/delete/pin). */
+  readOnly?: boolean;
   /** False while Clerk/subject detail are still resolving. */
   ready?: boolean;
   onActivity?: (entry: {
@@ -83,10 +85,12 @@ function filterAndSort(
 export function SubjectNotesPanel({
   subjectId,
   live,
+  readOnly = false,
   ready = true,
   onActivity,
 }: SubjectNotesPanelProps) {
   const { isSignedIn } = useAuth();
+  const canMutate = live && !readOnly;
   const [notes, setNotes] = React.useState<PlanNoteDto[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -399,9 +403,13 @@ export function SubjectNotesPanel({
 
         <div className="flex items-center justify-between gap-space-2">
           <p className="text-caption text-text-muted">
-            {live ? "Pin up to 3 · view, edit, delete" : lockedHint}
+            {readOnly
+              ? "Past semester — view only"
+              : live
+                ? "Pin up to 3 · view, edit, delete"
+                : lockedHint}
           </p>
-          {live ? (
+          {canMutate ? (
             <Button
               variant="Secondary"
               size="sm"
@@ -427,7 +435,7 @@ export function SubjectNotesPanel({
           </p>
         ) : null}
 
-        {adding && live ? (
+        {adding && canMutate ? (
           <div className="flex w-full flex-col gap-space-2 rounded-md border border-border-subtle bg-bg-subtle p-space-3">
             <Input
               size="Compact"
@@ -568,36 +576,39 @@ export function SubjectNotesPanel({
                             <Eye className="size-3.5" aria-hidden />
                           )}
                         </button>
-                        <button
-                          type="button"
-                          disabled={busy || pinDisabled}
-                          aria-label={
-                            note.pinned
-                              ? "Unpin note"
-                              : pinDisabled
-                                ? "Pin limit reached (3)"
-                                : "Pin note"
-                          }
-                          className={cn(
-                            "flex size-7 items-center justify-center rounded-sm outline-none",
-                            "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
-                            note.pinned
-                              ? "text-accent-primary"
-                              : "text-text-muted",
-                            (busy || pinDisabled) &&
-                              "pointer-events-none opacity-40",
-                          )}
-                          onClick={() => void togglePin(note)}
-                        >
-                          <Pin
+                        {canMutate ? (
+                          <button
+                            type="button"
+                            disabled={busy || pinDisabled}
+                            aria-label={
+                              note.pinned
+                                ? "Unpin note"
+                                : pinDisabled
+                                  ? "Pin limit reached (3)"
+                                  : "Pin note"
+                            }
                             className={cn(
-                              "size-3.5",
-                              note.pinned && "fill-accent-primary",
+                              "flex size-7 items-center justify-center rounded-sm outline-none",
+                              "hover:bg-bg-muted focus-visible:border focus-visible:border-border-focus",
+                              note.pinned
+                                ? "text-accent-primary"
+                                : "text-text-muted",
+                              (busy || pinDisabled) &&
+                                "pointer-events-none opacity-40",
                             )}
-                            aria-hidden
-                          />
-                        </button>
+                            onClick={() => void togglePin(note)}
+                          >
+                            <Pin
+                              className={cn(
+                                "size-3.5",
+                                note.pinned && "fill-accent-primary",
+                              )}
+                              aria-hidden
+                            />
+                          </button>
+                        ) : null}
 
+                        {canMutate ? (
                         <div className="relative flex h-7 items-center">
                           <button
                             type="button"
@@ -656,6 +667,7 @@ export function SubjectNotesPanel({
                             </div>
                           ) : null}
                         </div>
+                        ) : null}
                       </div>
                     </div>
                   )}

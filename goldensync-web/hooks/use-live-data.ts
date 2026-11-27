@@ -16,11 +16,16 @@ import {
   fetchSubjects,
   type SubjectDto,
 } from "@/lib/api/semesters";
+import {
+  activeSemesterStorageKey,
+  isSemesterPast,
+} from "@/lib/domain/semester-year";
 import { useProtoActions } from "@/state";
 
 export type LiveSemester = {
   id: string;
   label: string;
+  yearLevel: number;
   startDate: string;
   endDate: string;
 };
@@ -30,14 +35,34 @@ export type LiveDataState = {
   signedIn: boolean;
   me: { id: string; email: string; name: string | null } | null;
   semesters: LiveSemester[];
-  /** Active semester used for subject list / create (first by default). */
+  /** Active semester used for subject list / create. */
   activeSemesterId: string | null;
+  /** True when the active semester’s endDate is before today (Asia/Manila). */
+  isActiveSemesterPast: boolean;
   subjects: SubjectDto[];
   error: string | null;
   refresh: () => void;
+  /** Switch active semester and reload its subjects (persists per user). */
+  selectSemester: (semesterId: string) => Promise<void>;
 };
 
 export const LiveDataContext = React.createContext<LiveDataState | null>(null);
+
+function readStoredSemesterId(userId: string): string | null {
+  try {
+    return window.localStorage.getItem(activeSemesterStorageKey(userId));
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSemesterId(userId: string, semesterId: string) {
+  try {
+    window.localStorage.setItem(activeSemesterStorageKey(userId), semesterId);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
 
 /** Internal state hook used by LiveDataProvider. */
 export function useLiveDataState(): LiveDataState {
@@ -53,6 +78,11 @@ export function useLiveDataState(): LiveDataState {
   const [subjects, setSubjects] = React.useState<SubjectDto[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [tick, setTick] = React.useState(0);
+  const activeSemesterIdRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    activeSemesterIdRef.current = activeSemesterId;
+  }, [activeSemesterId]);
 
   React.useEffect(() => {
     if (!isLoaded) return;
@@ -81,25 +111,36 @@ export function useLiveDataState(): LiveDataState {
             email: profile.email,
             name: profile.name,
           });
-          setSemesters(
-            list.map((s) => ({
-              id: s.id,
-              label: s.label,
-              startDate: s.startDate,
-              endDate: s.endDate,
-            })),
-          );
+          const mapped: LiveSemester[] = list.map((s) => ({
+            id: s.id,
+            label: s.label,
+            yearLevel: typeof s.yearLevel === "number" ? s.yearLevel : 1,
+            startDate: s.startDate,
+            endDate: s.endDate,
+          }));
+          setSemesters(mapped);
           setSessionActive(true);
-          setHasSemester(list.length > 0);
+          setHasSemester(mapped.length > 0);
 
-          const semesterId = list[0]?.id ?? null;
-          setActiveSemesterId(semesterId);
+          const stored = readStoredSemesterId(profile.id);
+          const preferred =
+            (activeSemesterIdRef.current &&
+            mapped.some((s) => s.id === activeSemesterIdRef.current)
+              ? activeSemesterIdRef.current
+              : null) ??
+            (stored && mapped.some((s) => s.id === stored) ? stored : null) ??
+            mapped[0]?.id ??
+            null;
+          setActiveSemesterId(preferred);
+          if (preferred) {
+            writeStoredSemesterId(profile.id, preferred);
+          }
 
-          if (!semesterId) {
+          if (!preferred) {
             setSubjects([]);
             setSubjectCount(0);
           } else {
-            const subjectList = await fetchSubjects(semesterId);
+            const subjectList = await fetchSubjects(preferred);
             if (cancelled) return;
             setSubjects(subjectList);
             setSubjectCount(subjectList.length);
@@ -139,15 +180,46 @@ export function useLiveDataState(): LiveDataState {
 
   const refresh = React.useCallback(() => setTick((t) => t + 1), []);
 
+  const selectSemester = React.useCallback(
+    async (semesterId: string) => {
+      const match = semesters.find((s) => s.id === semesterId);
+      if (!match) return;
+      setActiveSemesterId(semesterId);
+      if (me?.id) writeStoredSemesterId(me.id, semesterId);
+      try {
+        const subjectList = await fetchSubjects(semesterId);
+        setSubjects(subjectList);
+        setSubjectCount(subjectList.length);
+        setError(null);
+      } catch (err) {
+        setSubjects([]);
+        setSubjectCount(0);
+        setError(
+          err instanceof ApiClientError
+            ? err.message
+            : "Could not load subjects for that semester.",
+        );
+      }
+    },
+    [semesters, me?.id, setSubjectCount],
+  );
+
+  const active = semesters.find((s) => s.id === activeSemesterId) ?? null;
+  const isActiveSemesterPast = active
+    ? isSemesterPast(active.endDate)
+    : false;
+
   return {
     ready: ready && isLoaded,
     signedIn: Boolean(isSignedIn),
     me,
     semesters,
     activeSemesterId,
+    isActiveSemesterPast,
     subjects,
     error,
     refresh,
+    selectSemester,
   };
 }
 
@@ -161,4 +233,12 @@ export function useLiveData(): LiveDataState {
     throw new Error("useLiveData must be used within LiveDataProvider");
   }
   return ctx;
+}
+
+/** Resolve the active semester row from live data. */
+export function getActiveSemester(
+  live: Pick<LiveDataState, "semesters" | "activeSemesterId">,
+): LiveSemester | null {
+  if (!live.activeSemesterId) return null;
+  return live.semesters.find((s) => s.id === live.activeSemesterId) ?? null;
 }

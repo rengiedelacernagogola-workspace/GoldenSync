@@ -6,6 +6,7 @@ import "server-only";
 
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
+import { formatSemesterDisplayLabel } from "@/lib/domain/semester-year";
 import {
   mapAssessment,
   mapChecklistItem,
@@ -53,9 +54,13 @@ export async function listArchivedSubjectsForUser(
     }).all();
     for (const row of rows) {
       if (row.archivedAt == null) continue;
+      const yearLevel = (semester as { yearLevel?: number }).yearLevel;
       results.push({
         ...mapSubject(row),
-        semesterLabel: semester.label,
+        semesterLabel: formatSemesterDisplayLabel(
+          semester.label,
+          typeof yearLevel === "number" ? yearLevel : 1,
+        ),
       });
     }
   }
@@ -94,7 +99,14 @@ export async function getSubjectDetailForUser(
 
   return {
     ...mapSubject(row),
-    semesterLabel: semester?.label ?? "—",
+    semesterLabel: semester
+      ? formatSemesterDisplayLabel(
+          semester.label,
+          typeof (semester as { yearLevel?: number }).yearLevel === "number"
+            ? (semester as { yearLevel: number }).yearLevel
+            : 1,
+        )
+      : "—",
     semesterStartDate:
       semester?.startDate instanceof Date
         ? semester.startDate.toISOString()

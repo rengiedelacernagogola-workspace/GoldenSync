@@ -43,6 +43,8 @@ const cellInput =
 type EditablePlanTableProps = {
   subjectId: string;
   initialRows: PlanDraftRow[];
+  /** Past semester — browse rows, no save/add/delete. */
+  readOnly?: boolean;
   onSaved?: () => void;
 };
 
@@ -214,6 +216,7 @@ function StatusPicker({
 export function EditablePlanTable({
   subjectId,
   initialRows,
+  readOnly = false,
   onSaved,
 }: EditablePlanTableProps) {
   const [rows, setRows] = React.useState<PlanDraftRow[]>(initialRows);
@@ -335,32 +338,40 @@ export function EditablePlanTable({
           Duplicate keeps the week #. Done ticks Checklist too.
         </p>
         <div className="flex flex-wrap items-center gap-space-2">
-          {error ? (
+          {readOnly ? (
+            <span className="text-[11px] text-text-muted">
+              Past semester — view only
+            </span>
+          ) : error ? (
             <span className="text-[11px] text-status-error">{error}</span>
           ) : okMsg ? (
             <span className="text-[11px] text-status-success">{okMsg}</span>
           ) : dirty ? (
             <span className="text-[11px] text-text-muted">Unsaved changes</span>
           ) : null}
-          <Button
-            type="button"
-            variant="Secondary"
-            size="sm"
-            onClick={addTemplate}
-            disabled={saving || rows.length >= MAX_PLAN_ENTRIES}
-          >
-            <Plus className="size-3.5" aria-hidden />
-            Add Templates
-          </Button>
-          <Button
-            type="button"
-            variant="Primary"
-            size="sm"
-            onClick={() => void save()}
-            disabled={saving || !dirty}
-          >
-            {saving ? "Saving…" : "Save plan"}
-          </Button>
+          {!readOnly ? (
+            <>
+              <Button
+                type="button"
+                variant="Secondary"
+                size="sm"
+                onClick={addTemplate}
+                disabled={saving || rows.length >= MAX_PLAN_ENTRIES}
+              >
+                <Plus className="size-3.5" aria-hidden />
+                Add Templates
+              </Button>
+              <Button
+                type="button"
+                variant="Primary"
+                size="sm"
+                onClick={() => void save()}
+                disabled={saving || !dirty}
+              >
+                {saving ? "Saving…" : "Save plan"}
+              </Button>
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -385,6 +396,8 @@ export function EditablePlanTable({
                       min={1}
                       max={30}
                       aria-label="Week number"
+                      readOnly={readOnly}
+                      disabled={readOnly}
                       className={cn(
                         cellInput,
                         "font-mono tabular-nums text-text-secondary",
@@ -402,7 +415,7 @@ export function EditablePlanTable({
                       type="text"
                       aria-label={`Week ${row.weekNumber} topic`}
                       placeholder="Topic"
-                      disabled={isNoClass}
+                      disabled={readOnly || isNoClass}
                       className={cn(
                         cellInput,
                         "font-semibold",
@@ -419,7 +432,7 @@ export function EditablePlanTable({
                       type="text"
                       aria-label={`Week ${row.weekNumber} outcome`}
                       placeholder="Outcome"
-                      disabled={isNoClass}
+                      disabled={readOnly || isNoClass}
                       className={cn(
                         cellInput,
                         "font-mono tabular-nums text-text-secondary",
@@ -435,7 +448,7 @@ export function EditablePlanTable({
                       type="text"
                       aria-label={`Week ${row.weekNumber} activities`}
                       placeholder="Activities"
-                      disabled={isNoClass}
+                      disabled={readOnly || isNoClass}
                       className={cn(cellInput, "text-text-secondary")}
                       value={isNoClass ? "" : row.activities}
                       onChange={(e) =>
@@ -447,9 +460,10 @@ export function EditablePlanTable({
                     <StatusPicker
                       value={row.status}
                       weekNumber={row.weekNumber}
-                      disabled={saving}
+                      disabled={readOnly || saving}
                       onChange={(status) => updateRow(row.key, { status })}
                     />
+                    {!readOnly ? (
                     <button
                       type="button"
                       aria-label={`Duplicate week ${row.weekNumber}`}
@@ -460,6 +474,8 @@ export function EditablePlanTable({
                     >
                       <Copy className="size-3.5" aria-hidden />
                     </button>
+                    ) : null}
+                    {!readOnly ? (
                     <button
                       type="button"
                       aria-label={`Remove week ${row.weekNumber}`}
@@ -469,6 +485,7 @@ export function EditablePlanTable({
                     >
                       <Trash2 className="size-3.5" aria-hidden />
                     </button>
+                    ) : null}
                   </div>
                 </div>
               );

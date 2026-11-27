@@ -24,6 +24,8 @@ export interface TopBarProps extends React.HTMLAttributes<HTMLElement> {
   hideAddSubject?: boolean;
   /** Module pages keep semester in overline only (DEC-067). */
   hideSemester?: boolean;
+  /** Custom semester control (e.g. SemesterSwitcher); replaces default picker. */
+  semesterSlot?: React.ReactNode;
   /** Show menu IconOnly for tablet/mobile drawer. */
   showMenuButton?: boolean;
   /** Refresh notifications list after an activity is logged. */
@@ -43,6 +45,7 @@ export function TopBar({
   semesterOpen = false,
   hideAddSubject = false,
   hideSemester = false,
+  semesterSlot,
   showMenuButton = false,
   notificationsRefreshKey = 0,
   onSemesterClick,
@@ -85,12 +88,16 @@ export function TopBar({
         </div>
         <ThemeToggle />
         {!hideSemester ? (
-          <SemesterPicker
-            label={semesterLabel}
-            open={semesterOpen}
-            onClick={onSemesterClick}
-            className="hidden md:inline-flex"
-          />
+          semesterSlot ? (
+            <div className="min-w-0 shrink">{semesterSlot}</div>
+          ) : (
+            <SemesterPicker
+              label={semesterLabel}
+              open={semesterOpen}
+              onClick={onSemesterClick}
+              className="max-w-[min(280px,40vw)]"
+            />
+          )
         ) : null}
         {!hideAddSubject ? (
           <Button

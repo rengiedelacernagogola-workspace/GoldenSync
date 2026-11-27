@@ -1739,6 +1739,13 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "yearLevel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -1799,6 +1806,9 @@
                 },
                 "userId": {
                   "column": "userId"
+                },
+                "yearLevel": {
+                  "column": "yearLevel"
                 }
               },
               "namespaceId": "public",
@@ -3709,6 +3719,11 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "yearLevel": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -3985,7 +4000,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "8c7f6550bb6e3d1491b4b39298b596c4e351762f7b3ddadc4e6f407758c8d286"
+    "storageHash": "8952378bdf1f9b8a8c519d5122ebc8e40ffe0ff999fb9e70c35082ec8941634c"
   },
   "execution": {
     "executionHash": "a02e998bc5f4c298e2e63066439fb73cef41160cd6b9605e0d108824777fde3d",

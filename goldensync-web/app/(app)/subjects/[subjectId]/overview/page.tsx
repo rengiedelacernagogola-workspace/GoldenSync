@@ -11,6 +11,7 @@ import * as React from "react";
 
 import {
   AppShell,
+  Banner,
   MobileDrawer,
   type SidebarActiveId,
 } from "@/components/core";
@@ -68,12 +69,23 @@ function OverviewBody() {
           <p className="text-overline uppercase text-text-muted">
             {subject.code} · {subject.semesterLabel}
             {subject.live ? " · Live" : ""}
+            {subject.semesterPast ? " · Past" : ""}
           </p>
 
-          <div className="grid w-full min-w-0 grid-cols-1 items-start gap-space-4 sm:gap-space-6 xl:grid-cols-[minmax(0,1fr)_minmax(240px,320px)]">
+          {subject.semesterPast ? (
+            <Banner
+              variant="Info"
+              message="Past semester — view only. Archive or delete this subject from the sidebar if you want to hide it."
+              hasAction={false}
+              className="w-full"
+            />
+          ) : null}
+
+          <div className="flex w-full min-w-0 flex-col gap-space-4 sm:gap-space-6">
             <CourseSpecCard
               subjectId={subject.id}
               live={subject.live}
+              readOnly={subject.semesterPast}
               code={subject.code}
               title={subject.title}
               units={subject.units}
@@ -89,6 +101,7 @@ function OverviewBody() {
             <SubjectNotesPanel
               subjectId={subject.id}
               live={subject.live}
+              readOnly={subject.semesterPast}
               ready={subject.ready}
               onActivity={notifyActivity}
             />

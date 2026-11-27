@@ -1,0 +1,425 @@
+COURSE SYLLABUS
+PART I: COURSE SPECIFICATION
+Course Code and Name 	: 	CSC 103 - Discrete Structures 2 	Credit Units: 	Lecture: 2 units 	Laboratory: 1
+Pre-requisite/ Co-requisite : 	Pre-req: CSC 102 - Discrete Structures 1 	Total Contact Hours: 	36 hours lecture : 54 hours laboratory
+Effectivity 	: 	2nd Semester A.Y. 2025-2026 	Learning Modality 	: 	Onsite/ Online (Blended Learning)
+Learning Resources Needed : 	Classroom, Audio-visual, Laptop, Internet 	Outcomes-Based Evidence : 	At least 80% of the class attain > 60% on all CO
+Course Description: This course builds upon the foundational concepts introduced in Discrete Structures 1, extending students’ understanding of discrete mathematics as applied to computer
+science and computing systems. It focuses on advanced topics, including number theory, combinatorics, recurrence relations, probability theory, graph theory, and automata and formal languages.
+Key topics include divisibility, prime numbers, modular arithmetic, the Euclidean algorithm, public-key cryptography (RSA), counting principles, the pigeonhole principle, recurrence relations,
+probability on finite sample spaces, graph properties, and finite automata. Through guided problem-solving, laboratory activities, and performance-based assessments, students develop analytical
+thinking, algorithmic reasoning, and modeling skills essential for advanced computing courses. A blended learning approach is employed, utilizing MASAOLms and face-to-face sessions, with
+assessments that include quizzes, laboratory activities, and major examinations.
+PART II: VISION, MISSION, Graduate Attributes, Institutional Outcomes, PEO, PO, CO
+Vision 	Mission
+A socially-engaged, digital, innovation, and entrepreneurial university excelling globally in
+science, engineering, and the arts by 2028.
+As a transformative university, CSU is a responsible steward of problem-solvers and value
+creators who are driven to create a sustainable future for the region, the nation, and beyond.
+Graduate Attributes 	Institutional Outcomes
+Caraga State University graduates manifest the virtue of a CSUAN:
+Competent,
+Socially-engaged,
+Upright,
+Agile and Innovative, and
+Nurturing Leaders.
+The CSUAN graduate is globally competent, lifelong learner, visionary steward,
+sustainability-advocate, morally-upright, ethically critical, with integrity, adaptable to change,
+innovative, has entrepreneurial mindset, and a transformative leader.
+IO1. Transformative Leadership and Stewardship. A CSUAN applies advanced expertise in
+addressing complex societal challenges as a transformative leader and purpose-driven steward.
+IO2. Research, Innovation and Enterprise. A CSUAN produces quality research outputs,
+applies innovative thinking, and develops entrepreneurial solutions that address regional and
+global issues, in pursuit of sustainability and economic advancement.
+IO3. Lifelong Learning and Social Responsibility. A CSUAN continually enhances their
+knowledge and skills, and actively contributes to community development while exemplifying
+social responsibility, ethical standards, and the core values of Caraga State University.
+Program Educational Objectives (PEO) 	Program Outcomes (PO) aligned with this Course
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 1 of 8
+
+-- 1 of 6 --
+
+In 3-5 years, the graduates of the BSCS program shall: 	IO
+● Demonstrate problem-solving and critical thinking skills, capable of
+analyzing complex computing challenges, designing innovative solutions,
+and applying their expertise to address real-world problems in local and
+global contexts.
+IO1,
+IO2
+● Engage in research or technological advancements aligned with Sustainable
+Development Goals (SDG) while demonstrating entrepreneurial acumen
+through impactful societal and industry engagements.
+IO2
+● Actively pursue lifelong learning, continuously enhancing their technical
+expertise, innovative capabilities, and ethical practices while leveraging
+emerging digital technologies.
+IO3
+After completion of the program, the graduates must have the
+following:
+IO 	PEO
+PO1: Analyze a complex computing problem and apply principles of
+computing and other relevant disciplines to identify solutions.
+IO1, IO2 PEO1,
+PEO2
+PO2: Design, implement, and evaluate a computing-based solution to
+meet a given set of computing requirements in the context of a
+program’s discipline
+IO2 	PEO1,
+PEO2
+PO3: Communicate effectively in a variety of professional contexts. 	IO3 	PEO3
+PO6(CS): Apply computer science theory and software development
+fundamentals to produce computing-based solutions.
+IO1, IO2 PEO1,
+PEO2
+Course Outcomes (CO)
+After completing this course, the learner must be able to: 	PO1 PO2 PO3 PO6-CS 	21st CS 	6Cs 	SDG
+1. Solve real-world computing problems involving permutations, combinations, and
+modular arithmetic. 	E 	E 	E 	E 	1,5,7 	1 	4,9
+2. Compute probabilities of events using counting techniques and Bayes’ Theorem in
+finite sample spaces. 	E 	E 	E 	E 	1,5 	1,4 	4,9
+3. Solve recurrence relations and relate them to recursive algorithms, graphs, and
+automata models. 	E 	E 	E 	E 	1,7 	1,2,4 	4,9
+Map CO with PO. Use I – Introductory, E – Enabling, D – Demonstrative
+21st Century skills: 1 – critical thinking, 2-creativity, 3-collaboration, 4-communication, 5-information literacy, 6-media literacy, 7-technology literacy, 8- flexibility, 9-leadership, 10-initiative, 11- productivity, 12-social skills
+6Cs:: 1 – critical thinking, 2-creativity, 3-collaboration, 4-communication, 5- citizenship/ culture, 6 – character/ compassion
+SDG: 1-No poverty, 2 -Zero Hunger, 3- Good Health and Well-being, 4 – Quality Education, 5- Gender Equality, 6-Clean water and sanitation, 7- Affordable and clean energy, 8- decent work and economic growth, 9-industry, innovation,
+and infrastructure, 10 – reduced inequalities, 11- sustainable cities and communities, 12- responsible consumption and production, 13- climate action, 14-life below water, 15- life on land, 16 – peace, justice and strong institutions, 17 –
+partnerships for the goals
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 2 of 8
+
+-- 2 of 6 --
+
+PART III: TEACHING AND LEARNING PLAN
+No of
+WEEKS/
+HOURS
+TOPIC LEARNING OUTCOME 	CO 	TOPIC
+TEACHING AND LEARNING
+ACTIVITIES
+ASSESSMENT
+ONSITE/ F2F OFFSITE
+(Online/Offline) ONSITE/ F2F OFFSITE
+(Online/Offline)
+1 Week
+● Explain the course objectives, policies,
+assessment system, and expected learning
+outcomes.
+● Identify the relationship between Course
+Outcomes (COs), Program Outcomes (POs), and
+assessments.
+VM, Quality Policy, Graduate Attributes, PEO,
+PO, CO, Course Syllabus, Teaching and Learning
+Activities, Method of Assessment, Grading
+System, Class Policies
+Discussion 	Materials uploaded on
+MASAOLms
+3 Weeks
+● Apply divisibility rules to determine properties of
+integers.
+● Compute the GCD and LCM of integers using
+the Euclidean Algorithm.
+● Use the Fundamental Theorem of Arithmetic to
+express integers as products of primes.
+● Apply congruence relations and modular
+arithmetic to solve computational problems.
+● Demonstrate basic number-theoretic concepts
+used in public-key cryptosystems (RSA) through
+guided examples.
+1 Number Theory
+● Divisibility
+● Primes
+● GCD
+● Euclidean algorithm
+● LCM
+● Fundamental Theorem Of Arithmetic
+● Congruence Relation
+● Modular Arithmetic
+● Public-Key Cryptosystems and RSA
+Interactive Lecture,
+guided problem
+solving, laboratory
+activities
+Learning Material
+uploaded on
+MASAOLms
+Video Lecture
+Laboratory Activity 1
+Laboratory Activity 2
+Long Quiz 1
+Midterm Exam
+(partial)
+(Laboratory
+Activity – Online
+Submission)
+4 Weeks
+● Apply the fundamental counting principle to
+structured counting problems.
+● Use the pigeonhole principle to justify
+conclusions in simple problem settings.
+● Solve basic recurrence relations by computing
+successive terms.
+● Relate recurrence relations to simple recursive
+algorithms through examples.
+● Use generating functions to represent simple
+sequences with guidance.
+1
+3
+Combinatorics and Recurrences
+● Review of sets, functions, proofs, and
+induction
+● Counting principles
+● Pigeonhole Principle
+● Recurrence Relations
+● Generating Functions (introductory)
+Interactive Lecture,
+guided problem
+solving, laboratory
+activities
+Discussion & Peer
+Review Learning
+Interactive Lecture
+Problem-based
+Learning
+Online Class with
+Group Discussions
+Laboratory Activity 3
+Long Quiz 2
+Laboratory Activity 4
+Long Quiz 3
+Midterm Exam
+(partial)
+(Laboratory
+Activity – Online
+Submission)
+(Laboratory
+Activity – Online
+Submission)
+(Long Quiz –
+Online
+Submission)
+1 Week 	Summative Assessment (Midterm Exam)
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 3 of 8
+
+-- 3 of 6 --
+
+PART III: TEACHING AND LEARNING PLAN
+No of
+WEEKS/
+HOURS
+TOPIC LEARNING OUTCOME 	CO 	TOPIC
+TEACHING AND LEARNING
+ACTIVITIES
+ASSESSMENT
+ONSITE/ F2F OFFSITE
+(Online/Offline) ONSITE/ F2F OFFSITE
+(Online/Offline)
+3 Weeks
+● Identify sample spaces and events in finite
+probability experiments.
+● Compute probabilities of events using counting
+techniques.
+● Apply conditional probability to simple
+real-world scenarios.
+● Use Bayes’ Theorem to update probabilities
+given new information.
+● Compute probabilities involving independent
+events and the binomial distribution.
+2 Probability
+● Sample Spaces and Events
+● Finite Probability Spaces
+● Conditional Probability
+● Independent Events
+● Bayes’ Theorem
+● Binomial Distribution and Random
+Variables
+Interactive Learning &
+Discussion
+Flipped Classroom
+Learning Material
+uploaded on
+MASAOLms
+Problem-Based
+Learning
+Laboratory Activity 5
+Long Quiz 4
+Final Exam (partial)
+(Laboratory
+Activity – Online
+Submission)
+(Long Quiz
+Online
+Submission)
+2 Weeks 	● Define and identify graphs, vertices, edges,
+paths, and cycles.
+● Analyze simple graphs to determine connectivity
+and structure.
+● Apply graph coloring rules to small graphs.
+● Model basic computing and real-world problems
+using graph representations.
+3 Graph Theory and Directed Graph
+● Graphs and Directed Graphs
+● Graph Isomorphism
+● Paths and Cycles
+● Graph Coloring
+● Applications of Graph Theory
+Topic Discussion
+Flipped Classroom
+Learning Material
+uploaded on
+MASAOLms
+Collaborative Learning /
+Online Discussion
+Laboratory Activity 6
+Long Quiz 5
+Final Exam (partial)
+Laboratory
+Activity 4 –
+Online
+Submission)
+Long Quiz –
+Google Form)
+2 Weeks 	● Define alphabets, strings, and languages using
+appropriate notation.
+● Construct regular expressions for simple
+languages.
+● Build finite state automata that recognize
+specified patterns.
+● Explain the role of automata and grammars in
+computing applications.
+3 Introduction to Languages, Automata, and
+Grammars
+● Alphabets, Strings, and Languages
+● Regular Expressions
+● Regular Languages
+● Finite State Automata
+● Grammars (introductory)
+Topic Discussion with
+Team-based Learning
+Online Topic
+Discussion with
+Team-based Learning
+Laboratory Activity 7
+Long Quiz 6
+Final Exam (partial)
+SA6 (Long Quiz
+– Google Form)
+1 Week 	Summative Assessment (Final Exam)
+1 Week 	Intervention
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 4 of 8
+
+-- 4 of 6 --
+
+PART IV. GRADING SYSTEM
+The following table is used to assess student performance:
+Grade Status 	Disposition
+Grade in all course outcomes is greater than 60% 	Pass. Refer to the grading table for the equivalent numerical grade
+Average is greater than 60% but at least 1 of the
+course outcomes are with grade less than 60%
+Implement intervention/ conduct removal exam/ require additional
+assessment. The final grade is based on the original average.
+Average is lesser than 60% but 50% or more of the
+outcomes are attained.
+Implement intervention/ conduct removal exam/ require additional
+assessment. The highest grade obtained after passing the outcome is 3.0
+Average is lesser than 60% and more than 50% of
+the number of course outcomes did not attain > 60%
+Failed. 5.0
+CO Weight (%) 	Assessment Tasks Wt (w/in
+CO) % Final Wt % 	C/P/A
+CO1 	40%
+Lab Activity 1 	10% 	4% 	C/P
+Lab Activity 2 	10% 	4% 	C/P
+Lab Activity 3 	10% 	4% 	C/P
+Long Quiz 1 	10% 	4% 	C
+Long Quiz 2 	10% 	4% 	C
+Midterm Exam 	50% 	20% 	C
+CO2 	20%
+Lab Activity 5 	25% 	5% 	C/P
+Long Quiz 4 	25% 	5% 	C
+Final Exam 	50% 	10% 	C
+CO3 	40%
+Lab Activity 4 	10% 	3% 	C/P
+Lab Activity 6 	10% 	3% 	C/P
+Lab Activity 7 	10% 	3% 	C/P
+Long Quiz 3 	10% 	3% 	C
+Long Quiz 5 	10% 	3% 	C
+Long Quiz 6 	10% 	3% 	C
+Midterm Exam 	5% 	5% 	C
+Final Exam 	35% 	17% 	C
+Domain Evaluation (C-Cognitive, P-Psychomotor, A-Affective)
+Numerical Grade Equivalent and Descriptive Interpretation
+Numerical
+Value
+%
+Equivalent
+Letter
+Equivalent
+Description (The
+learner…)
+1.0 	97 – 100 	A 	Exceeds expected learning
+outcomes with mastery	1.25 	93 – 96 	A-
+1.50 	89 – 92 	B+ 	Meets expected learning
+outcomes with good
+comprehension of the course,
+good command of the skills
+needed, and with full
+engagement with the course
+requirements and activities.
+1.75 	85 – 88 	B
+2.0 	80 – 84 	B-
+2.25 	75 – 79 	C+ 	Has adequate and satisfactory
+comprehension of the course
+and the skills needed, and has
+met the basic requirements
+for completing assigned work
+and class activities
+2.5 	70 – 74 	C
+2.75 	65 – 69 	C-
+3.0 	60 – 64 	D 	Meets minimum expectation,
+needs improvement
+5.0 	60 below 	E 	Does not meet expected
+learning outcomes
+INC 	Pass but with lacking
+requirements
+DRP 	Dropped – did not attend the
+class and without approval
+W 	Withdrawn – did not attend
+the class with proper
+approval
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 5 of 8
+
+-- 5 of 6 --
+
+Class Policies and Important Reminders
+● Rubrics are presented to the class or given together with the instructions for a particular Assessment. You may ask your instructor for the rubrics in case they were not provided prior to the
+project-based assessment, essay, case study, etc.
+● Any student proven to have committed fraud, following due process, shall receive a failing grade for the course.
+● Refer to the student handbook for the code of conduct inside/ outside the classroom.
+References
+● Balakrishnan, R., Samp; S. (2019). Foundations of Discrete Mathematics with Algorithms and Programming. 6000 Broken Sound Parkway NW, Suite 300 Boca Raton, FL
+33487-2742: CRC Press Taylor &amp; Francis Group.
+● David, L. (2018). Discrete Mathematics for Computer Science. John Wiley &amp; Sons.
+● Hademenos, G. J.; Lipschutz, S. (2003). Discrete mathematics: Based on Schaum's outline of theory and problems of discrete mathematics, second edition, by Seymour Lipschutz,
+Ph. D. and Marc Lars Lipson, Ph. D. New York: McGraw-Hill.
+● Jenkyns, T. A.; Stephenson, B. (2018). Fundamentals of Discrete Math for Computer Science A Problem-Solving Primer. Cham: Springer International Publishing.
+● Johnsonbaugh, R. (2019). Discrete mathematics. NY, NY: Pearson.
+Prepared by: 	Reviewed by: 	Checked by: 	Approved by:
+MR. JOHN MARK B. CORREA
+Faculty
+DR. ROLAND P. ABAO
+Program Chairperson
+MS. MARY ROSE O. RAZ
+College QuAMS Coordinator
+DR. JAYMER M. JAYOMA
+College Dean
+Date Signed: 	Date Signed: 	Date Signed: 	Date Signed:
+I am a CSUAN. Competent, Service-oriented, and Upright. I lead, I serve, I guide. Anchored in purpose, I bear the Golden Paddler’s light.
+F-CID-010 Rev.3, 03-21-2025 	Page 6 of 8
+
+-- 6 of 6 --
+
