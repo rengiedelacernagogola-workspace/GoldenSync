@@ -463,7 +463,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} topic`}
-                        placeholder="Topic"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(
                           cellInput,
@@ -483,7 +483,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} outcome`}
-                        placeholder="Outcome"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(
                           cellInput,
@@ -502,7 +502,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} activities`}
-                        placeholder="Activities"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(cellInput, "text-text-secondary")}
                         value={isNoClass ? "" : row.activities}
@@ -539,7 +539,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} topic`}
-                        placeholder="Topic"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(
                           cellInput,
@@ -556,7 +556,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} outcome`}
-                        placeholder="Outcome"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(
                           cellInput,
@@ -572,7 +572,7 @@ export function EditablePlanTable({
                       <input
                         type="text"
                         aria-label={`Week ${row.weekNumber} activities`}
-                        placeholder="Activities"
+                        placeholder="(editable)"
                         disabled={readOnly || isNoClass}
                         className={cn(cellInput, "text-text-secondary")}
                         value={isNoClass ? "" : row.activities}

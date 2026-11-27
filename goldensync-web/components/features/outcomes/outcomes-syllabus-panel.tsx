@@ -192,7 +192,7 @@ function EditableList({
                 }
                 rows={3}
                 aria-label={`${title} description ${index + 1}`}
-                placeholder="Description"
+                placeholder="(editable)"
                 className="w-full min-w-0"
               />
             </li>
@@ -378,7 +378,7 @@ export function OutcomesSyllabusPanel({
             <EditableList
               title="Institutional outcomes"
               items={draft.institutionalOutcomes}
-              codePlaceholder="IO1"
+              codePlaceholder="(editable)"
               onChange={(institutionalOutcomes) =>
                 setDraft((d) => ({ ...d, institutionalOutcomes }))
               }
@@ -386,19 +386,19 @@ export function OutcomesSyllabusPanel({
             <EditableList
               title="Program educational objectives (PEO)"
               items={draft.peos}
-              codePlaceholder="PEO1"
+              codePlaceholder="(editable)"
               onChange={(peos) => setDraft((d) => ({ ...d, peos }))}
             />
             <EditableList
               title="Program outcomes (PO)"
               items={draft.pos}
-              codePlaceholder="PO-1"
+              codePlaceholder="(editable)"
               onChange={(pos) => setDraft((d) => ({ ...d, pos }))}
             />
             <EditableList
               title="Course outcomes (CO)"
               items={draft.cos}
-              codePlaceholder="CO1"
+              codePlaceholder="(editable)"
               onChange={(cos) => setDraft((d) => ({ ...d, cos }))}
             />
           </>

@@ -90,6 +90,7 @@ export function GradeStatusTable({ rows, onChange }: GradeStatusTableProps) {
                     aria-label="Grade status"
                     className={cellTextarea}
                     value={row.status}
+                    placeholder="(editable)"
                     onChange={(e) =>
                       updateRow(row.id, { status: e.target.value })
                     }
@@ -101,6 +102,7 @@ export function GradeStatusTable({ rows, onChange }: GradeStatusTableProps) {
                     aria-label="Disposition"
                     className={cellTextarea}
                     value={row.disposition}
+                    placeholder="(editable)"
                     onChange={(e) =>
                       updateRow(row.id, { disposition: e.target.value })
                     }

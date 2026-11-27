@@ -277,7 +277,7 @@ export function CourseSpecCard({
                 value={draftCode}
                 onChange={(e) => setDraftCode(e.target.value)}
                 aria-label="Course code"
-                placeholder="e.g. CSC 106"
+                placeholder="(editable)"
                 className="w-full min-w-0"
               />
               <Input
@@ -285,7 +285,7 @@ export function CourseSpecCard({
                 value={draftTitle}
                 onChange={(e) => setDraftTitle(e.target.value)}
                 aria-label="Course name"
-                placeholder="Course name"
+                placeholder="(editable)"
                 className="w-full min-w-0"
               />
             </div>
@@ -310,7 +310,7 @@ export function CourseSpecCard({
                   value={draftLectureUnits}
                   onChange={(e) => setDraftLectureUnits(e.target.value)}
                   aria-label="Lecture units"
-                  placeholder="e.g. 2"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -324,7 +324,7 @@ export function CourseSpecCard({
                   value={draftLabUnits}
                   onChange={(e) => setDraftLabUnits(e.target.value)}
                   aria-label="Laboratory units"
-                  placeholder="e.g. 1"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -346,7 +346,7 @@ export function CourseSpecCard({
                   value={draftPrereq}
                   onChange={(e) => setDraftPrereq(e.target.value)}
                   aria-label="Pre-requisite"
-                  placeholder="e.g. ITE 13"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -359,7 +359,7 @@ export function CourseSpecCard({
                   value={draftCoreq}
                   onChange={(e) => setDraftCoreq(e.target.value)}
                   aria-label="Co-requisite"
-                  placeholder="NONE"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -389,7 +389,7 @@ export function CourseSpecCard({
                   value={draftLectureHours}
                   onChange={(e) => setDraftLectureHours(e.target.value)}
                   aria-label="Lecture contact hours"
-                  placeholder="e.g. 54"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -403,7 +403,7 @@ export function CourseSpecCard({
                   value={draftLabHours}
                   onChange={(e) => setDraftLabHours(e.target.value)}
                   aria-label="Laboratory contact hours"
-                  placeholder="e.g. 36"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -420,7 +420,7 @@ export function CourseSpecCard({
               value={draftEffectivity}
               onChange={(e) => setDraftEffectivity(e.target.value)}
               aria-label="Effectivity"
-              placeholder="e.g. 2nd Semester A.Y. 2025-2026"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -435,7 +435,7 @@ export function CourseSpecCard({
               value={draftModality}
               onChange={(e) => setDraftModality(e.target.value)}
               aria-label="Learning modality"
-              placeholder="e.g. Onsite / Online"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -450,7 +450,7 @@ export function CourseSpecCard({
               value={draftResources}
               onChange={(e) => setDraftResources(e.target.value)}
               aria-label="Learning resources needed"
-              placeholder="e.g. Classroom, Audio-visual, laptop, internet"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -465,7 +465,7 @@ export function CourseSpecCard({
               value={draftEvidence}
               onChange={(e) => setDraftEvidence(e.target.value)}
               aria-label="Outcomes-based evidence"
-              placeholder="e.g. At least 80% of the class attain ≥ 60% on all CO"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -480,7 +480,7 @@ export function CourseSpecCard({
               value={draftDescription}
               onChange={(e) => setDraftDescription(e.target.value)}
               aria-label="Course description"
-              placeholder="Course description…"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (

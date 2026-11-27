@@ -441,14 +441,14 @@ export function SubjectNotesPanel({
               size="Compact"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Title"
+              placeholder="(editable)"
               aria-label="New note title"
             />
             <Textarea
               rows={3}
               value={newBody}
               onChange={(e) => setNewBody(e.target.value)}
-              placeholder="Note…"
+              placeholder="(editable)"
               aria-label="New note body"
             />
             <div className="flex gap-space-2">

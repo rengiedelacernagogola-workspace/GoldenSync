@@ -75,22 +75,55 @@ export function GradeEquivalentTable({
       }
     >
       <div className="w-full min-w-0 overflow-x-auto">
-        <table className="w-full table-fixed border-collapse text-left">
+        <table className="w-full min-w-[960px] table-fixed border-collapse text-left">
           <thead>
             <tr className="border-b border-border-subtle bg-bg-subtle">
-              <th className="w-[12%] px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                Numerical Value
-              </th>
-              <th className="w-[12%] px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                % Equivalent
-              </th>
-              <th className="w-[12%] px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                Letter Equivalent
-              </th>
-              <th className="min-w-0 px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                Description (The learner…)
-              </th>
-              <th className="w-10 px-space-1 py-space-2" aria-label="Actions" />
+              {(
+                [
+                  {
+                    full: "Numerical Value",
+                    short: "Value",
+                    className: "w-[120px]",
+                  },
+                  {
+                    full: "% Equivalent",
+                    short: "% Eq.",
+                    className: "w-[110px]",
+                  },
+                  {
+                    full: "Letter Equivalent",
+                    short: "Letter",
+                    className: "w-[140px]",
+                  },
+                  {
+                    full: "Description (The learner…)",
+                    short: "Desc.",
+                    className: "min-w-0",
+                  },
+                  {
+                    full: "",
+                    short: "",
+                    className: "w-10 px-space-1",
+                  },
+                ] as const
+              ).map((col, i) => (
+                <th
+                  key={col.full || `a-${i}`}
+                  className={cn(
+                    "overflow-hidden px-space-2 py-space-2 text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-text-muted",
+                    col.className,
+                  )}
+                  aria-label={col.full || "Actions"}
+                  title={col.full || undefined}
+                >
+                  {col.full ? (
+                    <>
+                      <span className="md:hidden">{col.short}</span>
+                      <span className="hidden md:inline">{col.full}</span>
+                    </>
+                  ) : null}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -99,31 +132,34 @@ export function GradeEquivalentTable({
                 key={row.id}
                 className="border-b border-border-subtle align-top last:border-b-0"
               >
-                <td className="min-w-0 p-space-1">
+                <td className="w-[120px] p-space-1">
                   <input
                     aria-label="Numerical value"
                     className={cellInput}
                     value={row.numerical}
+                    placeholder="(editable)"
                     onChange={(e) =>
                       updateRow(row.id, { numerical: e.target.value })
                     }
                   />
                 </td>
-                <td className="min-w-0 p-space-1">
+                <td className="w-[110px] p-space-1">
                   <input
                     aria-label="Percent equivalent"
                     className={cellInput}
                     value={row.percent}
+                    placeholder="(editable)"
                     onChange={(e) =>
                       updateRow(row.id, { percent: e.target.value })
                     }
                   />
                 </td>
-                <td className="min-w-0 p-space-1">
+                <td className="w-[140px] p-space-1">
                   <input
                     aria-label="Letter equivalent"
                     className={cellInput}
                     value={row.letter}
+                    placeholder="(editable)"
                     onChange={(e) =>
                       updateRow(row.id, { letter: e.target.value })
                     }

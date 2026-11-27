@@ -145,7 +145,7 @@ export function ManualChecklistCard({
             <div className="flex min-w-0 flex-1 flex-col gap-space-2">
               <Input
                 size="Compact"
-                placeholder="Task title"
+                placeholder="(editable)"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 aria-label="Checklist item title"
@@ -158,7 +158,7 @@ export function ManualChecklistCard({
               />
               <Input
                 size="Compact"
-                placeholder="Detail (optional)"
+                placeholder="(editable)"
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
                 aria-label="Checklist item detail"
@@ -201,12 +201,14 @@ export function ManualChecklistCard({
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         aria-label="Edit title"
+                        placeholder="(editable)"
                       />
                       <Input
                         size="Compact"
                         value={editDetail}
                         onChange={(e) => setEditDetail(e.target.value)}
                         aria-label="Edit detail"
+                        placeholder="(editable)"
                       />
                       <div className="flex gap-space-2">
                         <Button

@@ -234,7 +234,7 @@ export function FacultyPanel({
                   disabled={saving}
                   onChange={(e) => setDraftName(e.target.value)}
                   aria-label="Instructor name"
-                  placeholder="e.g. Juan Dela Cruz"
+                  placeholder="(editable)"
                   className="w-full min-w-0"
                 />
               </label>
@@ -252,7 +252,7 @@ export function FacultyPanel({
               disabled={saving}
               onChange={(e) => setDraftCollege(e.target.value)}
               aria-label="College"
-              placeholder="e.g. College of Computing and Information Sciences"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -268,7 +268,7 @@ export function FacultyPanel({
               disabled={saving}
               onChange={(e) => setDraftConsultation(e.target.value)}
               aria-label="Consultation"
-              placeholder="e.g. Mon 1–3 PM, Room IT-201"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (
@@ -287,7 +287,7 @@ export function FacultyPanel({
               disabled={saving}
               onChange={(e) => setDraftHours(e.target.value)}
               aria-label="Estimated contact hours"
-              placeholder="e.g. 54"
+              placeholder="(editable)"
               className="w-full min-w-0"
             />
           ) : (

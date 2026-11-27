@@ -195,6 +195,7 @@ export function CoAssessmentTable({
                                 "w-14 text-center font-semibold",
                               )}
                               value={group.code}
+                              placeholder="(editable)"
                               onChange={(e) =>
                                 updateGroup(group.id, { code: e.target.value })
                               }
@@ -229,6 +230,7 @@ export function CoAssessmentTable({
                               "mx-auto block w-14 text-center",
                             )}
                             value={group.weightPercent}
+                            placeholder="(editable)"
                             onChange={(e) =>
                               updateGroup(group.id, {
                                 weightPercent: e.target.value,
@@ -243,6 +245,7 @@ export function CoAssessmentTable({
                         aria-label="Assessment task"
                         className={cellInput}
                         value={task.task}
+                        placeholder="(editable)"
                         onChange={(e) =>
                           updateTask(group.id, task.id, {
                             task: e.target.value,
@@ -255,6 +258,7 @@ export function CoAssessmentTable({
                         aria-label="Task weight"
                         className={cellInput}
                         value={task.weight}
+                        placeholder="(editable)"
                         onChange={(e) =>
                           updateTask(group.id, task.id, {
                             weight: e.target.value,
@@ -267,6 +271,7 @@ export function CoAssessmentTable({
                         aria-label="Final weight"
                         className={cellInput}
                         value={task.finalWeight}
+                        placeholder="(editable)"
                         onChange={(e) =>
                           updateTask(group.id, task.id, {
                             finalWeight: e.target.value,
@@ -279,6 +284,7 @@ export function CoAssessmentTable({
                         aria-label="Domain C/P/A"
                         className={cn(cellInput, "text-center")}
                         value={task.domain}
+                        placeholder="(editable)"
                         onChange={(e) =>
                           updateTask(group.id, task.id, {
                             domain: e.target.value,
@@ -312,6 +318,7 @@ export function CoAssessmentTable({
               "rounded-md border border-border-subtle px-space-2 py-space-2 italic",
             )}
             value={domainNote}
+            placeholder="(editable)"
             onChange={(e) => onChangeDomainNote(e.target.value)}
             aria-label="Domain evaluation note"
           />

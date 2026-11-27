@@ -137,7 +137,7 @@ export function ClassPoliciesPanel({
             disabled={saving}
             onChange={(e) => setDraft(e.target.value)}
             aria-label="Class policies"
-            placeholder="Class policies…"
+            placeholder="(editable)"
             className="w-full min-w-0"
           />
         ) : (
