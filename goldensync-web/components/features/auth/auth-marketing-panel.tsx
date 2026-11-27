@@ -33,7 +33,7 @@ export function AuthMarketingPanel() {
   return (
     <section
       data-slot="gs-auth-marketing"
-      className="relative flex h-full min-h-[42dvh] w-full min-w-0 flex-1 flex-col justify-center overflow-hidden px-space-5 py-space-8 sm:px-space-10 sm:py-space-10 lg:min-h-dvh lg:px-space-12 xl:px-space-16"
+      className="relative flex h-full min-h-0 w-full min-w-0 flex-1 flex-col justify-center overflow-hidden px-space-5 py-space-6 sm:min-h-[42dvh] sm:px-space-10 sm:py-space-10 lg:min-h-dvh lg:px-space-12 xl:px-space-16"
     >
       <div
         aria-hidden
@@ -44,31 +44,31 @@ export function AuthMarketingPanel() {
         className="pointer-events-none absolute inset-y-0 right-0 hidden w-px bg-border-subtle lg:block"
       />
 
-      <div className="relative z-10 flex w-full max-w-2xl flex-col gap-space-6 sm:gap-space-8 lg:max-w-none">
+      <div className="relative z-10 flex w-full max-w-2xl flex-col gap-space-4 sm:gap-space-8 lg:max-w-none">
         <p className="text-overline uppercase tracking-[0.14em] text-accent-primary">
           GoldenSync
         </p>
 
-        <div className="flex flex-col gap-space-3 sm:gap-space-4">
-          <h1 className="text-display-md text-balance text-text-primary lg:text-display-lg">
+        <div className="flex flex-col gap-space-2 sm:gap-space-4">
+          <h1 className="text-display-sm text-balance text-text-primary sm:text-display-md lg:text-display-lg">
             Stay in sync with every course.
           </h1>
-          <p className="max-w-xl text-pretty text-body-md text-text-secondary sm:text-body-lg">
+          <p className="max-w-xl text-pretty text-body-sm text-text-secondary sm:text-body-lg">
             GoldenSync keeps your syllabus, plan, notes, and grades in one
             place.
           </p>
         </div>
 
         <ul
-          className="flex flex-col gap-space-3 sm:gap-space-4"
+          className="flex flex-col gap-space-2 sm:gap-space-4"
           aria-label="What you can do"
         >
           {FEATURES.map(({ icon: Icon, text }) => (
-            <li key={text} className="flex min-w-0 items-start gap-space-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-bg-subtle text-accent-primary sm:size-9">
+            <li key={text} className="flex min-w-0 items-start gap-space-2 sm:gap-space-3">
+              <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-bg-subtle text-accent-primary sm:size-9">
                 <Icon className="size-3.5 sm:size-4" aria-hidden />
               </span>
-              <span className="min-w-0 pt-1 text-body-sm text-text-primary sm:pt-1.5 sm:text-body-md">
+              <span className="min-w-0 pt-0.5 text-body-sm text-text-primary sm:pt-1.5 sm:text-body-md">
                 {text}
               </span>
             </li>

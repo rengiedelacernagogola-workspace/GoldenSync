@@ -23,7 +23,7 @@ export function Table({ className, header, children, ...props }: TableProps) {
       data-slot="gs-table"
       role="table"
       className={cn(
-        "glass-sm relative flex w-full flex-col items-start overflow-hidden rounded-lg",
+        "glass-sm relative flex w-full flex-col items-start overflow-x-auto rounded-lg",
         className,
       )}
       {...props}

@@ -330,25 +330,27 @@ export function EditablePlanTable({
     }
   }
 
+  const statusMsg = readOnly ? (
+    <span className="text-[11px] text-text-muted">
+      Past semester — view only
+    </span>
+  ) : error ? (
+    <span className="text-[11px] text-status-error">{error}</span>
+  ) : okMsg ? (
+    <span className="text-[11px] text-status-success">{okMsg}</span>
+  ) : dirty ? (
+    <span className="text-[11px] text-text-muted">Unsaved changes</span>
+  ) : null;
+
   return (
     <div className="flex w-full flex-col gap-space-3">
-      <div className="flex flex-wrap items-center justify-between gap-space-2">
-        <p className="text-body-sm text-text-muted">
+      <div className="flex w-full flex-col items-stretch gap-space-2 md:flex-row md:flex-wrap md:items-center md:justify-between">
+        <p className="w-full text-body-sm text-text-muted md:min-w-0 md:flex-1">
           Same week number can have many rows (topics, outcomes, activities).
           Duplicate keeps the week #. Done ticks Checklist too.
         </p>
-        <div className="flex flex-wrap items-center gap-space-2">
-          {readOnly ? (
-            <span className="text-[11px] text-text-muted">
-              Past semester — view only
-            </span>
-          ) : error ? (
-            <span className="text-[11px] text-status-error">{error}</span>
-          ) : okMsg ? (
-            <span className="text-[11px] text-status-success">{okMsg}</span>
-          ) : dirty ? (
-            <span className="text-[11px] text-text-muted">Unsaved changes</span>
-          ) : null}
+        <div className="flex w-full flex-wrap items-center gap-space-2 md:w-auto md:justify-end">
+          {statusMsg}
           {!readOnly ? (
             <>
               <Button
@@ -375,7 +377,7 @@ export function EditablePlanTable({
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <div className="w-full md:overflow-x-auto">
         <Table header={<WeekTableHeader showDone={false} />}>
           {rows.length === 0 ? (
             <div className="px-space-3 py-space-6 text-center text-body-sm text-text-muted">
@@ -384,79 +386,9 @@ export function EditablePlanTable({
           ) : (
             rows.map((row) => {
               const isNoClass = row.status === "No class";
-              return (
-                <div
-                  key={row.key}
-                  role="row"
-                  className="grid w-full min-w-[760px] grid-cols-[minmax(3rem,0.7fr)_minmax(0,2.2fr)_minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1.15fr)] items-center gap-x-space-3 border-b border-border-subtle px-space-3 py-space-1"
-                >
-                  <div className="min-w-0">
-                    <input
-                      type="number"
-                      min={1}
-                      max={30}
-                      aria-label="Week number"
-                      readOnly={readOnly}
-                      disabled={readOnly}
-                      className={cn(
-                        cellInput,
-                        "font-mono tabular-nums text-text-secondary",
-                      )}
-                      value={row.weekNumber}
-                      onChange={(e) =>
-                        updateRow(row.key, {
-                          weekNumber: Number(e.target.value) || 1,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <input
-                      type="text"
-                      aria-label={`Week ${row.weekNumber} topic`}
-                      placeholder="Topic"
-                      disabled={readOnly || isNoClass}
-                      className={cn(
-                        cellInput,
-                        "font-semibold",
-                        isNoClass && "text-text-muted",
-                      )}
-                      value={isNoClass ? "No class" : row.topic}
-                      onChange={(e) =>
-                        updateRow(row.key, { topic: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <input
-                      type="text"
-                      aria-label={`Week ${row.weekNumber} outcome`}
-                      placeholder="Outcome"
-                      disabled={readOnly || isNoClass}
-                      className={cn(
-                        cellInput,
-                        "font-mono tabular-nums text-text-secondary",
-                      )}
-                      value={isNoClass ? "" : row.outcome}
-                      onChange={(e) =>
-                        updateRow(row.key, { outcome: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <input
-                      type="text"
-                      aria-label={`Week ${row.weekNumber} activities`}
-                      placeholder="Activities"
-                      disabled={readOnly || isNoClass}
-                      className={cn(cellInput, "text-text-secondary")}
-                      value={isNoClass ? "" : row.activities}
-                      onChange={(e) =>
-                        updateRow(row.key, { activities: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex min-w-0 items-center justify-end gap-1">
+              function rowActions() {
+                return (
+                  <div className="flex shrink-0 items-center gap-1">
                     <StatusPicker
                       value={row.status}
                       weekNumber={row.weekNumber}
@@ -464,28 +396,194 @@ export function EditablePlanTable({
                       onChange={(status) => updateRow(row.key, { status })}
                     />
                     {!readOnly ? (
-                    <button
-                      type="button"
-                      aria-label={`Duplicate week ${row.weekNumber}`}
-                      title="Duplicate week"
-                      className="inline-flex size-6 shrink-0 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-primary"
-                      onClick={() => duplicateWeek(row.key)}
-                      disabled={saving || rows.length >= MAX_PLAN_ENTRIES}
-                    >
-                      <Copy className="size-3.5" aria-hidden />
-                    </button>
+                      <button
+                        type="button"
+                        aria-label={`Duplicate week ${row.weekNumber}`}
+                        title="Duplicate week"
+                        className="inline-flex size-6 shrink-0 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-primary"
+                        onClick={() => duplicateWeek(row.key)}
+                        disabled={saving || rows.length >= MAX_PLAN_ENTRIES}
+                      >
+                        <Copy className="size-3.5" aria-hidden />
+                      </button>
                     ) : null}
                     {!readOnly ? (
-                    <button
-                      type="button"
-                      aria-label={`Remove week ${row.weekNumber}`}
-                      className="inline-flex size-6 shrink-0 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-bg-subtle hover:text-status-error"
-                      onClick={() => removeWeek(row.key)}
-                      disabled={saving}
-                    >
-                      <Trash2 className="size-3.5" aria-hidden />
-                    </button>
+                      <button
+                        type="button"
+                        aria-label={`Remove week ${row.weekNumber}`}
+                        className="inline-flex size-6 shrink-0 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-bg-subtle hover:text-status-error"
+                        onClick={() => removeWeek(row.key)}
+                        disabled={saving}
+                      >
+                        <Trash2 className="size-3.5" aria-hidden />
+                      </button>
                     ) : null}
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={row.key}
+                  role="row"
+                  className="border-b border-border-subtle"
+                >
+                  {/* Phone stack */}
+                  <div className="flex w-full flex-col gap-space-2 px-space-3 py-space-3 md:hidden">
+                    <div className="flex w-full items-center justify-between gap-space-2">
+                      <label className="flex min-w-0 items-center gap-space-1">
+                        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                          Week
+                        </span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={30}
+                          aria-label="Week number"
+                          readOnly={readOnly}
+                          disabled={readOnly}
+                          className={cn(
+                            cellInput,
+                            "w-14 font-mono tabular-nums text-text-secondary",
+                          )}
+                          value={row.weekNumber}
+                          onChange={(e) =>
+                            updateRow(row.key, {
+                              weekNumber: Number(e.target.value) || 1,
+                            })
+                          }
+                        />
+                      </label>
+                      {rowActions()}
+                    </div>
+                    <label className="flex w-full min-w-0 flex-col gap-0.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                        Topic
+                      </span>
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} topic`}
+                        placeholder="Topic"
+                        disabled={readOnly || isNoClass}
+                        className={cn(
+                          cellInput,
+                          "font-semibold",
+                          isNoClass && "text-text-muted",
+                        )}
+                        value={isNoClass ? "No class" : row.topic}
+                        onChange={(e) =>
+                          updateRow(row.key, { topic: e.target.value })
+                        }
+                      />
+                    </label>
+                    <label className="flex w-full min-w-0 flex-col gap-0.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                        Outcome
+                      </span>
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} outcome`}
+                        placeholder="Outcome"
+                        disabled={readOnly || isNoClass}
+                        className={cn(
+                          cellInput,
+                          "font-mono tabular-nums text-text-secondary",
+                        )}
+                        value={isNoClass ? "" : row.outcome}
+                        onChange={(e) =>
+                          updateRow(row.key, { outcome: e.target.value })
+                        }
+                      />
+                    </label>
+                    <label className="flex w-full min-w-0 flex-col gap-0.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                        Activities
+                      </span>
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} activities`}
+                        placeholder="Activities"
+                        disabled={readOnly || isNoClass}
+                        className={cn(cellInput, "text-text-secondary")}
+                        value={isNoClass ? "" : row.activities}
+                        onChange={(e) =>
+                          updateRow(row.key, { activities: e.target.value })
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  {/* Desktop grid */}
+                  <div className="hidden min-w-[760px] grid-cols-[minmax(3rem,0.7fr)_minmax(0,2.2fr)_minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,1.15fr)] items-center gap-x-space-3 px-space-3 py-space-1 md:grid">
+                    <div className="min-w-0">
+                      <input
+                        type="number"
+                        min={1}
+                        max={30}
+                        aria-label="Week number"
+                        readOnly={readOnly}
+                        disabled={readOnly}
+                        className={cn(
+                          cellInput,
+                          "font-mono tabular-nums text-text-secondary",
+                        )}
+                        value={row.weekNumber}
+                        onChange={(e) =>
+                          updateRow(row.key, {
+                            weekNumber: Number(e.target.value) || 1,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} topic`}
+                        placeholder="Topic"
+                        disabled={readOnly || isNoClass}
+                        className={cn(
+                          cellInput,
+                          "font-semibold",
+                          isNoClass && "text-text-muted",
+                        )}
+                        value={isNoClass ? "No class" : row.topic}
+                        onChange={(e) =>
+                          updateRow(row.key, { topic: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} outcome`}
+                        placeholder="Outcome"
+                        disabled={readOnly || isNoClass}
+                        className={cn(
+                          cellInput,
+                          "font-mono tabular-nums text-text-secondary",
+                        )}
+                        value={isNoClass ? "" : row.outcome}
+                        onChange={(e) =>
+                          updateRow(row.key, { outcome: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <input
+                        type="text"
+                        aria-label={`Week ${row.weekNumber} activities`}
+                        placeholder="Activities"
+                        disabled={readOnly || isNoClass}
+                        className={cn(cellInput, "text-text-secondary")}
+                        value={isNoClass ? "" : row.activities}
+                        onChange={(e) =>
+                          updateRow(row.key, { activities: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="flex min-w-0 items-center justify-end gap-1">
+                      {rowActions()}
+                    </div>
                   </div>
                 </div>
               );

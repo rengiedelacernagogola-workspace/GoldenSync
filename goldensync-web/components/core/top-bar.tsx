@@ -95,7 +95,7 @@ export function TopBar({
               label={semesterLabel}
               open={semesterOpen}
               onClick={onSemesterClick}
-              className="max-w-[min(280px,40vw)]"
+              className="max-w-[min(140px,32vw)] sm:max-w-[min(280px,40vw)]"
             />
           )
         ) : null}
