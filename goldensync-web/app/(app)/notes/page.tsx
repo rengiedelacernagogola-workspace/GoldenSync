@@ -269,7 +269,7 @@ function NotesBody() {
                       </label>
                       <Input
                         size="Compact"
-                        placeholder="Notes title — name this note"
+                        placeholder="(editable)"
                         value={noteTitle}
                         onChange={(e) => {
                           setNotesSaved(false);
@@ -279,7 +279,7 @@ function NotesBody() {
                       />
                       <Input
                         size="Compact"
-                        placeholder="Topic name — what this note covers"
+                        placeholder="(editable)"
                         value={topicName}
                         onChange={(e) => {
                           setNotesSaved(false);
@@ -294,7 +294,7 @@ function NotesBody() {
                         setNotesSaved(false);
                         setNotes(e.target.value);
                       }}
-                      placeholder="Write a note for the selected subject"
+                      placeholder="(editable)"
                       rows={6}
                       aria-label="Note body"
                     />

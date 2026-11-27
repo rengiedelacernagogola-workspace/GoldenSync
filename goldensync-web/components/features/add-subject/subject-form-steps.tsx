@@ -138,7 +138,7 @@ export function SubjectFormSteps({
             inputProps={{
               value: values.code,
               onChange: set("code"),
-              placeholder: "e.g. ITE 14",
+              placeholder: "(editable)",
             }}
           />
           <FormField
@@ -152,7 +152,7 @@ export function SubjectFormSteps({
             inputProps={{
               value: values.title,
               onChange: set("title"),
-              placeholder: "Subject title",
+              placeholder: "(editable)",
             }}
           />
           <FormField
@@ -162,6 +162,7 @@ export function SubjectFormSteps({
               value: values.units,
               onChange: set("units"),
               inputMode: "numeric",
+              placeholder: "(editable)",
             }}
           />
           {fromPdf ? (
@@ -176,7 +177,7 @@ export function SubjectFormSteps({
               inputProps={{
                 value: values.prerequisite,
                 onChange: set("prerequisite"),
-                placeholder: "e.g. ITE 13",
+                placeholder: "(editable)",
               }}
             />
           )}
@@ -185,7 +186,7 @@ export function SubjectFormSteps({
             inputProps={{
               value: values.effectivity,
               onChange: set("effectivity"),
-              placeholder: "AY 2026–2027",
+              placeholder: "(editable)",
             }}
           />
         </div>
@@ -200,7 +201,7 @@ export function SubjectFormSteps({
             <Textarea
               value={values.peos}
               onChange={set("peos")}
-              placeholder="PEO1, PEO2…"
+              placeholder="(editable)"
             />
           </label>
           <label className="flex w-full flex-col gap-space-2">
@@ -210,7 +211,7 @@ export function SubjectFormSteps({
             <Textarea
               value={values.pos}
               onChange={set("pos")}
-              placeholder="PO a, PO b…"
+              placeholder="(editable)"
             />
           </label>
         </div>
@@ -250,6 +251,7 @@ export function SubjectFormSteps({
             <Textarea
               value={values.policies}
               onChange={set("policies")}
+              placeholder="(editable)"
             />
           </label>
           <div className="grid grid-cols-[110px_1fr] gap-space-3">
@@ -276,6 +278,7 @@ export function SubjectFormSteps({
               inputProps={{
                 value: values.facultyName,
                 onChange: set("facultyName"),
+                placeholder: "(editable)",
               }}
             />
           </div>
@@ -284,6 +287,7 @@ export function SubjectFormSteps({
             inputProps={{
               value: values.facultyCollege,
               onChange: set("facultyCollege"),
+              placeholder: "(editable)",
             }}
           />
           <FormField
@@ -291,7 +295,7 @@ export function SubjectFormSteps({
             inputProps={{
               value: values.facultyConsultation,
               onChange: set("facultyConsultation"),
-              placeholder: "e.g. Mon 1–3 PM",
+              placeholder: "(editable)",
             }}
           />
           <FormField
@@ -302,7 +306,7 @@ export function SubjectFormSteps({
               min: 0,
               value: values.estimatedContactHours,
               onChange: set("estimatedContactHours"),
-              placeholder: "e.g. 54",
+              placeholder: "(editable)",
             }}
           />
         </div>

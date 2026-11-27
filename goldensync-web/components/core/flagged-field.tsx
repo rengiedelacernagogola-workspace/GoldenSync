@@ -3,7 +3,7 @@
 /**
  * FlaggedField — PDF-prefilled doubtful field (Figma `40:1411`, UI-048).
  * FLOW: Add Subject review → warning tint + "Check this value" (never color alone).
- * RULE: Input exposed; Empty placeholder "Not found in the PDF".
+ * RULE: Input exposed; Empty placeholder "(editable)".
  */
 
 import { TriangleAlert } from "lucide-react";
@@ -29,7 +29,7 @@ export function FlaggedField({
   flagCaption = "Check this value",
   id: idProp,
   disabled,
-  placeholder = "Not found in the PDF",
+  placeholder = "(editable)",
   ...props
 }: FlaggedFieldProps) {
   const reactId = React.useId();

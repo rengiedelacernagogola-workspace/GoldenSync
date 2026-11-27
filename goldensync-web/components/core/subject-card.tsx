@@ -205,7 +205,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
                       setEditRevealed(true);
                     }}
                   >
-                    <Eye className="size-3.5" aria-hidden />
+                    <Eye className="size-4" aria-hidden />
                   </Button>
                   <Button
                     ref={editRef}
@@ -228,7 +228,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
                       setEditRevealed(false);
                     }}
                   >
-                    <Pencil className="size-3.5" aria-hidden />
+                    <Pencil className="size-4" aria-hidden />
                   </Button>
                 </div>
               ) : null}
@@ -244,7 +244,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
                     onDelete();
                   }}
                 >
-                  <Trash2 className="size-3.5" aria-hidden />
+                  <Trash2 className="size-4" aria-hidden />
                 </Button>
               ) : null}
             </div>
