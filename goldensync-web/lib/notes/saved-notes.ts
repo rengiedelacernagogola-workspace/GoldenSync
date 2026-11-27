@@ -1,3 +1,7 @@
+// WHAT: UI layer for plan notes — load/save/archive/delete via the notes API client.
+// HOW: Maps PlanNoteDto to SavedPlanNote and calls lib/api/notes helpers.
+// SCREEN: Weekly plan notes and Notes hub. RISK: Medium — user-authored content.
+
 /**
  * Saved plan notes — API-backed (Neon / local Postgres).
  */

@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Save many assessment scores in one request with version checks.
+// HOW: requireOwnedAssessment per row; maxScore decimal strings via domain/units.
+// SCREEN: Scores grid / batch save on subject.
+// EDIT: Conflict error handling when version mismatches.
+// KEEP: Optimistic concurrency — clients must send versions.
+// RISK: High — database; grade integrity depends on this.
+
 /**
  * Batch score upsert with optimistic concurrency (architecture §7.5).
  */

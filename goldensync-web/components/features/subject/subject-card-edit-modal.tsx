@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Modal to edit dashboard subject card fields (not full syllabus).
+// SCREEN: Subject grid card → Edit opens centered modal over backdrop.
+// HOW: Local form state; Save calls patchSubject then onSaved/onClose.
+// EDIT: cardEditValuesFromDetail builds initial state from list/detail DTOs.
+// RISK: Validates title/units/hours client-side; API may return other errors.
+
 /**
  * SubjectCardEditModal — edit card fields (title, prereq, faculty, hours…).
  * FLOW: Dashboard card Edit → PATCH /api/subjects/:id → refresh grid.
@@ -66,6 +72,7 @@ export function SubjectCardEditModal({
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // HOW: Reset form from `initial` whenever modal opens (async tick avoids sync flush issues).
   React.useEffect(() => {
     if (!open) return;
     const handle = window.setTimeout(() => {

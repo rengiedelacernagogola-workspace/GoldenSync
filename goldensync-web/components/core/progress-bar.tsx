@@ -1,3 +1,10 @@
+// WHAT: Horizontal bar showing 0–100% completion.
+// SCREEN: Checklist headers and anywhere a thin/thick bar is needed.
+// HOW: Inner fill width = value%; track uses flex (DEC-034).
+// KEEP: Pass value from parent; sizes 4px or 8px height only.
+// EDIT: Track/fill colors here.
+// RISK: Low
+
 /**
  * ProgressBar — determinate bar (Figma `27:27`, UI-033).
  * Size 4|8. Value 0–100. Fill uses flex track (DEC-034). Checklist uses Size 8.

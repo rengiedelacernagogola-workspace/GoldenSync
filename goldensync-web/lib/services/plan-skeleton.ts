@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Create or refresh empty plan week rows for a subject/semester span.
+// HOW: Uses domain plan-skeleton + queries; gated on semester not past.
+// SCREEN: After subject create or syllabus confirm.
+// EDIT: When to call ensure vs full replace (see listPlanWeeksForSubject).
+// KEEP: Coordinates with checklist-sync for week numbers.
+// RISK: High — database writes on owned subjects only.
+
 /**
  * Ensure / write PlanWeek rows so Checklist is useful for manual + syllabus creates.
  */

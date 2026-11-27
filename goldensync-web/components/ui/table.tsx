@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Styled HTML table primitives (Table, TableRow, TableCell, …).
+// KEEP: App data tables use @/components/core/table + TableRow.
+// HOW: Wrapper divs + semantic table elements with tailwind.
+// EDIT: Kit table density only.
+// RISK: Low
+
 import * as React from "react"
 import { cn } from "cn"
 

@@ -1,3 +1,10 @@
+// WHAT: Subject.grading JSON — CO task weights, status rows, grade equivalent table.
+// HOW: tryParseGradingTemplate, defaults, merge/copy helpers; version: 1 doc shape.
+// SCREEN: /grading-system and Grade Calculator template editor.
+// EDIT: DEFAULT_GRADING_TEMPLATE and validation inside parse paths.
+// KEEP: Large file — change one section at a time; run calculator tests after.
+// RISK: Medium — bad template JSON breaks calculator for that subject.
+
 /**
  * Part IV — Grading System template (editable tables on Grade Calculator).
  * Stored as Subject.grading JSON (versioned object). Legacy string blurbs → defaults.

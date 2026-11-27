@@ -1,5 +1,12 @@
 "use client"
 
+// WHAT: Animated light beam traveling around a child card border (Magic UI).
+// SCREEN: Marketing/landing accents — decorative only.
+// HOW: motion/react SVG or div animation along border path.
+// KEEP: Wrap existing content; does not affect layout logic.
+// EDIT: speed, size, color props here.
+// RISK: Low — respect prefers-reduced-motion in parent if needed.
+
 import { motion, type MotionStyle, type Transition } from "motion/react"
 
 import { cn } from "@/lib/utils"

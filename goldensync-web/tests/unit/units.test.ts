@@ -1,3 +1,9 @@
+// WHAT: Tests decimal string formatting for subject units and assessment max scores.
+// HOW: `unitsToDecimalString` / `maxScoreToDecimalString` equality assertions.
+// SCREEN: Subject form units field and assessment max score persistence.
+// EDIT: Format rules in `lib/domain/units.ts` (Prisma Decimal compatibility).
+// KEEP: DB stores Decimal — strings must match DB driver expectations.
+// RISK: Low
 /**
  * Phase 1 — unitsToDecimalString.
  * Run: npm run test:unit

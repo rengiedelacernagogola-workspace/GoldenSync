@@ -1,3 +1,9 @@
+// WHAT: Tests course code normalization and equality (spacing, case).
+// HOW: `normalizeCourseCode` / `courseCodeMatches` assertions.
+// SCREEN: Add Subject duplicate detection and subject list labels.
+// EDIT: When CSU code parsing rules change in `lib/domain/course-code.ts`.
+// KEEP: Normalized form stored as `courseCodeNorm` in DB unique index.
+// RISK: Low
 /**
  * Phase 1 — normalizeCourseCode pure helpers.
  * Run: npm run test:unit

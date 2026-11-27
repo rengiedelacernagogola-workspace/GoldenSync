@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Modal when user adds a subject whose course code already exists.
+// SCREEN: "Open existing" vs "Replace" — optional info banner after replace.
+// HOW: showReplaceSummary toggles Appendix A replace-summary banner inside modal.
+// EDIT: Parent handles onOpenExisting / onReplace navigation and API.
+
 /**
  * DuplicateSubjectDialog — subject code collision (Figma `95:8385`, UI-077).
  * FLOW: Open existing → Overview · Replace → replace summary then Create.
@@ -23,6 +28,7 @@ export interface DuplicateSubjectDialogProps {
   onReplace?: () => void;
 }
 
+// WHAT: Renders backdrop + modal only when open prop is true.
 /** Confirm open-or-replace when duplicateCode Proto is true. */
 export function DuplicateSubjectDialog({
   open = false,

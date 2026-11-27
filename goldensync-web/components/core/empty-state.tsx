@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Friendly panel when a list or module has nothing to show yet.
+// SCREEN: Center of tables, outcomes, syllabus sections with no rows.
+// HOW: Title + body + optional primary Button CTA from props.
+// KEEP: Module empties use copy "Not in this syllabus." (DEC-084).
+// EDIT: Layout only — product strings from copy/.
+// RISK: Low
+
 /**
  * EmptyState — no-data panel (Figma `25:671`, UI-030).
  * Title + body + optional CTA. Module empties use "Not in this syllabus." (DEC-084).

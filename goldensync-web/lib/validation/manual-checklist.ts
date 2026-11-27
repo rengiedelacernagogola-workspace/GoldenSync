@@ -1,3 +1,10 @@
+// WHAT: Validate manual checklist item create/update/delete.
+// HOW: Title length + optional done flag schemas.
+// SCREEN: Manual checklist CRUD forms.
+// EDIT: Title max length (200).
+// KEEP: Invariant I14 — no linkage to assessments.
+// RISK: Low.
+
 /**
  * Zod schemas — manual checklist (never feeds Calculator / I14).
  */

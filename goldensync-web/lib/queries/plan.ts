@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Read plan weeks for a subject in display order.
+// HOW: requireOwnedSubject then PlanWeek query.
+// SCREEN: Learning plan table, planner week state inputs.
+// EDIT: Ordering (weekNumber, id).
+// KEEP: Read-only — writes go through services/plan.ts.
+// RISK: High — database + ownership.
+
 /**
  * Plan week reads — scoped by subject owner.
  */

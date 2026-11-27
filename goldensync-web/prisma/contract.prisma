@@ -1,3 +1,9 @@
+// WHAT: Prisma 8 data contract — all Postgres tables/enums GoldenSync persists.
+// HOW: PSL models with relations, indexes, JSON fields; enums for outcomes, jobs, link levels.
+// SCREEN: Maps to Dashboard, subjects, Learning Plan, Calculator scores, ingest jobs, grade scale admin.
+// EDIT: Add fields/models here then run Prisma generate + matching SQL under `prisma/sql/`.
+// KEEP: Single source of truth with `lib/db` generated client; pair DDL with `apply-all-constraints.mjs`.
+// RISK: High — schema drift without SQL scripts breaks Neon and db:verify.
 // use prisma-8
 // GoldenSync data contract — architecture Appendix A + product storage (PlanNote, ManualChecklist, Activity).
 
@@ -79,6 +85,8 @@ model Subject {
 
   @@index([semesterId])
   @@index([semesterId, archivedAt])
+  /// Purge expired archives: WHERE archivedAt IS NOT NULL AND archivedAt < cutoff
+  @@index([archivedAt])
 }
 
 model Outcome {
@@ -146,6 +154,8 @@ model PlanNote {
 
   @@index([subjectId, savedAt])
   @@index([deletedAt])
+  /// Active library / pin checks: subjectId + shelved nulls
+  @@index([subjectId, archivedAt, deletedAt])
 }
 
 model Assessment {
@@ -219,6 +229,8 @@ model ActivityEvent {
   createdAt DateTime  @default(now()) @onCreate(now())
 
   @@index([userId, createdAt])
+  /// Cron purge: WHERE createdAt < cutoff (global)
+  @@index([createdAt])
 }
 
 model IdempotencyKey {
@@ -234,6 +246,8 @@ model IdempotencyKey {
 
   @@unique([userId, key, route])
   @@index([userId, createdAt])
+  /// Cron purge: WHERE createdAt < cutoff
+  @@index([createdAt])
 }
 
 // Singleton release-gate flag for the active grade scale (§10.3).
@@ -267,6 +281,8 @@ model IngestJob {
   updatedAt    temporal.UpdatedAt
 
   @@index([userId, createdAt])
+  /// Cron purge of stale result JSON: WHERE updatedAt < cutoff
+  @@index([updatedAt])
 }
 
 // Insert-only audit trail (no PII in metadata).
@@ -294,4 +310,6 @@ model Draft {
 
   @@unique([userId, kind])
   @@index([userId])
+  /// Cron purge: WHERE expiresAt < now
+  @@index([expiresAt])
 }

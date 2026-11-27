@@ -1,3 +1,10 @@
+// WHAT: Empty plan week rows for a semester (count + optional syllabus topics).
+// HOW: planWeekCountFromSemester uses start/end dates; buildPlanWeekSkeleton fills rows.
+// SCREEN: New plan / syllabus confirm before rows are saved to DB.
+// EDIT: Default status strings and max week cap (limits.MAX_PLAN_WEEKS).
+// KEEP: No database — services persist the skeleton.
+// RISK: Low.
+
 /**
  * Plan week skeleton helpers — PURE (no Date / DB).
  * Manual create and syllabus confirm both land on PlanWeek rows.

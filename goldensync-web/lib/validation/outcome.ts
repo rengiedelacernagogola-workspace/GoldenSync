@@ -1,3 +1,10 @@
+// WHAT: Validate full outcomes replace list (PEO/PO/CO).
+// HOW: outcomeKindSchema + code/description per row.
+// SCREEN: Outcomes save.
+// EDIT: Array size limits if added.
+// KEEP: Kind enum must match DB enum.
+// RISK: Low.
+
 /**
  * Zod schemas — outcome replace set (Phase 1).
  */

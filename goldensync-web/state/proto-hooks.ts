@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: React hooks that read/write Figma Proto variables without importing zustand in screens.
+// HOW: `useSyncExternalStore` on `protoStore`; `useProtoField` for single-field subscriptions.
+// SCREEN: Login throttle, PDF outcomes, week state, calculator scenario, conflict banner, etc.
+// EDIT: Add a `useProtoField` wrapper when a new Proto variable ships in Figma.
+// KEEP: Client-only file; prefer narrow hooks over `useProtoState` to limit re-renders.
+// RISK: Medium — `useProtoActions` returns full store; misuse can cause extra renders.
 /**
  * Proto hooks — narrow selectors over protoStore (zustand under the hood, Q-001).
  * Features import these; do not import zustand directly from screens.

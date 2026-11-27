@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Compose + persist all three grading tables on Subject.grading.
+// SCREEN: Subject → Grading System tab (demo shows defaults without save).
+// HOW: Load/ensure template, edit child tables, Save patches subject via API.
+// EDIT: `dirty` compares serialized doc to baseline — baseline logic is subtle.
+// RISK: Wrong baseline can block Save after Reset — see inline comment near setBaseline.
+
 /**
  * Grading System template — load/edit/save Subject.grading.
  * FLOW: fetchSubjectDetail → ensureSubjectGradingTemplate → edit → patchSubject.
@@ -48,6 +54,7 @@ export function GradingTemplatePanel({
   const [saved, setSaved] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // HOW: Save enabled only when serialized doc differs from loaded baseline.
   const dirty =
     doc != null &&
     baseline !== "" &&

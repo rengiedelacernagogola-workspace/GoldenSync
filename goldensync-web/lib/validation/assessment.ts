@@ -1,3 +1,10 @@
+// WHAT: Validate assessment create/patch (label, max score, outcome link).
+// HOW: maxScore union number|string with positive max.
+// SCREEN: Assessments editor.
+// EDIT: maxScore caps (10_000) if syllabus needs higher.
+// KEEP: Decimal normalization happens in service via domain/units.
+// RISK: Low.
+
 /**
  * Zod schemas — activity (Assessment) create / patch.
  */

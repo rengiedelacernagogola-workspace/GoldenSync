@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 
 import { AppError, type ErrorCode } from "@/lib/http/errors";
 
+/**
+ * WHAT: Builds the standard success/error JSON bodies for API routes.
+ * HOW: jsonOk wraps data; jsonError / errorToResponse wrap AppError or unknown failures.
+ * SCREEN: Nothing alone — the frontend reads these JSON shapes.
+ * KEEP: `{ data, requestId }` and `{ error, requestId }` shapes.
+ * RISK: High — changing the shape breaks all clients.
+ */
+
 /** Success JSON with request id. */
 export function jsonOk<T>(data: T, requestId: string, init?: ResponseInit) {
   return NextResponse.json({ data, requestId }, { status: 200, ...init });

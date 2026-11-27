@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Single-line text field shell matching Figma Input (border, focus glow).
+// SCREEN: Forms app-wide — pair with FormField for label/error.
+// HOW: Base UI Input inside cva shell; aria-invalid triggers error border.
+// KEEP: Heights sm/md from Figma; invalid styling via aria-invalid, not extra props.
+// EDIT: inputShellVariants tokens here — screens pass size + className only.
+// RISK: Medium — error border must not show before user interaction (see FormField).
+
 /**
  * Input — Figma `Input` `8:84`.
  * UI-011: Size Desktop 44 / Mobile 48 · states via CSS + aria-invalid + disabled.

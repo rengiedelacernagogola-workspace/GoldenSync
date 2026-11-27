@@ -1,5 +1,11 @@
 import "server-only";
 
+// WHAT: Singleton Postgres client (Prisma ORM 8) for all server code.
+// HOW: contract.json + DATABASE_URL env → postgres({ contract, url }).
+// EDIT: Regenerate contract via prisma contract emit — never hand-edit contract.json.
+// KEEP: Import db only from server-only modules (never client components).
+// RISK: High — database credentials and connection pooling; misconfig breaks entire app.
+
 /**
  * Prisma ORM 8 client singleton (architecture §4 `lib/db`).
  * FLOW: contract emit → import contract.json → postgres({ contract, url }).

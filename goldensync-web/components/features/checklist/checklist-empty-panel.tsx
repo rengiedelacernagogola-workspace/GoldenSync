@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Empty state when a live subject has zero plan weeks on Checklist.
+// SCREEN: Icon, copy, "Generate study weeks" + "Open Learning Plan" buttons.
+// HOW: ensurePlanSkeleton(subjectId) then onGenerated refreshes parent data.
+// KEEP: Never shows seed ITE weeks — live subjects only.
+
 /**
  * Empty checklist for live subjects with no PlanWeek rows yet.
  * FLOW: Generate skeleton from semester dates · or open Learning Plan.
@@ -29,6 +34,7 @@ export function ChecklistEmptyPanel({
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // WHAT: Calls API to create week rows from semester dates; shows error on failure.
   async function handleGenerate() {
     if (busy) return;
     setBusy(true);

@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: GDPR-style account JSON export and delete with Clerk + local DB.
+// HOW: exportAccount walks semesters; deleteAccount validates email + calls Clerk.
+// SCREEN: Settings → export / delete account.
+// EDIT: Delete cascade order — data loss if wrong.
+// KEEP: deleteAccountSchema confirmation from validation/account.ts.
+// RISK: High — authentication + database + irreversible delete.
+
 /**
  * Account export + delete (architecture §6.6 / Appendix B).
  */

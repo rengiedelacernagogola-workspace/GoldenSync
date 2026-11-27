@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Modal form to add a new graded activity to the Calculator.
+// SCREEN: Label, max score, outcome Chips (CO1–CO4), info banner from Appendix A.
+// HOW: canSave requires label, positive max, and at least one selected outcome.
+// EDIT: Default field values are demo placeholders — parent may reset on open.
+
 /**
  * NewActivityDialog — add calculator activity (Figma `180:3966`, UI-113).
  * FLOW: Label + Max + ≥1 outcome Chip → Save · unmapped note from Appendix A.
@@ -15,6 +20,7 @@ import { FormField } from "@/components/core/form-field";
 import { Modal } from "@/components/core/modal";
 import { appendixA } from "@/copy";
 
+// WHAT: Fixed course-outcome codes shown as selectable Chips in the form.
 const OUTCOMES = ["CO1", "CO2", "CO3", "CO4"] as const;
 
 export interface NewActivityValues {

@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Modal to permanently delete one subject after typing its course code.
+// SCREEN: Subject code field + destructive Delete — error Banner on API failure.
+// HOW: Live + signed-in → deleteSubject API; else decrements proto subject count.
+// RISK: Irreversible — Confirm disabled until typed code matches subjectCode prop.
+
 /**
  * DeleteSubjectDialog — confirm delete (Figma `142:3935`, UI-099).
  * FLOW: type subject code → DELETE /api/subjects/:id (live) or Proto count − 1.
@@ -47,6 +52,7 @@ export function DeleteSubjectDialog({
 
   if (!open) return null;
 
+  // WHAT: Deletes via API when live; always updates proto sidebar count afterward.
   async function handleDelete() {
     if (!matches) return;
     setError(null);

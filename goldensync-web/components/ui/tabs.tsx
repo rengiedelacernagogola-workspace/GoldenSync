@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: UI kit tablist using Base UI Tabs primitives.
+// KEEP: Add Subject tabs use @/components/core/tabs + tab.
+// HOW: Tabs, TabsList, TabsTrigger, TabsContent compound pattern.
+// EDIT: Generic kit styling.
+// RISK: Low
+
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"

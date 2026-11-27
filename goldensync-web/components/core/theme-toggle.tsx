@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Sun/Moon button that toggles light vs dark site theme.
+// SCREEN: TopBar utilities row (same cluster as notifications).
+// HOW: Toggles html class + localStorage through @/lib/theme helpers.
+// KEEP: Uses core Button IconOnly — do not re-style as raw button.
+// EDIT: Icons only; theme tokens live in global CSS / lib/theme.
+// RISK: Low
+
 /**
  * ThemeToggle — IconOnly light/dark switcher for TopBar.
  */

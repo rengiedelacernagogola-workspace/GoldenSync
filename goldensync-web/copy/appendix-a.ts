@@ -1,3 +1,9 @@
+// WHAT: Locked user-facing strings for prototype flows (auth, Add Subject, shell, modules, calculator).
+// HOW: Nested `appendixA` object exported as const; `AppendixACopy` type mirrors the shape for typing.
+// SCREEN: Login/register, Add Subject, subject switcher, This Week, Grade Calculator error/empty states.
+// EDIT: Only when product plan Appendix A / Figma copy changes — keep wording character-for-character.
+// KEEP: Import from `@/copy` in UI; never paste these strings directly in JSX (UI-005).
+// RISK: Medium — drift from Figma/plan confuses QA and Demo Panel scenarios.
 /**
  * Appendix A copy — plan strings character-for-character.
  * UI-005: import from features via copy/; never hardcode these in JSX.

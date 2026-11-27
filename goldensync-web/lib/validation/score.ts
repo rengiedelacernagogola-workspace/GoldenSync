@@ -1,3 +1,10 @@
+// WHAT: Validate batch score save array with per-row version.
+// HOW: scoreItemSchema per assessmentId + score + version.
+// SCREEN: Scores grid save.
+// EDIT: Version field required for optimistic locking.
+// KEEP: Match services/scores.ts upsert contract.
+// RISK: Medium — invalid scores affect grade engine.
+
 /**
  * Zod schemas — batch score upsert with optimistic versions (§7.5).
  */

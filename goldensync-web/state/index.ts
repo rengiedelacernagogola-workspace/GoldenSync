@@ -1,3 +1,9 @@
+// WHAT: Public exports for Figma “Proto” demo state (types, store, React hooks).
+// HOW: Re-exports from `proto-types`, `proto-store`, `proto-hooks`.
+// SCREEN: Demo Panel, auth/add-subject/calculator branches driven by proto variables.
+// EDIT: When new proto fields or hooks are added — export them here.
+// KEEP: UI-003 — features import `@/state`, not zustand directly.
+// RISK: Low
 /**
  * State barrel — Proto store only for UI-003.
  */

@@ -1,3 +1,7 @@
+// WHAT: Study streak counter — consecutive days user opened the app (Asia/Manila calendar).
+// HOW: Stores days + lastDateISO in localStorage (gs-study-streak); touchStreak() on activity.
+// SCREEN: Flame / "N days" copy in UI. EDIT: streakLabel text. KEEP: manilaTodayISO timezone — matches product locale. RISK: Low (no server data).
+
 /**
  * Study streak — consecutive Manila calendar days with app activity.
  * Client-only (localStorage); no DB.
@@ -5,6 +9,7 @@
 
 const STORAGE_KEY = "gs-study-streak";
 
+// WHAT: Raw shape saved in localStorage.
 export type StreakState = {
   /** Current consecutive days (at least 1 after first touch today). */
   days: number;
@@ -12,6 +17,7 @@ export type StreakState = {
   lastDateISO: string;
 };
 
+// WHAT: Today's date as YYYY-MM-DD in Asia/Manila (used for streak boundaries).
 function manilaTodayISO(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Manila",
@@ -59,6 +65,7 @@ function writeRaw(state: StreakState) {
 }
 
 /** Current streak without mutating (0 if never started). */
+// WHAT: Read-only streak count — resets to 0 if user skipped a calendar day.
 export function getStreakDays(): number {
   const today = manilaTodayISO();
   const state = readRaw();
@@ -72,6 +79,7 @@ export function getStreakDays(): number {
  * Record activity for today. Extends streak if yesterday was active,
  * resets to 1 if the chain broke, no-ops if already counted today.
  */
+// WHAT: Call when user does something meaningful today — bumps or resets streak. HOW: Compares lastDateISO to today/yesterday.
 export function touchStreak(now = new Date()): number {
   const today = manilaTodayISO(now);
   const prev = readRaw();
@@ -90,6 +98,7 @@ export function touchStreak(now = new Date()): number {
 }
 
 /** Label for UI — small copy next to the flame. */
+// WHAT: "1 day" vs "N days" grammar for display. EDIT: Wording here only. RISK: Low.
 export function streakLabel(days: number): string {
   if (days <= 0) return "0 days";
   if (days === 1) return "1 day";

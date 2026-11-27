@@ -1,3 +1,7 @@
+// WHAT: Semesters, subjects list, create subject, and /api/me profile — shared API wrappers.
+// HOW: apiFetch adds JSON envelope + cookies; POST create* uses idempotent flag.
+// KEEP: SubjectDto shape matches server — change with backend together. RISK: High — core data model.
+
 /**
  * Semester API client wrappers.
  */
@@ -99,6 +103,7 @@ export function fetchSubject(id: string) {
 }
 
 /** GET /api/me */
+// WHAT: Current user profile — used by useLiveData bootstrap.
 export function fetchMe() {
   return apiFetch<{
     id: string;

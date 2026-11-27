@@ -1,5 +1,12 @@
 "use client"
 
+// WHAT: App-wide Sonner toaster wired to next-themes light/dark.
+// SCREEN: Mount once in root layout; pages call toast() from sonner.
+// HOW: Maps theme to toaster colors and custom lucide icons.
+// KEEP: Core Toast/ToastHost are separate Figma stack — do not duplicate both.
+// EDIT: Icon map and classNames here.
+// RISK: Low
+
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"

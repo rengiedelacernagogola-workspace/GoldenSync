@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Start PDF ingest job and return status/result to client.
+// HOW: Validates blob path + enqueues; calls processIngestJob synchronously in prod.
+// SCREEN: Syllabus upload wizard.
+// EDIT: Error code mapping to UI messages.
+// KEEP: isValidIngestPathname before any blob read.
+// RISK: High — auth + blob + database.
+
 /**
  * Syllabus ingest enqueue + status (architecture §9).
  * Production path: parse synchronously in Next.js via processIngestJob

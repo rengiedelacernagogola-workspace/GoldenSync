@@ -1,3 +1,9 @@
+// WHAT: Generic multi-line input from the UI kit.
+// KEEP: Product forms use @/components/core/textarea.
+// HOW: Styled native textarea with cn() classes.
+// EDIT: Kit tokens here.
+// RISK: Low
+
 import * as React from "react"
 import { cn } from "cn"
 

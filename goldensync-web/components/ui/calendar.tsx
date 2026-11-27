@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Month grid date picker wrapping react-day-picker.
+// SCREEN: Kit date fields — semester dates may use feature forms.
+// HOW: DayPicker with GoldenSync/tailwind classNames.
+// EDIT: Cell size and range selection styles here.
+// RISK: Low
+
 import * as React from "react"
 import { cn } from "cn"
 import {

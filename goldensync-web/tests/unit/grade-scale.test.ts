@@ -1,3 +1,9 @@
+// WHAT: Unit tests for average→grade band lookup and invalid overlapping scales.
+// HOW: Node test runner asserts `mapAverageToGrade` and `lookupDetailedGrade` outputs.
+// SCREEN: Grade Calculator result label from class average.
+// EDIT: Update expectations when `lib/domain/grade-scale.ts` bands change.
+// KEEP: Run via `npm run test:unit`; uses `detailedBandsForScale()` fixture.
+// RISK: Low
 /**
  * Phase 2 — mapAverageToGrade bands + CONFIG errors.
  * Run: npm run test:unit

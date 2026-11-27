@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Two-tab switcher — Upload PDF vs Enter manually for new subject.
+// SCREEN: Add Subject modal header tablist.
+// HOW: Controlled selected + onSelectedChange; uses Tab children for a11y roles.
+// KEEP: Stays enabled during PDF processing (DEC-053).
+// EDIT: Tab labels/icons here — routing between modes is parent state.
+// RISK: Low
+
 /**
  * Tabs — Add Subject mode switch (Figma `22:490`, UI-023).
  * Flow: Upload PDF | Enter manually. Stays available during Processing (DEC-053).

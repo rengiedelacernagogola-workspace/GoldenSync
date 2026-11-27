@@ -1,3 +1,9 @@
+// WHAT: Tests syllabus PDF text extractors — assessments, outcomes, grading template, CSU samples.
+// HOW: Fixture text/files + assert structured parse from domain extract modules.
+// SCREEN: Add Subject manual confirm tab pre-fill from parsed PDF.
+// EDIT: When regex/heuristics change in `lib/domain/*` extractors — update fixtures too.
+// KEEP: Best-effort — failing extract should fall back to manual entry, not crash.
+// RISK: Medium — brittle tests if sample PDF text shifts; large file — run selective tests when iterating.
 /**
  * Best-effort syllabus extractors (generic + CSU F-CID-010).
  * Run: npm run test:unit

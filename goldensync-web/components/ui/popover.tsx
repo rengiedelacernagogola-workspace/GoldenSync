@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Floating panel anchored to a trigger (popover primitive).
+// SCREEN: Kit toolbars — core app uses custom Menu/popover patterns.
+// HOW: Base UI Popover Root/Trigger/Content.
+// EDIT: z-index and animation classes here.
+// RISK: Low
+
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import { cn } from "cn"

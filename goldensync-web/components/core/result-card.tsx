@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Summary card for final grade / intervention status after calculator complete.
+// SCREEN: Calculator bottom — hidden when result is INCOMPLETE.
+// HOW: Badge + explanatory copy; isGradeHidden gates release (PASSED / INTERVENTION_A).
+// KEEP: Estimated vs official labels from props; icons always paired with text.
+// EDIT: Card layout and badges here — grade math in domain/features.
+// RISK: Medium — release gate 9.4 must stay aligned with backend rules.
+
 /**
  * ResultCard — Grade Calculator result (Figma `38:1476`, UI-045).
  * FLOW: Calculator Complete → show Estimated (self-reported). No card for INCOMPLETE.

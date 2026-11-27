@@ -1,12 +1,21 @@
 import "server-only";
 
+// WHAT: Maintain CO→PO curriculum map links (Introduce/Enhanced/Demonstrated).
+// HOW: CRUD on OutcomeLink after requireOwnedSubject.
+// SCREEN: Outcomes matrix / linkage UI.
+// EDIT: One link level per CO–PO pair rule.
+// KEEP: DBDEC-002 uniqueness expectations.
+// RISK: High — database + ownership.
+
 /**
  * OutcomeLink — CO→PO I/E/D map; one level per pair (DBDEC-002).
  */
 
+import { and, or } from "@prisma/orm-postgres/orm-client";
+
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
-import { AppError, notFound } from "@/lib/http/errors";
+import { AppError } from "@/lib/http/errors";
 import type { ReplaceOutcomeLinksInput } from "@/lib/validation/outcome-link";
 
 export type OutcomeLinkDto = {
@@ -37,13 +46,18 @@ export async function listOutcomeLinks(
 ): Promise<OutcomeLinkDto[]> {
   await requireOwnedSubject(userId, subjectId);
   const outcomes = await db.orm.public.Outcome.where({ subjectId }).all();
-  const ids = new Set(outcomes.map((o) => o.id));
-  if (ids.size === 0) return [];
+  const coIds = outcomes
+    .filter((o) => String(o.kind) === "CO")
+    .map((o) => o.id);
+  const poIds = outcomes
+    .filter((o) => String(o.kind) === "PO")
+    .map((o) => o.id);
+  if (coIds.length === 0 || poIds.length === 0) return [];
 
-  const allLinks = await db.orm.public.OutcomeLink.where({}).all();
-  return allLinks
-    .filter((l) => ids.has(l.coId) && ids.has(l.poId))
-    .map(mapLink);
+  const links = await db.orm.public.OutcomeLink.where((l) =>
+    and(l.coId.in(coIds), l.poId.in(poIds)),
+  ).all();
+  return links.map(mapLink);
 }
 
 /** Replace all CO→PO links for a subject (transactional). */
@@ -86,13 +100,13 @@ export async function replaceOutcomeLinks(
     seen.add(key);
   }
 
+  const outcomeIds = outcomes.map((o) => o.id);
+
   await db.transaction(async (tx) => {
-    const existing = await tx.orm.public.OutcomeLink.where({}).all();
-    const subjectIds = new Set(outcomes.map((o) => o.id));
-    for (const row of existing) {
-      if (subjectIds.has(row.coId) || subjectIds.has(row.poId)) {
-        await tx.orm.public.OutcomeLink.where({ id: row.id }).delete();
-      }
+    if (outcomeIds.length > 0) {
+      await tx.orm.public.OutcomeLink.where((l) =>
+        or(l.coId.in(outcomeIds), l.poId.in(outcomeIds)),
+      ).deleteAll();
     }
     for (const link of input.links) {
       await tx.orm.public.OutcomeLink.create({

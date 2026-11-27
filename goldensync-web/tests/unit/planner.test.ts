@@ -1,3 +1,9 @@
+// WHAT: Tests `getWeekState` — before start, after end, skipped week, no plan cases.
+// HOW: Fixed semester + plan fixtures; assert `kind` and derived fields per calendar date.
+// SCREEN: This Week module headline and preview topic.
+// EDIT: When planner rules or skipped-week math change in `lib/domain/planner.ts`.
+// KEEP: Dates are ISO strings — timezone logic lives in domain, not tests.
+// RISK: Low
 /**
  * Phase 2 — getWeekState pure planner (architecture §10.2).
  * Run: npm run test:unit

@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Create/update/delete semesters for the signed-in user.
+// HOW: Overlap checks via domain semester-dates; userId on every row.
+// SCREEN: Semester manager UI and onboarding.
+// EDIT: Validation imports from lib/validation/semester.ts.
+// KEEP: ownedSemesterWhere for reads after write.
+// RISK: High — database + auth (userId must match session).
+
 /**
  * Semester write use-cases (architecture Phase 1).
  */

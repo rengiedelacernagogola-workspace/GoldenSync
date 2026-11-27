@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Personal tasks storage — not tied to plan week rows or grades.
+// SCREEN: Bottom of Checklist page when subject.live.
+// HOW: loadManualChecklist / CRUD in lib/checklist/manual-items (local or API).
+
 /**
  * ManualChecklistCard — user-added checklist items beside week ticks.
  * FLOW: add item · tick done · ⋯ toggles Edit/Delete (fade like notes).
@@ -58,6 +62,7 @@ export function ManualChecklistCard({
     };
   }, [subjectId]);
 
+  // WHAT: Add row — logs activity; skips UI update if API returns unchanged length.
   async function handleAdd() {
     if (readOnly || busy || !title.trim()) return;
     setBusy(true);
@@ -264,6 +269,7 @@ export function ManualChecklistCard({
                       </div>
                       {readOnly ? null : (
                         <div className="relative flex h-7 items-center">
+                          {/* HOW: ⋯ expands Edit/Delete with fade — empty div reserved for layout. */}
                           <div
                             className={cn(
                               "absolute right-8 flex items-center gap-space-1 transition-[opacity,transform] duration-300 ease-out",

@@ -1,6 +1,12 @@
 import "server-only";
 
 /**
+ * WHAT: Server log helper that always includes a requestId.
+ * HOW: createLogger returns info/warn/error that print JSON lines to the console.
+ * SCREEN: Nothing for users — for developers and hosting logs.
+ * EDIT: Swap the console sink later without changing call sites.
+ * RISK: Low–Medium — do not log passwords or tokens in fields.
+ *
  * Structured logger — requestId-scoped console (Phase 0).
  * Swap sink later without changing call sites.
  */

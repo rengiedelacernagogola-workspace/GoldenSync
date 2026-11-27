@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: List/load semesters for the current user (read path).
+// HOW: db queries filtered by userId + mapSemester DTOs.
+// SCREEN: Semester picker, layout bootstrap.
+// EDIT: Sort order for list queries.
+// KEEP: Never query semesters without userId filter.
+// RISK: High — database + auth scoping.
+
 /**
  * Semester reads for Server Components / services (architecture §4).
  */

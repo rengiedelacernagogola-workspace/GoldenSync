@@ -1,3 +1,7 @@
+// WHAT: UI-facing activity feed — maps API DTOs to ActivityItem, sorts newest first.
+// HOW: load/push/mark/delete/clear call lib/api/activity; failures often return [] not throw.
+// SCREEN: Notification bell list and unread badge. RISK: Medium.
+
 /**
  * Activity log — API-backed notifications (replaces localStorage gs-activity-log).
  * Theme remains client-only (DBDEC-004).
@@ -41,6 +45,7 @@ function fromDto(row: ActivityDto): ActivityItem {
 }
 
 /** Load activity items (newest first). */
+// WHAT: Initial fetch for bell panel — swallows errors to empty list.
 export async function loadActivities(): Promise<ActivityItem[]> {
   try {
     const rows = await fetchActivities();
@@ -107,6 +112,7 @@ export function unreadActivityCount(items?: ActivityItem[]): number {
 }
 
 /** Relative time label. */
+// WHAT: "Just now" / "5m ago" style strings for each row. EDIT: Thresholds here. RISK: Low.
 export function formatActivityTime(createdAt: number): string {
   const diff = Math.max(0, Date.now() - createdAt);
   const mins = Math.floor(diff / 60_000);

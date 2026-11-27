@@ -1,3 +1,7 @@
+// WHAT: Public health check — uptime JSON; optional ?deep=1 tests database.
+// HOW: withApi auth "none" — no login. Deep path queries User row + grade scale flag.
+// RISK: High — exposes service/env hints; KEEP rateLimit none only if intentional.
+
 /**
  * GET /api/health — liveness (+ optional DB check via ?deep=1).
  */
@@ -6,6 +10,7 @@ import { db } from "@/lib/db";
 import { withApi } from "@/lib/http";
 import { isGradeScaleConfirmed } from "@/lib/queries/grade-scale";
 
+// WHAT: GET /api/health — returns ok + timestamp; deep mode adds db status.
 export const GET = withApi(
   { auth: "none", rateLimit: "none" },
   async (ctx) => {

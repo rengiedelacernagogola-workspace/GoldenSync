@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Single assessment activity line with score and warning/error flags.
+// SCREEN: Under OutcomeRow in Calculator — tap score to edit (popover).
+// HOW: Shows dash when no score; conflict/error icons need banner copy (Appendix A).
+// KEEP: Never show Error/Conflict state with color alone.
+// EDIT: Column layout here — edit score flow in feature/calculator.
+// RISK: Medium
+
 /**
  * ActivityRow — Calculator score row (Figma `36:1182`, UI-043).
  * FLOW: Calculator → Score field opens EditScore popover. Empty "—" = not taken.

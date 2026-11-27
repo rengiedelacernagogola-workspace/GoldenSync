@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Shared live account data — profile, semesters, subjects — for signed-in pages.
+// HOW: Clerk session → parallel fetch /api/me + /api/semesters → pick active semester → fetch subjects → React context.
+// SCREEN: Invisible; powers subject switcher, semester picker, and Proto badge counts.
+// EDIT: Semester preference order (override, previous, localStorage, first) lives in useLiveDataState effect.
+// KEEP: requestOwnerRef — ignores stale fetches when user switches semester quickly. RISK: High — data layer for whole app shell.
+
 /**
  * Sync Proto UI flags from live APIs when Clerk session is active.
  * FLOW: signed-in → GET /api/me + /api/semesters → subjects → setHasSemester / setSubjectCount.
@@ -22,6 +28,7 @@ import {
 } from "@/lib/domain/semester-year";
 import { useProtoActions } from "@/state";
 
+// WHAT: One semester row as the UI needs it (dates + label + year level).
 export type LiveSemester = {
   id: string;
   label: string;
@@ -30,6 +37,7 @@ export type LiveSemester = {
   endDate: string;
 };
 
+// WHAT: Everything consumers read from LiveDataProvider (ready flag, lists, refresh helpers).
 export type LiveDataState = {
   ready: boolean;
   signedIn: boolean;
@@ -47,8 +55,11 @@ export type LiveDataState = {
   selectSemester: (semesterId: string) => Promise<void>;
 };
 
+// WHAT: React context slot; null means hook used outside provider.
 export const LiveDataContext = React.createContext<LiveDataState | null>(null);
 
+// WHAT: Read last-selected semester id from browser localStorage (per Clerk user).
+// HOW: Returns null if storage blocked (private mode / quota).
 function readStoredSemesterId(userId: string): string | null {
   try {
     return window.localStorage.getItem(activeSemesterStorageKey(userId));
@@ -57,6 +68,7 @@ function readStoredSemesterId(userId: string): string | null {
   }
 }
 
+// WHAT: Remember active semester for next visit. RISK: Low — UX preference only.
 function writeStoredSemesterId(userId: string, semesterId: string) {
   try {
     window.localStorage.setItem(activeSemesterStorageKey(userId), semesterId);
@@ -66,6 +78,7 @@ function writeStoredSemesterId(userId: string, semesterId: string) {
 }
 
 /** Internal state hook used by LiveDataProvider. */
+// WHAT: Core loader — runs when auth or refresh tick changes. HOW: Bumps requestOwnerRef to cancel outdated work.
 export function useLiveDataState(): LiveDataState {
   const { isLoaded, isSignedIn } = useAuth();
   const { setSessionActive, setHasSemester, setSubjectCount } =
@@ -96,6 +109,7 @@ export function useLiveDataState(): LiveDataState {
     const owner = ++requestOwnerRef.current;
     const handle = window.setTimeout(() => {
       void (async () => {
+        // WHAT: Signed out — clear live state and mark ready so demo/seed UI can show.
         if (!isSignedIn) {
           if (cancelled || owner !== requestOwnerRef.current) return;
           setMe(null);
@@ -197,11 +211,13 @@ export function useLiveDataState(): LiveDataState {
     setSubjectCount,
   ]);
 
+  // WHAT: Re-run load effect; optional preferSemesterId wins on next semester pick.
   const refresh = React.useCallback((preferSemesterId?: string) => {
     if (preferSemesterId) preferSemesterIdRef.current = preferSemesterId;
     setTick((t) => t + 1);
   }, []);
 
+  // WHAT: User picked another semester — show loading, fetch that semester's subjects. SCREEN: Subject switcher / semester UI.
   const selectSemester = React.useCallback(
     async (semesterId: string) => {
       const match = semesters.find((s) => s.id === semesterId);
@@ -259,6 +275,7 @@ export function useLiveDataState(): LiveDataState {
  * Hook — bridges Clerk auth to dashboard Proto counts / subject switcher.
  * Must be used under LiveDataProvider (app/(app) layout).
  */
+// WHAT: Public hook for pages — must sit under LiveDataProvider. HOW: Throws if context missing.
 export function useLiveData(): LiveDataState {
   const ctx = React.useContext(LiveDataContext);
   if (!ctx) {
@@ -268,6 +285,7 @@ export function useLiveData(): LiveDataState {
 }
 
 /** Resolve the active semester row from live data. */
+// WHAT: Helper — find full semester object for activeSemesterId (or null).
 export function getActiveSemester(
   live: Pick<LiveDataState, "semesters" | "activeSemesterId">,
 ): LiveSemester | null {

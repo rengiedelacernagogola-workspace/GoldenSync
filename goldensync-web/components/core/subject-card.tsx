@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: One clickable tile on the dashboard — code, progress, details, grade bar.
+// SCREEN: Used only on Dashboard grid (parent passes data and onClick).
+// EDIT: Visual layout here; navigation lives in dashboard/page.tsx.
+
 /**
  * SubjectCard — Dashboard subject tile (Figma `32:223` + Body `32:40`, UI-040).
  * FLOW: Dashboard → click opens Overview. Top-right Edit/Delete (stopPropagation).
@@ -50,6 +54,7 @@ function progressValue(weeksDone: number, weeksTotal: number): number {
   return Math.round((weeksDone / weeksTotal) * 100);
 }
 
+// WHAT: Small label + value row in the card footer details section.
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid w-full grid-cols-[88px_1fr] gap-space-2 text-left">
@@ -109,6 +114,9 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
             ? `0 / ${contactHoursTotal} hrs — semester ended`
             : `${contactHoursRemaining} / ${contactHoursTotal} hrs left`;
 
+    // WHAT: Eye button expands to Pencil (Edit) without triggering card click.
+    // HOW: stopPropagation on action buttons; Escape / outside click collapses.
+    // RISK: Low — missing stopPropagation would navigate when editing.
     const [editRevealed, setEditRevealed] = React.useState(false);
     const actionsRef = React.useRef<HTMLDivElement>(null);
     const eyeRef = React.useRef<HTMLButtonElement>(null);

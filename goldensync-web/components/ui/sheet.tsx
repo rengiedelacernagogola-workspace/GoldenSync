@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Edge slide-in panel (sheet) using Dialog primitive under the hood.
+// SCREEN: Kit mobile drawers — app uses core MobileDrawer + Sidebar.
+// HOW: side prop (top/bottom/left/right) positions panel.
+// EDIT: Width and slide animation here.
+// RISK: Low
+
 import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"

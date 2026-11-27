@@ -1,3 +1,10 @@
+// WHAT: Validate replace-subject body (new code, title, policies, etc.).
+// HOW: replaceSubjectSchema mirrors create fields without semesterId.
+// SCREEN: Replace subject wizard.
+// EDIT: Keep in sync with subject create schema.
+// KEEP: Course code confirmation may be separate route — check API.
+// RISK: Medium — replace is destructive.
+
 /**
  * Zod schemas — subject replace body (same fields as create minus semesterId).
  */

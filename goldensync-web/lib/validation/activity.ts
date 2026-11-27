@@ -1,3 +1,10 @@
+// WHAT: Validate activity feed create/delete API payloads.
+// HOW: activityKindSchema enum + metadata object shapes.
+// SCREEN: Activity feed mutations.
+// EDIT: Kind enum when new event types are added.
+// KEEP: Kinds must match services/activity.ts storage.
+// RISK: Low.
+
 /**
  * Zod schemas — activity / notifications feed.
  */

@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Hover/focus tooltip from the UI kit (portal + delay).
+// KEEP: Collapsed nav uses @/components/core/tooltip (simpler).
+// HOW: Base UI Tooltip provider/trigger/content pattern.
+// EDIT: Delay and styling here.
+// RISK: Low
+
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 import { cn } from "cn"
 

@@ -1,3 +1,9 @@
+// WHAT: 18-row learning plan for demo subject ITE 14 (topics, outcomes, activities, status).
+// HOW: `ITE14_WEEKS` array of `SeedWeek`; Week 9 is “No class”; Week 13 “In progress”.
+// SCREEN: Learning Plan table, Checklist week list, This Week preview in prototype.
+// EDIT: Row content when Figma P3 / plan §7 week copy changes.
+// KEEP: `status` values must match `WeekRowStatus` in components (Done, In progress, etc.).
+// RISK: Low
 /**
  * Shared week seed — Checklist + Learning Plan (plan §7 / Figma P3).
  */

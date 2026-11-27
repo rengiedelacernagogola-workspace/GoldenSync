@@ -1,3 +1,10 @@
+// WHAT: Small static status pill (Success, Warning, etc.) — words carry meaning.
+// SCREEN: Tables, cards, chips beside labels (not interactive).
+// HOW: class-variance-authority variants for color + sm/md/lg sizes.
+// KEEP: Never truncate label text; no click handlers on Badge itself.
+// EDIT: badgeVariants color tokens here.
+// RISK: Low
+
 /**
  * Badge — Figma `Badge` `13:78`.
  * UI-015: Variant Default|Success|Warning|Error|Accent × Size sm 20 / md 24 / lg 28.

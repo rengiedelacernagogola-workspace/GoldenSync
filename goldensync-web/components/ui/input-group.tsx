@@ -1,5 +1,10 @@
 "use client"
 
+// WHAT: Input with attached addons (prefix icon, suffix button, etc.).
+// HOW: Groups Input + Button/text slots in one bordered shell.
+// EDIT: Addon layout variants here.
+// RISK: Low
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"

@@ -1,3 +1,6 @@
+// WHAT: Light/dark theme — toggles class on <html> and saves choice in localStorage (key gs-theme).
+// SCREEN: User sees colors change app-wide. EDIT: getStoredTheme default (currently dark). RISK: Low.
+
 /**
  * Theme — light | dark on <html class="dark">, persisted in localStorage.
  */
@@ -7,6 +10,7 @@ export type ThemeMode = "light" | "dark";
 const STORAGE_KEY = "gs-theme";
 
 /** Read stored theme; default dark (product baseline). */
+// WHAT: Read saved theme from browser; returns dark on server or if missing.
 export function getStoredTheme(): ThemeMode {
   if (typeof window === "undefined") return "dark";
   try {
@@ -18,6 +22,7 @@ export function getStoredTheme(): ThemeMode {
 }
 
 /** Apply theme to documentElement and persist. */
+// WHAT: Sets dark class and writes localStorage — call after user picks theme.
 export function applyTheme(mode: ThemeMode) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
@@ -34,6 +39,7 @@ export function applyTheme(mode: ThemeMode) {
 }
 
 /** Toggle between light and dark; returns the new mode. */
+// WHAT: Flip light↔dark for theme button in UI.
 export function toggleTheme(): ThemeMode {
   const next: ThemeMode = getStoredTheme() === "dark" ? "light" : "dark";
   applyTheme(next);

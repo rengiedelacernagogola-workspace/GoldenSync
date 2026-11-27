@@ -1,3 +1,7 @@
+// WHAT: UI-friendly loaders for manual checklist items (maps DTOs ↔ local shape).
+// HOW: Wraps lib/api/manual-checklist; swallows fetch errors to empty list where noted.
+// SCREEN: Subject manual checklist. RISK: Low — not used for grades.
+
 /**
  * Manual checklist items — API-backed per subject (never feeds Calculator).
  */

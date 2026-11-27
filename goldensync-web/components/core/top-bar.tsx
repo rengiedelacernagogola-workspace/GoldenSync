@@ -1,4 +1,4 @@
-"use client";
+"use client"; // WHAT: Client component for interactive buttons and menus. RISK: Low
 
 /**
  * TopBar — page chrome above content (Figma Dashboard Top bar `69:2025`, UI-050).
@@ -16,6 +16,7 @@ import { StreakBadge } from "@/components/core/streak-badge";
 import { ThemeToggle } from "@/components/core/theme-toggle";
 import { cn } from "@/lib/utils";
 
+// WHAT: Options for the header bar (title, semester, hide buttons). EDIT: Per-page props from AppShell. RISK: Low
 export interface TopBarProps extends React.HTMLAttributes<HTMLElement> {
   title?: string;
   semesterLabel?: string;
@@ -38,6 +39,7 @@ export interface TopBarProps extends React.HTMLAttributes<HTMLElement> {
 /**
  * Shell top bar — edit title/actions per page; parent owns semester popover.
  */
+// WHAT: Header above main content. SCREEN: Title, notifications, streak, theme, semester, Add Subject. RISK: Low
 export function TopBar({
   className,
   title = "Dashboard",
@@ -63,6 +65,7 @@ export function TopBar({
       )}
       {...props}
     >
+      {/* WHAT: Left side — hamburger (mobile) + page title. */}
       <div className="flex min-w-0 flex-1 items-center gap-space-2 sm:gap-space-3">
         {showMenuButton ? (
           <Button
@@ -81,6 +84,7 @@ export function TopBar({
         </h1>
       </div>
 
+      {/* WHAT: Right side — actions and semester controls. SCREEN: Icons and Add Subject button. */}
       <div className="flex shrink-0 items-center gap-space-1.5 sm:gap-space-3">
         <NotificationsMenu refreshKey={notificationsRefreshKey} />
         <div className="hidden sm:contents">

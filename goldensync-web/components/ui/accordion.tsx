@@ -1,3 +1,8 @@
+// WHAT: Expand/collapse sections (one or many open) via Base UI Accordion.
+// HOW: Accordion, AccordionItem, AccordionTrigger, AccordionContent exports.
+// EDIT: Chevron rotation and borders here.
+// RISK: Low
+
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 import { cn } from "cn"
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"

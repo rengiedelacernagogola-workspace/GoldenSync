@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Desktop table data row with hover/selected/skeleton states.
+// SCREEN: Inside core Table on md+ breakpoints.
+// HOW: Slots for cells + optional delete IconOnly; numbers use mono font (KL-01).
+// KEEP: Row is not focusable — actions use Button (DEC-028).
+// EDIT: Row height and selected left bar here.
+// RISK: Low
+
 /**
  * TableRow — Figma `TableRow` `16:166`.
  * UI-019: h-52 · Default/Hover/Selected/Skeleton. Hover = surface-glass (DEC-017).

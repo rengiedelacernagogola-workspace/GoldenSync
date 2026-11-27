@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Overflow menu — Edit, Archive, Delete for the active subject.
+// SCREEN: Core Menu with three MenuItems; Delete is styled destructive.
+// HOW: Archive calls archiveSubject when signed in; Delete only invokes parent callback.
+// EDIT: Proto path uses afterRemove to sync sidebar subject count without API.
+
 /**
  * SubjectActionsMenu — Edit / Archive / Delete (Figma Menu Content=Menu, UI-053 related).
  * FLOW: Edit → navigate · Archive → POST archive (live) · Delete → parent opens confirm.
@@ -39,6 +44,7 @@ export function SubjectActionsMenu({
   const { setSubjectCount, setSubjectSelected } = useProtoActions();
   const [archiving, setArchiving] = React.useState(false);
 
+  // WHAT: Shared post-archive cleanup — decrements count and clears selection at zero.
   function afterRemove(cb?: () => void) {
     const next = Math.max(0, count - 1);
     setSubjectCount(next);

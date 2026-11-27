@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Full-width inline alert strip (info/warning/error/success) with optional action.
+// SCREEN: Top of pages or sections — plan limits, sync status, etc.
+// HOW: Variant picks icon + tint; message text always present (not color-only).
+// KEEP: CapReached style uses hasAction=false (DEC-051).
+// EDIT: Layout and tokens here — strings from copy/ or parent.
+// RISK: Low
+
 /**
  * Banner — inline status strip (Figma `24:576`, UI-026).
  * Info|Warning|Error|Success. Meaning is in the message text, not color alone.

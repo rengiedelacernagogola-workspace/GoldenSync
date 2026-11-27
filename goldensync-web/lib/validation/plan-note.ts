@@ -1,3 +1,10 @@
+// WHAT: Validate create/update/delete bodies for plan notes.
+// HOW: Zod title/content length limits.
+// SCREEN: /notes composer and library.
+// EDIT: Max title/content lengths.
+// KEEP: Pair with services/plan-notes.ts pin rules.
+// RISK: Low.
+
 /**
  * Zod schemas — plan notes (All notes library).
  */

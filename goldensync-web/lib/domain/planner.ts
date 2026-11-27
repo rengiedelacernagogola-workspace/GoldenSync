@@ -1,3 +1,10 @@
+// WHAT: Decide “this week” state for a semester plan (before start, no class, topic, etc.).
+// HOW: PURE date math on YYYY-MM-DD; caller passes todayISO — no new Date() inside core logic.
+// SCREEN: Planner / This Week UI uses getWeekState output.
+// EDIT: WeekStateKind rules and skipped-week handling in getWeekState.
+// KEEP: UTC-noon parsing avoids DST surprises.
+// RISK: Low.
+
 /**
  * Planner week state (architecture §10.2) — PURE; todayISO injected by caller.
  * Contract PlanWeek uses weekNumber (single week); ranges collapse to equality.

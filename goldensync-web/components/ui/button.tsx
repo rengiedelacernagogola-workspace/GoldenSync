@@ -1,3 +1,9 @@
+// WHAT: Generic UI kit Button (shadcn/Base UI) — variants for marketing or demos.
+// KEEP: App screens should use @/components/core/button for Figma GoldenSync tokens.
+// HOW: class-variance-authority variants + cn() merge.
+// EDIT: Restyle here — does not affect core Button.
+// RISK: Low
+
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"

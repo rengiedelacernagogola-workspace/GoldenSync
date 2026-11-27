@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Learning Plan — weekly topics, outcomes, activities, status.
+// SCREEN: /subjects/[subjectId]/plan · sidebar "Learning Plan".
+// HOW: Live subjects use EditablePlanTable; unsigned demo shows ITE14_WEEKS seed.
+
 /**
  * Learning Plan — editable week table (notes live under sidebar Notes).
  * FLOW: Sidebar Plan → add/edit week · topic · outcome · activities · status.
@@ -26,6 +30,8 @@ import { useLiveSubject } from "@/hooks/use-live-subject";
 import { ensurePlanSkeleton } from "@/lib/api/subjects";
 import { pathForNav } from "@/lib/nav";
 
+// WHAT: Maps API planWeeks into editable row shape for the table component.
+// HOW: Sorts by weekNumber then position (duplicate week numbers allowed).
 function draftFromLive(
   plan: Array<{
     id: string;
@@ -53,12 +59,16 @@ function draftFromLive(
     }));
 }
 
+// WHAT: Learning Plan page body — editable table or seed read-only weeks.
+// EDIT: generateWeeks + empty copy live in this component's JSX.
 function PlanBody() {
+  // WHAT: Branches: empty module, loading, live editable, or seed read-only table.
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const subjectId = String(params.subjectId ?? "ite-14");
   const subject = useLiveSubject(subjectId);
+  // SCREEN: ?empty=1 shows EmptyModulePanel (design / QA placeholder).
   const isEmpty = searchParams.get("empty") === "1";
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -75,6 +85,8 @@ function PlanBody() {
     if (path) router.push(path);
   }
 
+  // WHAT: Creates blank plan rows from semester dates via API.
+  // EDIT: Button label / empty state copy lives in JSX below this function.
   async function generateWeeks() {
     if (!subject.live) return;
     setGenerating(true);
@@ -177,6 +189,7 @@ function PlanBody() {
   );
 }
 
+// KEEP: Suspense required for useSearchParams in PlanBody.
 export default function PlanPage() {
   return (
     <React.Suspense

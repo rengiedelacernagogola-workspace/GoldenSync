@@ -1,3 +1,10 @@
+// WHAT: Guess weekly topics from syllabus “teaching plan” text for plan import.
+// HOW: Week number + topic line parsers; filters noise (labs, TLO lines).
+// SCREEN: Ingest / plan setup when confirming syllabus weeks.
+// EDIT: isPlanNoiseLine and week header regexes for new syllabus layouts.
+// KEEP: Returns ExtractedPlanWeek[] only — persistence is in services.
+// RISK: Low.
+
 /**
  * Heuristic plan-week extraction from syllabus text — PURE.
  * Supports classic "Week N: topic" and CSU F-CID-010 "N Week(s)" teaching-plan blocks.

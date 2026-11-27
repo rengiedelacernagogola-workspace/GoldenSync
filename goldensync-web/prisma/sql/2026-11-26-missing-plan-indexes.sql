@@ -1,3 +1,9 @@
+-- WHAT: Recreates plan indexes with Prisma-expected hashed names for schema verify.
+-- HOW: DROP old names, CREATE `PlanNote_deletedAt_idx_*` and `PlanWeek_*_idx_*`.
+-- SCREEN: N/A — query performance for plan notes and week ordering.
+-- EDIT: Hashes must match contract emit; update if Prisma renames indexes.
+-- KEEP: Required for `db sign` / verify parity with `contract.prisma`.
+-- RISK: Medium — brief lock during DROP/CREATE on large tables.
 -- Indexes with Prisma contract hashed names (required for db sign / verify).
 
 DROP INDEX IF EXISTS "PlanNote_deletedAt_idx";

@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Pill-style single-select among a few options (like iOS segmented control).
+// SCREEN: Export format CSV|JSON and similar binary/ small choice UIs.
+// HOW: Controlled value + onValueChange; keyboard-focusable segments.
+// KEEP: Parent owns selected value; labels from props/copy.
+// EDIT: Track dimensions and active glass style here.
+// RISK: Low
+
 /**
  * SegmentedControl — exclusive options (Figma `22:538`, UI-024).
  * Track 44 / segment 36. Active = accent-glass. Export uses CSV|JSON.

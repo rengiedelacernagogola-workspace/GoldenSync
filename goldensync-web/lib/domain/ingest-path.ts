@@ -1,3 +1,9 @@
+// WHAT: Validate PDF upload blob paths so users cannot read other users’ files.
+// HOW: Path must be ingest/{userId}/{filename}.pdf with no .. or extra slashes.
+// EDIT: Prefix rules in isValidIngestPathname if storage layout changes.
+// KEEP: userId argument must match the signed-in user (enforced in services).
+// RISK: High — path bugs are a direct security issue.
+
 /**
  * Ingest blob path policy (architecture §8.2 / §8.3) — PURE.
  */

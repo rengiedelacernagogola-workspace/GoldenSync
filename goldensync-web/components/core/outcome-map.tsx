@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Matrix linking Course Outcomes (CO) to Program Outcomes (PO) with I/E/D level.
+// SCREEN: Subject Outcomes page — hover a CO row highlights linked PO cells.
+// HOW: Parent passes nodes + links arrays and optional highlight state.
+// KEEP: Tabular layout for scanning; highlight driven by parent, not internal routing.
+// EDIT: Cell colors and level legend here — seed data lives in page loaders.
+// RISK: Low
+
 /**
  * OutcomeMap — compact CO→PO table with I/E/D levels (Figma `39:1585`, UI-046).
  * FLOW: Outcomes page · hover/focus a CO row lights linked PO cells.

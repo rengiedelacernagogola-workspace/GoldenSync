@@ -1,3 +1,7 @@
+// WHAT: One-off server PDF text parse (proto / Q-002) — not the production ingest pipeline.
+// HOW: multipart field `file`; uses parseSyllabusPdf on server only.
+// CHECK: No Clerk/withApi auth here — confirm this route is intentionally open or dev-only. RISK: High if public.
+
 /**
  * POST /api/parse-syllabus — server PDF parse (Q-002).
  * Body: multipart form field `file` (application/pdf).
@@ -8,6 +12,7 @@ import { NextResponse } from "next/server";
 
 import { parseSyllabusPdf } from "@/lib/pdf/syllabus-parser";
 
+// WHAT: POST /api/parse-syllabus — returns preview text or error JSON.
 export async function POST(request: Request) {
   try {
     const form = await request.formData();

@@ -1,3 +1,9 @@
+// WHAT: Types, defaults, and action contract for all Figma Proto demo variables.
+// HOW: Union types for outcomes; `PROTO_DEFAULTS` matches legend; caps `MAX_SUBJECTS` / login failures.
+// SCREEN: Each field maps to a UI branch (e.g. `weekState` → This Week empty/before/after).
+// EDIT: When Figma Proto collection changes — sync unions, defaults, and `proto-store` setters.
+// KEEP: No React here — types only (UI-003).
+// RISK: Low — invalid proto values should fail TypeScript at call sites.
 /**
  * Proto types — 13 Figma Proto variables (collection `VariableCollectionId:1:122`).
  * UI-003: types + defaults only. Allowed values match plan 5.6 / Variable legend `198:195`.

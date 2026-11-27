@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Load one subject's detail for module pages (overview, plan, etc.).
+// HOW: Signed in → GET /api/subjects/:id; signed out or demo id → goldenSyncSeed card fields.
+// SCREEN: Subject title, code, units line in shell and page headers.
+// EDIT: isProtoSeedId rules if demo subject ids change. KEEP: resolvedId stays URL id when signed in (avoids wrong API calls). RISK: Medium.
+
 /**
  * Load subject detail from API when signed in; seed fallback for proto demos.
  * FLOW: subjectId → GET /api/subjects/:id → map for module shells.
@@ -17,6 +22,7 @@ import {
 } from "@/lib/api/subjects";
 import { isSemesterPast } from "@/lib/domain/semester-year";
 
+// WHAT: Flat view model pages consume (strings ready for UI, plus refresh).
 export type LiveSubjectView = {
   ready: boolean;
   live: boolean;
@@ -34,11 +40,13 @@ export type LiveSubjectView = {
   refresh: () => void;
 };
 
+// WHAT: True for demo ids like ite-14 — may 404 on API but should still show seed copy.
 function isProtoSeedId(subjectId: string): boolean {
   return subjectId === "ite-14" || subjectId.startsWith("ite-");
 }
 
 /** Hook — resolves live subject or seed card for module pages. */
+// WHAT: Main hook — pass route param subjectId. HOW: tick state forces refetch on refresh().
 export function useLiveSubject(subjectId: string): LiveSubjectView {
   const { isLoaded, isSignedIn } = useAuth();
   const [detail, setDetail] = React.useState<SubjectDetailDto | null>(null);

@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Two-column page — faculty bio card + class policies card.
+// SCREEN: /subjects/[subjectId]/faculty · stacks to one column on small screens.
+// HOW: Non-live subjects fall back to goldenSyncSeed blurbs for demo.
+
 /**
  * College Faculty — Faculty + Class policies side-by-side (50/50).
  * FLOW: Sidebar College Faculty → Edit either card → Save.
@@ -23,6 +27,9 @@ import { pushActivity, type ActivityKind } from "@/lib/activity/activity-log";
 import { parsePoliciesDoc } from "@/lib/domain/course-spec";
 import { pathForNav } from "@/lib/nav";
 
+// WHAT: Inner faculty page — resolves faculty/policies data and renders two panels.
+// HOW: facultyRaw is null for live subjects with no saved faculty (no seed fill).
+// SCREEN: Past-semester banner; ?empty=1 shows EmptyModulePanel instead of grid.
 function FacultyBody() {
   const params = useParams();
   const router = useRouter();
@@ -37,6 +44,7 @@ function FacultyBody() {
       ? null
       : { name: goldenSyncSeed.activeSubject.facultyBlurb });
 
+  // WHAT: policiesRaw — live uses API only; proto fills empty classPolicies from seed.
   const policiesRaw = React.useMemo(() => {
     const fromDetail = subject.detail?.policies ?? null;
     if (subject.live) return fromDetail;
@@ -104,7 +112,10 @@ function FacultyBody() {
           {forceEmpty ? (
             <EmptyModulePanel subjectId={subject.id} />
           ) : (
-            <div className="grid w-full min-w-0 grid-cols-1 items-stretch gap-space-4 sm:gap-space-6 md:grid-cols-2">
+            <div
+              // SCREEN: 50/50 grid — FacultyPanel left, ClassPoliciesPanel right (md+).
+              className="grid w-full min-w-0 grid-cols-1 items-stretch gap-space-4 sm:gap-space-6 md:grid-cols-2"
+            >
               <FacultyPanel
                 subjectId={subject.id}
                 live={subject.live}
@@ -139,6 +150,8 @@ function FacultyBody() {
   );
 }
 
+// WHAT: Route entry for College Faculty under a subject.
+// KEEP: Suspense required when FacultyBody (or children) use searchParams.
 export default function FacultyPage() {
   return (
     <React.Suspense

@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Glass container — Default, Interactive (clickable), or Active (highlighted).
+// HOW: SubjectCard uses Interactive/Active with hasHeader false and custom body.
+// EDIT: Glass tokens in globals.css; variants in cardVariants below.
+
 /**
  * Card — Figma `Card` `15:114`.
  * UI-018: Variant Default | Interactive | Active. Interactive states via CSS (Hover/Focus/Active/Disabled).

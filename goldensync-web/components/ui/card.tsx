@@ -1,3 +1,9 @@
+// WHAT: UI kit card shell (header, title, content, footer slots).
+// KEEP: Dashboard glass cards use @/components/core/card.
+// HOW: div-based layout with tailwind spacing.
+// EDIT: Kit card chrome — not app SubjectCard.
+// RISK: Low
+
 import * as React from "react"
 import { cn } from "cn"
 

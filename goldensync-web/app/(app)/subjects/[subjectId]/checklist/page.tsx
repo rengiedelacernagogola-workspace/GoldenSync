@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Tick off plan weeks as done + personal manual checklist card.
+// SCREEN: /subjects/[subjectId]/checklist · progress bar at top.
+// RISK: Week ticks do not change grades (stated in UI copy).
+
 /**
  * Checklist — week rows from PlanWeek + ChecklistItem (live), seed only for proto.
  * FLOW: tick Done → PUT /api/subjects/:id/checklist when live.
@@ -30,6 +34,8 @@ import { pathForNav } from "@/lib/nav";
 
 type WeekItem = SeedWeek & { planWeekId?: string };
 
+// WHAT: Merges plan rows with checklist "done" flags into WeekRow display data.
+// HOW: planWeekId lets duplicate week numbers toggle independently.
 function rowsFromLive(
   plan: Array<{
     id: string;
@@ -63,6 +69,8 @@ function rowsFromLive(
     });
 }
 
+// WHAT: Checklist page body — AppShell, week table, manual checklist card.
+// EDIT: Week table vs empty panel branching is in the return JSX below.
 function ChecklistBody() {
   const params = useParams();
   const router = useRouter();
@@ -98,12 +106,15 @@ function ChecklistBody() {
   const totalWeeks = weeks.length;
   const progress =
     totalWeeks === 0 ? 0 : Math.round((doneCount / totalWeeks) * 100);
+  // WHAT: ProgressBar percent — counts rows with status "Done", not manual items.
 
   function handleNav(id: SidebarActiveId) {
     const path = pathForNav(id, subject.id);
     if (path) router.push(path);
   }
 
+  // WHAT: Optimistic UI then PUT checklist; rolls back on API error.
+  // EDIT: API call is toggleChecklist in lib/api/subjects.
   async function handleDoneChange(index: number, done: boolean) {
     if (subject.semesterPast) {
       setToggleError("Past semester — checklist is view only.");
@@ -258,6 +269,7 @@ function ChecklistBody() {
   );
 }
 
+// KEEP: AppShell + MobileDrawer pattern matches other subject pages.
 export default function ChecklistPage() {
   return (
     <React.Suspense

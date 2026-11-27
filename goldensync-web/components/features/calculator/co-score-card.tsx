@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: One CO block — enter scores, see weighted rows + pass/fail summary.
+// SCREEN: Grade Calculator tab; one card per course outcome group.
+// HOW: Parent holds yourScores/maxScores maps; onChange updates by taskId.
+// EDIT: Pass rule (60% CO average) shown in tooltip — logic in co-grade-calculator.
+// RISK: Scores over max show inline error but still accept typing.
+
 /**
  * One CO card — task scores, live weighted scores, CO summary + progress.
  */
@@ -71,6 +77,7 @@ export function CoScoreCard({
             </thead>
             <tbody>
               {result.tasks.map((task) => {
+                // HOW: Domain flags when your score > max; aria-invalid for a11y.
                 const overMax = task.overMax;
                 return (
                   <tr

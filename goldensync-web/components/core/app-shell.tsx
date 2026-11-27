@@ -1,4 +1,4 @@
-"use client";
+"use client"; // WHAT: This file runs in the browser (hooks, click handlers). KEEP: Must stay first line. RISK: Medium
 
 /**
  * AppShell — authenticated layout (Figma P2 Dashboard shell, UI-051).
@@ -21,6 +21,7 @@ import { SemesterSwitcher } from "@/components/features/semester/semester-switch
 import { useSubjectSwitcherControls } from "@/hooks/use-subject-switcher";
 import { cn } from "@/lib/utils";
 
+// WHAT: Settings passed into AppShell from each page. EDIT: Optional props change sidebar, subject line, top bar. RISK: Medium
 export interface AppShellProps extends React.HTMLAttributes<HTMLDivElement> {
   sidebarVariant?: Exclude<SidebarVariant, "Drawer">;
   subjectSelected?: boolean;
@@ -42,6 +43,7 @@ export interface AppShellProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Desktop shell — wrap page body as children; pair MobileDrawer on small screens.
  */
+// WHAT: Main logged-in frame — sidebar + top bar + scrollable main. SCREEN: Dashboard chrome around page content. HOW: Subject switcher hook drives popover. RISK: Medium
 export function AppShell({
   className,
   children,
@@ -59,6 +61,7 @@ export function AppShell({
   switcherEnabled = true,
   ...props
 }: AppShellProps) {
+  // HOW: Hook loads subject list and open/close for the switcher popover.
   const switcher = useSubjectSwitcherControls({
     activeId,
     enabled: switcherEnabled && subjectSelected,
@@ -67,6 +70,7 @@ export function AppShell({
   const switcherOpen = switcherOpenProp ?? switcher.switcherOpen;
   const onSwitcherClick = onSwitcherClickProp ?? switcher.onSwitcherClick;
 
+  // SCREEN: Outer flex row — sidebar left, content + top bar right.
   return (
     <div
       data-slot="gs-app-shell"
@@ -77,6 +81,7 @@ export function AppShell({
       )}
       {...props}
     >
+      {/* WHAT: Left nav — hidden on small screens (md:flex). HOW: Collapsed vs Expanded width from variant. */}
       <Sidebar
         variant={sidebarVariant}
         subjectSelected={subjectSelected}
@@ -90,6 +95,7 @@ export function AppShell({
         className="hidden h-full shrink-0 md:flex"
       />
 
+      {/* WHAT: Subject list popover when switcher is open (desktop only). SCREEN: Floating panel beside sidebar. */}
       {switcherOpen ? (
         <div className="absolute top-[120px] left-4 z-30 hidden md:block">
           <SubjectSwitcherPopover
@@ -101,6 +107,7 @@ export function AppShell({
         </div>
       ) : null}
 
+      {/* WHAT: Right column — top bar + scrollable page body. */}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           {...topBar}
@@ -120,6 +127,7 @@ export function AppShell({
             topBar?.className,
           )}
         />
+        {/* SCREEN: Page-specific content (dashboard, modules) scrolls here. EDIT: padding/gap classes. RISK: Low */}
         <main
           data-slot="gs-app-shell-main"
           className="flex min-h-0 min-w-0 flex-1 flex-col gap-space-8 overflow-x-hidden overflow-y-auto px-space-3 pt-space-4 pb-space-10 sm:gap-space-10 sm:px-space-6 sm:pt-space-6 sm:pb-space-12 lg:gap-space-12 lg:px-space-8"

@@ -1,3 +1,9 @@
+// WHAT: Detect real PDFs vs junk uploads; map failures to ingest error codes.
+// HOW: Checks %PDF- header, size cap, minimum extracted text for “scanned” PDFs.
+// EDIT: Limits passed in opts from config; error code strings match ingest UI.
+// KEEP: PURE — no disk/network.
+// RISK: Medium — weak checks allow bad uploads; stricter checks may reject scans.
+
 /**
  * PDF magic-byte checks (architecture §9.4) — PURE.
  */

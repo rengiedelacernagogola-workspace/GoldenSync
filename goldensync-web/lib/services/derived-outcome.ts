@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Compute displayed grade status from scores + outcomes (server truth).
+// HOW: grade-engine + grade-scale gating for confirmed scale meta.
+// SCREEN: Subject grade summary / outcomes panel (server data).
+// EDIT: GradeScaleMeta.confirmed gating rules.
+// KEEP: Differs from browser-only calculator snapshot.
+// RISK: High — reads scores/assessments from DB.
+
 /**
  * Derived outcome result for a subject (architecture §10.1 / Appendix B).
  * Grade scale gate (§10.3): hide numeric grade for PASSED / INTERVENTION_A

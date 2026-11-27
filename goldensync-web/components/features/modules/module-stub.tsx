@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Reusable subject shell for thin/legacy module routes (blurb or empty).
+// SCREEN: Full AppShell + optional blurb paragraph or EmptyState placeholder.
+// HOW: Resolves subject card from goldenSyncSeed by URL subjectId (proto paths).
+// KEEP: Prefer dedicated pages (plan, export, etc.) over ModuleStub for new work.
+
 /**
  * ModuleStub — empty / blurb module pages (Grading, Policies, Faculty, Plan, Export).
  * FLOW: Sidebar → module. Empty uses appendixA.modules.emptyModule when no content.
@@ -25,6 +30,7 @@ export interface ModuleStubProps {
   blurb?: string;
 }
 
+// WHAT: Renders AppShell + either blurb text or empty-module EmptyState.
 /** Shared shell for thin module screens. */
 export function ModuleStub({ activeId, title, blurb }: ModuleStubProps) {
   const params = useParams();
@@ -82,6 +88,7 @@ export function ModuleStub({ activeId, title, blurb }: ModuleStubProps) {
   );
 }
 
+// WHAT: Suspense wrapper so ModuleStub can use useParams safely.
 /** Suspense wrapper for ModuleStub pages. */
 export function ModuleStubPage(props: ModuleStubProps) {
   return (

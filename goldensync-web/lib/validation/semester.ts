@@ -1,3 +1,9 @@
+// WHAT: Request body rules for creating/updating semesters.
+// HOW: Zod schemas consumed by API routes before services/semesters.ts.
+// EDIT: Date string formats and year level bounds here.
+// KEEP: Mirror domain semester-dates validation intent.
+// RISK: Medium — bad schema lets invalid dates hit DB.
+
 /**
  * Zod schemas — semester create / patch.
  */

@@ -1,3 +1,10 @@
+// WHAT: Official subject grade status from outcome activities (PASSED, INTERVENTION, FAILED, etc.).
+// HOW: PURE math — percent per outcome, average, threshold rules in computeGrade.
+// SCREEN: Indirect — backs checklist/grade views; not imported directly in most pages.
+// EDIT: Threshold defaults and status branches inside computeGrade.
+// KEEP: No floats for threshold equality — uses scaled integers (basis points).
+// RISK: Low for code changes; High if you change rules without faculty sign-off.
+
 /**
  * Grade engine (architecture §10.1) — PURE Decimal-safe math, no I/O.
  * Threshold comparisons use scaled integers (basis points), never raw float ==.

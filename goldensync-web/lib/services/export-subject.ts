@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Export one subject’s data as CSV or JSON for the owner.
+// HOW: Loads detail query + domain csv helpers; rejects other users’ subjects.
+// SCREEN: Export button on subject.
+// EDIT: Which relations are included in export payload.
+// KEEP: Owner-only — never accept subjectId without user check.
+// RISK: High — data export + auth; CSV injection mitigated in domain/csv.
+
 /**
  * Subject export CSV/JSON (architecture §10.4) — owner-scoped only.
  */

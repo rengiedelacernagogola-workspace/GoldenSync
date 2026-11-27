@@ -1,3 +1,10 @@
+// WHAT: Map numeric averages to letter grades and detailed CSU-style bands.
+// HOW: DETAILED_GRADE_BANDS table + lookupDetailedGrade / mapAverageToGrade.
+// SCREEN: Grade Calculator equivalents table and numerical grade suggestions.
+// EDIT: Band rows — keep ranges contiguous and non-overlapping.
+// KEEP: GradeScaleConfigError surfaces as CONFIG_ERROR in services.
+// RISK: Low code; High academic policy if bands change.
+
 /**
  * Grade scale mapping (architecture §10.3) — PURE, no I/O.
  * Detailed CSU-style bands shared by Grade Calculator + GradeScale table.

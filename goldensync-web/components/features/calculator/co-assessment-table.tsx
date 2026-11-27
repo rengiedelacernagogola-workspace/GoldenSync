@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Editable Table 3 — CO groups, tasks, weights, and domain note.
+// SCREEN: Grading System tab inside subject (GradingTemplatePanel).
+// HOW: Parent owns `groups` + `domainNote`; this file calls onChange callbacks.
+// EDIT: Weight validation uses coWeightTotal — keep CO % summing to ~100.
+// RISK: Low locally; bad weights break calculator math downstream.
+
 /**
  * Table 3 — Course Outcome Assessment Tasks (grouped by CO, rowspan).
  */
@@ -17,6 +23,7 @@ import {
 } from "@/lib/domain/grading-template";
 import { cn } from "@/lib/utils";
 
+// WHAT: Shared input styling for table cells (hover/focus borders).
 const cellInput = cn(
   "box-border w-full min-w-0 max-w-full rounded-sm border border-transparent bg-transparent px-1 py-0.5",
   "text-[11px] font-medium leading-snug tracking-tight text-text-primary outline-none",
@@ -38,6 +45,7 @@ export function CoAssessmentTable({
   onChangeGroups,
   onChangeDomainNote,
 }: CoAssessmentTableProps) {
+  // HOW: Header badge turns green when all CO weight % ≈ 100.
   const total = coWeightTotal(groups);
   const totalOk = Math.abs(total - 100) < 0.05;
 

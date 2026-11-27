@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Popover panel listing subjects to switch active course context.
+// SCREEN: Opens from SubjectSwitcher in sidebar/drawer — checkmark on active.
+// HOW: subjects[] + activeId + onSelect from useSubjectSwitcherControls hook.
+// KEEP: Max 20 subjects; empty copy "Add your first subject."
+// EDIT: List row UI here — fetch/list logic in hook and AppShell.
+// RISK: Low
+
 /**
  * SubjectSwitcherPopover — subject list panel (Figma `97:9811` / Empty `97:9945`, UI-053).
  * FLOW: SubjectSwitcher Active → Popover SubjectList (check on active) or Empty copy.

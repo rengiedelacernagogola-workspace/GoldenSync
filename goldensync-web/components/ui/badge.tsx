@@ -1,3 +1,9 @@
+// WHAT: UI kit badge pill (shadcn-style variants).
+// KEEP: Product status pills use @/components/core/badge.
+// HOW: cva variants for default/secondary/destructive/outline.
+// EDIT: Kit colors only.
+// RISK: Low
+
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"

@@ -1,4 +1,10 @@
 /**
+ * WHAT: Limits how many API calls one key can make in a time window.
+ * HOW: Keeps counters in memory Map; returns allowed / remaining / resetAt.
+ * SCREEN: Too many requests → rate-limit error to the user.
+ * CHECK: In-memory only — not shared across Vercel instances yet.
+ * RISK: High — security and abuse protection; ask a developer before changing.
+ *
  * In-memory rate limit helper (Phase 5 scaffold).
  * Replace with shared store (Redis / Upstash) before multi-instance production.
  */

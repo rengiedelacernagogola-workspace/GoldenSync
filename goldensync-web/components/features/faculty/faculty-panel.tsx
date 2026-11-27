@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Faculty card — instructor, college, consultation, contact hours.
+// SCREEN: Subject detail (College Faculty area) on live subject pages.
+// HOW: parseFaculty → view; Edit drafts → patchSubject({ faculty }).
+// EDIT: readOnly hides CardEditReveal for past semesters.
+// RISK: Contact hours validated client-side only before save.
+
 /**
  * College Faculty — per-subject instructor / college / consultation.
  * FLOW: view → Edit → Save (PATCH faculty) / Cancel · Past semester read-only.
@@ -33,6 +39,7 @@ export type FacultyPanelProps = {
   }) => void;
 };
 
+// WHAT: Show em dash when text field is empty in view mode.
 function dash(value: string | null | undefined): string {
   const t = (value ?? "").trim();
   return t || "—";

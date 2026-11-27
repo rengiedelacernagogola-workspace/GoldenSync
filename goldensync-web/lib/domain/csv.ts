@@ -1,3 +1,10 @@
+// WHAT: Build safe CSV exports (escape cells, block spreadsheet formula injection).
+// HOW: neutralizeCsvCell prefixes risky leads; toCsv joins header + rows with CRLF.
+// SCREEN: Subject/export flows that download .csv.
+// EDIT: Extra dangerous prefixes in neutralizeCsvCell if security review asks.
+// KEEP: Pure — no file I/O here.
+// RISK: Low; Medium if neutralization is weakened (CSV formula attacks).
+
 /**
  * CSV helpers (architecture §10.4) — PURE formula neutralization.
  */

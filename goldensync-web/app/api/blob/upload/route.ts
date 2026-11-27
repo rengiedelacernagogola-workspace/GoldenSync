@@ -1,3 +1,7 @@
+// WHAT: Issues upload token for private PDF syllabus files (Vercel Blob).
+// HOW: Clerk session → ensure local user → rate limit → pathname must be ingest/{userId}/*.pdf.
+// RISK: High — file storage + auth; never loosen pathname rules.
+
 /**
  * POST /api/blob/upload — Vercel Blob client-upload token (architecture §8.3).
  * FLOW: Clerk auth → rate limit → pathname must be ingest/{userId}/*.pdf → handleUpload.
@@ -12,6 +16,7 @@ import { limits } from "@/lib/config/limits";
 import { isValidIngestPathname } from "@/lib/domain/ingest-path";
 import { checkRateLimit } from "@/lib/http/rate-limit";
 
+// WHAT: POST /api/blob/upload — returns Blob client upload JSON or error envelope.
 export async function POST(request: Request): Promise<NextResponse> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return NextResponse.json(

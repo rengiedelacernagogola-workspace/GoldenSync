@@ -1,5 +1,10 @@
 import "server-only";
 
+// WHAT: Deletes old leftover rows (activities, drafts, soft-deleted notes, expired archives).
+// HOW: Cron route calls these functions; each deletes/updates with DB WHERE cutoffs (not full-table .all()).
+// SCREEN: N/A — keeps the database tidy in the background.
+// KEEP: Only run behind cron auth. Do not call from random API routes.
+// RISK: High — wrong cutoffs can delete data users still need.
 /**
  * Retention purges — activities, idempotency, drafts, notes, ingest results, expired archives.
  * Invoked by GET/POST /api/cron/purge (Vercel Cron + CRON_SECRET).
@@ -15,37 +20,17 @@ export async function purgeIdempotencyKeys(
   maxAgeHours = 24,
 ): Promise<number> {
   const cutoff = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
-  const rows = await db.orm.public.IdempotencyKey.where({}).all();
-  let deleted = 0;
-  for (const row of rows) {
-    const created =
-      row.createdAt instanceof Date
-        ? row.createdAt
-        : new Date(String(row.createdAt));
-    if (created < cutoff) {
-      await db.orm.public.IdempotencyKey.where({ id: row.id }).delete();
-      deleted += 1;
-    }
-  }
-  return deleted;
+  return await db.orm.public.IdempotencyKey.where((r) =>
+    r.createdAt.lt(cutoff),
+  ).deleteAndCount();
 }
 
 /** Delete expired drafts (expiresAt < now). */
 export async function purgeExpiredDrafts(): Promise<number> {
   const now = new Date();
-  const rows = await db.orm.public.Draft.where({}).all();
-  let deleted = 0;
-  for (const row of rows) {
-    const expires =
-      row.expiresAt instanceof Date
-        ? row.expiresAt
-        : new Date(String(row.expiresAt));
-    if (expires < now) {
-      await db.orm.public.Draft.where({ id: row.id }).delete();
-      deleted += 1;
-    }
-  }
-  return deleted;
+  return await db.orm.public.Draft.where((r) =>
+    r.expiresAt.lt(now),
+  ).deleteAndCount();
 }
 
 /**
@@ -55,21 +40,9 @@ export async function purgeStaleIngestResults(
   maxAgeHours: number = limits.INGEST_RESULT_TTL_HOURS,
 ): Promise<number> {
   const cutoff = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
-  const rows = await db.orm.public.IngestJob.where({}).all();
-  let cleared = 0;
-  for (const row of rows) {
-    if (row.result == null) continue;
-    const updated =
-      row.updatedAt instanceof Date
-        ? row.updatedAt
-        : new Date(String(row.updatedAt));
-    if (updated >= cutoff) continue;
-    await db.orm.public.IngestJob.where({ id: row.id }).update({
-      result: null,
-    });
-    cleared += 1;
-  }
-  return cleared;
+  return await db.orm.public.IngestJob.where((r) => r.updatedAt.lt(cutoff))
+    .where((r) => r.result.isNotNull())
+    .updateAndCount({ result: null });
 }
 
 /**
@@ -79,19 +52,9 @@ export async function purgeExpiredArchivedSubjects(
   maxAgeDays: number = limits.ARCHIVE_RESTORE_DAYS,
 ): Promise<number> {
   const cutoff = new Date(Date.now() - maxAgeDays * 24 * 60 * 60 * 1000);
-  const rows = await db.orm.public.Subject.where({}).all();
-  let deleted = 0;
-  for (const row of rows) {
-    if (row.archivedAt == null) continue;
-    const archived =
-      row.archivedAt instanceof Date
-        ? row.archivedAt
-        : new Date(String(row.archivedAt));
-    if (archived >= cutoff) continue;
-    await db.orm.public.Subject.where({ id: row.id }).delete();
-    deleted += 1;
-  }
-  return deleted;
+  return await db.orm.public.Subject.where((r) => r.archivedAt.isNotNull())
+    .where((r) => r.archivedAt.lt(cutoff))
+    .deleteAndCount();
 }
 
 /** Run all purge sweeps; returns counts. */

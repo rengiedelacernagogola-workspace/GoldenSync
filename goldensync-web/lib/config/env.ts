@@ -1,3 +1,9 @@
+// WHAT: Validate server environment variables (database, Clerk, optional Blob/Trigger).
+// HOW: getServerEnv() Zod-parses process.env; throws at import time if required keys missing.
+// EDIT: serverEnvSchema when new secrets become mandatory.
+// KEEP: Server-only — never import from client components.
+// RISK: High — wrong or missing env breaks auth, DB, and production deploys.
+
 import "server-only";
 
 /**

@@ -1,4 +1,4 @@
-"use client";
+"use client"; // WHAT: Modals and router navigation run on client. RISK: Medium
 
 /**
  * SessionWarning + SessionExpired — P1 overlays (Figma `49:2315` / `49:173`, UI-062).
@@ -14,6 +14,7 @@ import { Modal } from "@/components/core/modal";
 import { useProtoActions, useSessionActive } from "@/state";
 import { cn } from "@/lib/utils";
 
+// WHAT: Props to demo or control "session expiring" warning from outside. RISK: Medium
 export interface SessionModalsProps {
   /** Force warning open (Demo Panel / prototype). */
   warningOpen?: boolean;
@@ -23,6 +24,7 @@ export interface SessionModalsProps {
 /**
  * Session overlays — Stay signed in keeps session; Log out → /sign-in.
  */
+// WHAT: Full-screen modals for session timeout warning or expired session. SCREEN: Dimmed backdrop + modal. HOW: useSessionActive from proto state. RISK: Medium — not real Clerk timeout unless wired later.
 export function SessionModals({
   warningOpen = false,
   onWarningChange,
@@ -32,10 +34,12 @@ export function SessionModals({
   const { setSessionActive } = useProtoActions();
   const expired = !sessionActive;
 
+  // HOW: Render nothing unless warning is forced or session marked inactive.
   if (!warningOpen && !expired) return null;
 
   return (
     <div data-slot="gs-session-modals" className="fixed inset-0 z-[60]">
+      {/* WHAT: Dark layer behind modal; click may dismiss warning only. */}
       <Backdrop
         onDismiss={() => {
           if (warningOpen) {

@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Drag-and-drop + click-to-browse area for syllabus PDF upload.
+// SCREEN: Add Subject Upload tab — Idle through Error visual states.
+// HOW: react-dropzone for file pick; parent handles upload + parse API.
+// KEEP: Accept PDF only; parsing never runs in this component.
+// EDIT: State styling and helper text here — API in features/add-subject.
+// RISK: Medium — file type/size errors must surface via props, not silent fail.
+
 /**
  * DropZone — PDF pick area (Figma `28:127`, UI-035).
  * Flow: Add Subject PDF — Idle | Hover | Active | Selected | Error.

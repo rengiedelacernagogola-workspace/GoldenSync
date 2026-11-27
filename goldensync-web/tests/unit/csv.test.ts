@@ -1,3 +1,9 @@
+// WHAT: Tests CSV export escapes formulas so Excel won’t execute injected cells.
+// HOW: `neutralizeCsvCell`, `csvEscape`, `toCsv` output assertions.
+// SCREEN: Export/download CSV from tables (grades, plans).
+// EDIT: When export columns or delimiter rules change in `lib/domain/csv.ts`.
+// KEEP: Prefix `=`, `+`, `-`, `@` per architecture §10.4.
+// RISK: Low — missing neutralization is a spreadsheet injection risk in production.
 /**
  * Phase 3 — CSV formula neutralization (architecture §10.4).
  * Run: npm run test:unit

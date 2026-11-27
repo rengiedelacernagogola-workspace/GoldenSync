@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Pick active semester or create a new one from the top bar.
+// SCREEN: Semester label in AppShell; empty dashboard can open create via event.
+// HOW: Dropdown list + portal-mounted SemesterCreatePanel.
+
 /**
  * SemesterSwitcher — list + select past/current semesters;
  * New semester opens an anchored create panel under the trigger.
@@ -26,6 +30,8 @@ import { cn } from "@/lib/utils";
 /** Empty-state / CTA → open New semester on the shell switcher. */
 export const OPEN_SEMESTER_CREATE_EVENT = "gs:open-semester-create";
 
+// WHAT: Lets other screens open "New semester" without touching this component.
+// HOW: Custom browser event listened to in useEffect below.
 export function openSemesterCreateDialog() {
   window.dispatchEvent(new Event(OPEN_SEMESTER_CREATE_EVENT));
 }
@@ -158,6 +164,8 @@ export function SemesterSwitcher({
     setListOpen(false);
   }
 
+  // WHAT: Deletes semester and all its subjects after confirm().
+  // RISK: High — destructive; user must confirm in browser dialog.
   async function handleDelete(id: string, semesterLabel: string) {
     const ok = window.confirm(
       `Delete semester “${semesterLabel}” and all of its subjects? This cannot be undone.`,

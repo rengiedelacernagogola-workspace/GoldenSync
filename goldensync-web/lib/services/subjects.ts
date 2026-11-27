@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Create, update, confirm-delete subjects under owned semesters.
+// HOW: Parses policies/faculty JSON via domain helpers; triggers plan skeleton.
+// SCREEN: Subject forms, ingest confirm, subject settings.
+// EDIT: createSubject vs patchSubject field lists.
+// KEEP: requireOwnedSubject / semester ownership on every mutation.
+// RISK: High — database; JSON columns easy to corrupt.
+
 /**
  * Subject write use-cases — manual create / edit / soft-archive delete (Phase 1).
  */

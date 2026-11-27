@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Button showing current subject code + title in sidebar / drawer.
+// HOW: Parent sets `open` when popover is visible; collapsed mode shows icon only.
+// KEEP: Popover list is wired in SubjectSwitcherPopover — not in this file.
+
 /**
  * SubjectSwitcher — opens the subject Popover (Figma `21:209`, UI-022).
  * Edit open/closed visuals here. Popover list + empty copy live with Popover wiring later.

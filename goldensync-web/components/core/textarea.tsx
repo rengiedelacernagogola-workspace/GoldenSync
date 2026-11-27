@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Multi-line text control with same border/focus tokens as Input.
+// SCREEN: Long answers in forms (notes, descriptions).
+// HOW: Native textarea + invalid prop maps to aria-invalid for error glow.
+// KEEP: Min height and grow behavior; wrap in FormField for labels.
+// EDIT: Row default and className hooks here.
+// RISK: Low
+
 /**
  * Textarea — Figma `Textarea` `11:50`.
  * UI-013: min-height 96 (space-24); grows with content. Same border/glow tokens as Input (KL-02).

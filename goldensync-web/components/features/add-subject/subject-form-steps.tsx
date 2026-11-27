@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Steps 1–5 fields inside Add Subject (Basics → Policies).
+// HOW: Parent owns `step` and Next/Back; this file only renders the active step.
+// EDIT: Add fields per step here; validation gates live in add-subject-modal.
+
 /**
  * SubjectFormSteps — Add Subject Steps 1–5 (Figma `90:5086`+, UI-075/076).
  * FLOW: after PDF Complete or Manual → Step1…Step5 → Confirm.
@@ -52,6 +56,8 @@ const STEP_META: { id: string; label: string }[] = [
 ];
 
 /** Default form values from seed / empty manual. */
+// WHAT: Starting values for the form — empty manual vs PDF demo seed.
+// NOT SURE: Live PDF path in modal may bypass seed defaults and use ingest draft only.
 export function defaultSubjectFormValues(
   fromPdf: boolean,
 ): SubjectFormValues {
@@ -217,6 +223,7 @@ export function SubjectFormSteps({
         </div>
       ) : null}
 
+      {/* WHAT: Step 3 is informational — learning plan rows come from PDF/checklist later. */}
       {step === 3 ? (
         <p className="text-body-sm text-text-muted">
           Learning plan rows sync from the PDF or Checklist. Edit weeks after

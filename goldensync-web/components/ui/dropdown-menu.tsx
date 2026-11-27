@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Right-click / menu-button dropdown built on Base UI Menu.
+// SCREEN: Kit patterns — app lists use core Menu + MenuItem.
+// HOW: DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, etc.
+// EDIT: Submenu chevrons and focus styles here.
+// RISK: Low
+
 import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
 import { cn } from "cn"

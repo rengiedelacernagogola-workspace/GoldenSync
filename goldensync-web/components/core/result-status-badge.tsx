@@ -1,3 +1,10 @@
+// WHAT: Maps academic result codes (PASSED, FAILED, etc.) to colored Badge.
+// SCREEN: Results tables and cards — shows full status label text.
+// HOW: statusCode → Badge variant lookup (DEC-015 verbatim labels).
+// KEEP: Never show color without the status string.
+// EDIT: Mapping table in this file when new codes added.
+// RISK: Low
+
 /**
  * ResultStatusBadge — Figma `ResultStatusBadge` `14:95`.
  * UI-017: wraps Badge md; label = status code verbatim (DEC-015). Never color-only.

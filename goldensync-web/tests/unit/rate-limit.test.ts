@@ -1,3 +1,9 @@
+// WHAT: Tests in-memory sliding-window rate limiter used by API routes.
+// HOW: `checkRateLimit` allows N then blocks; `resetRateLimitBuckets` between tests.
+// SCREEN: Login throttle and upload rate limit error copy.
+// EDIT: Limits and windows in `lib/http/rate-limit.ts`.
+// KEEP: In-memory only — resets per server instance; not distributed across Vercel lambdas.
+// RISK: Medium — prod needs edge/redis limiter for strict global caps.
 /**
  * Phase 5 — in-memory rate limit helper.
  * Run: npm run test:unit

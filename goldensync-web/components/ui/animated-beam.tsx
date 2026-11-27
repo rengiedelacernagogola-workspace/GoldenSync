@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: SVG curve connecting two ref-anchored elements with animated gradient.
+// SCREEN: Architecture / feature diagrams on marketing pages.
+// HOW: Measures container + from/to refs; draws motion path between centers.
+// EDIT: curvature, gradient colors, duration props.
+// RISK: Low — needs client refs to both nodes.
+
 import { useEffect, useId, useState, type RefObject } from "react"
 import { motion } from "motion/react"
 

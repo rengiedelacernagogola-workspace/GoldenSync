@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Syllabus outcomes editor (PEO, PO, CO, policies text).
+// SCREEN: /subjects/[subjectId]/outcomes · OutcomesSyllabusPanel is the main body.
+// HOW: Same shell pattern as other subject routes; ?empty=1 for empty module demo.
+
 /**
  * Outcomes — syllabus Part II (Vision/Mission/GA/IOs/PEO/PO/CO).
  * FLOW: Sidebar Outcomes → edit syllabus → Save.
@@ -19,6 +23,7 @@ import { useLiveSubject } from "@/hooks/use-live-subject";
 import { pushActivity, type ActivityKind } from "@/lib/activity/activity-log";
 import { pathForNav } from "@/lib/nav";
 
+// WHAT: Page body — wires live subject data into OutcomesSyllabusPanel.
 function Body() {
   const params = useParams();
   const router = useRouter();
@@ -30,6 +35,7 @@ function Body() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [activityTick, setActivityTick] = React.useState(0);
 
+  // HOW: recordActivity refreshes notification bell via activityTick in topBar.
   const recordActivity = React.useCallback(
     (entry: { kind: ActivityKind; title: string; detail: string }) => {
       void pushActivity(entry).then(() => setActivityTick((n) => n + 1));
@@ -95,6 +101,7 @@ function Body() {
   );
 }
 
+// WHAT: Route entry for Outcomes — wraps Body in Suspense for useSearchParams.
 export default function OutcomesPage() {
   return (
     <React.Suspense

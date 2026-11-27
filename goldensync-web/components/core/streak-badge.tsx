@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Study streak counter (flame icon + "N days") in the top bar.
+// SCREEN: TopBar right cluster next to notifications bell.
+// HOW: Reads/writes localStorage via lib/streak; defers show until mount (no SSR flicker).
+// KEEP: Height matches IconOnly sm button; days label from streakLabel().
+// EDIT: Icon or copy here — streak rules stay in @/lib/streak.
+// RISK: Low
+
 /**
  * StreakBadge — flame + day count beside TopBar notifications.
  * RULE: avoid SSR→client flicker (0 days → N days) by waiting for mount.

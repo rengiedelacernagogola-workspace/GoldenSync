@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Toggleable filter pill — selected state shows checkmark on accent glass.
+// SCREEN: Tag filters and multi-select chips (not the same as StatusChip/Badge).
+// HOW: button role; parent controls selected + onSelectedChange.
+// KEEP: Distinct from StatusChip — use Chip for multi-select filters only.
+// EDIT: Selected/hover styles here.
+// RISK: Low
+
 /**
  * Chip — multi-select semester/tag pill (Figma `72:2428`, UI-036 / DEC-050b).
  * Selected adds Check 14 on accent-glass. Not StatusChip / Badge.

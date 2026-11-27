@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Replace PEO/PO/CO outcome rows for a subject.
+// HOW: Full replace after requireOwnedSubject; syncs with policies JSON via callers.
+// SCREEN: Outcomes editor on subject.
+// EDIT: limits on outcome count per kind.
+// KEEP: Codes stable for assessments linkage.
+// RISK: High — database replace wipes prior outcomes.
+
 /**
  * Outcome write use-cases — replace set on owned subject (Phase 1).
  */

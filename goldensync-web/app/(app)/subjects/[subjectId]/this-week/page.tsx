@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Shows the plan row matching today's calendar week (or empty states).
+// SCREEN: /subjects/[subjectId]/this-week · narrow max-w-xl content column.
+// HOW: Live branch uses semester dates + weekNumberFromStart; else seed demo.
+
 /**
  * This Week — live plan week for current calendar week, or empty.
  * Proto (unsigned) keeps seed semester/clock demo card.
@@ -25,6 +29,8 @@ import { weekNumberFromStart } from "@/lib/domain/planner";
 import { pathForNav } from "@/lib/nav";
 import { useWeekState } from "@/state";
 
+// WHAT: Small label/value row inside the "This Week" topic card.
+// SCREEN: Two-column grid — muted label on the left, value on the right.
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-space-3">
@@ -34,6 +40,7 @@ function SpecRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+// WHAT: Maps plan status strings to StatusChip's three UI states.
 function statusChip(
   status: string | undefined,
 ): "Not Started" | "In Progress" | "Completed" {
@@ -42,6 +49,8 @@ function statusChip(
   return "Not Started";
 }
 
+// WHAT: Page body — early return for live vs proto demo UI (two big branches).
+// RISK: Multiple plan rows with same week # — find() only shows the first match.
 function ThisWeekBody() {
   const params = useParams();
   const router = useRouter();
@@ -65,6 +74,7 @@ function ThisWeekBody() {
   const todayIso = format(new Date(), "yyyy-MM-dd");
   const todayLabel = format(new Date(), "EEE d MMM yyyy");
 
+  // WHAT: Signed-in live path — compute current week from semester start date.
   if (subject.live) {
     const start =
       subject.detail?.semesterStartDate?.slice(0, 10) ??
@@ -90,6 +100,7 @@ function ThisWeekBody() {
       emptyBody = "Generate study weeks in Learning Plan or Sync a syllabus.";
     }
 
+    // CHECK: find() picks first row when multiple plan rows share the same week #.
     const current =
       weekNumber != null
         ? planWeeks.find((w) => w.weekNumber === weekNumber)
@@ -193,6 +204,7 @@ function ThisWeekBody() {
   }
 
   /* Proto / unsigned — seed demo branches. */
+  // HOW: useWeekState() drives QA empty states (before_start, no_class, etc.).
   const semester = goldenSyncSeed.semester;
   const clock = goldenSyncSeed.clock;
   const todayLabelProto = (() => {
@@ -340,6 +352,7 @@ function ThisWeekBody() {
   );
 }
 
+// WHAT: Route entry for This Week under a subject.
 export default function ThisWeekPage() {
   return (
     <React.Suspense

@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+// WHAT: Builds `Import.env` for Vercel dashboard bulk import from local env files.
+// HOW: Merges `.env` + `.env.local`, fills defaults, auto-generates `CRON_SECRET` if missing.
+// SCREEN: N/A — one-time / occasional deploy setup.
+// EDIT: Extend `keys` list when Vercel needs more variables.
+// KEEP: Does not echo values to console beyond file write; missing keys set exitCode 1.
+// RISK: Medium — generated file contains secrets; don’t commit `Import.env` to git.
 /**
  * Build Import.env for Vercel "Import .env" from local .env / .env.local.
  * Never prints secret values.

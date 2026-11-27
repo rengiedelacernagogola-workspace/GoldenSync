@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Accessible check box with 44px hit target and Figma checked/unchecked look.
+// SCREEN: WeekRow Done column, settings toggles, multi-select lists.
+// HOW: Base UI Checkbox + lucide Check; optional error caption row.
+// KEEP: 24px visual box inside 44px tap area per UI-014.
+// EDIT: checked colors in this file — checked state is controlled by parent.
+// RISK: Low
+
 /**
  * Checkbox — Figma `Checkbox` `12:100`.
  * UI-014: Hit 44×44 · Box 24 radius-md · Checked False|True × interactive states.

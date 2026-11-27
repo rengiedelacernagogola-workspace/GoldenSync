@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Compact notes list on Overview (not the full /notes hub).
+// SCREEN: Second card below CourseSpecCard on Overview.
+// HOW: fetchPlanNotes per subjectId; pin max 3 enforced client + API.
+
 /**
  * Overview subject notes — search, view, edit, delete, pin ≤3, sort time/size.
  * FLOW: fetchPlanNotes → filter/sort client-side · PATCH/POST/DELETE via notes API.
@@ -90,6 +94,7 @@ export function SubjectNotesPanel({
   onActivity,
 }: SubjectNotesPanelProps) {
   const { isSignedIn } = useAuth();
+  // WHAT: canMutate gates Add, pin, edit, delete — browse still allowed when readOnly.
   const canMutate = live && !readOnly;
   const [notes, setNotes] = React.useState<PlanNoteDto[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -113,6 +118,7 @@ export function SubjectNotesPanel({
     [notes, query, sort],
   );
 
+  // WHAT: reload — clears notes when !live (unsigned / proto subject).
   const reload = React.useCallback(async () => {
     if (!live) {
       setNotes([]);
@@ -229,6 +235,7 @@ export function SubjectNotesPanel({
     }
   }
 
+  // WHAT: "Done / forget" archives note — removes from this list, not hard delete.
   async function markDone(note: PlanNoteDto) {
     if (!live) return;
     setBusyId(note.id);

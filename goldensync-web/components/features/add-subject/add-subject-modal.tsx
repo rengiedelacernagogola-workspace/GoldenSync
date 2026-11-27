@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Full-screen flow to add a subject — PDF sync or manual multi-step form.
+// SCREEN: Opened from Dashboard top bar, sidebar, or empty state.
+// HOW: Phases upload → processing → form (steps 1–5) → created; optional live API.
+
 /**
  * AddSubjectModal — PDF / Manual entry (Figma `85:1564`+, UI-072…078).
  * FLOW: Idle → Selected → Processing → Form steps 1–5 → Created.
@@ -155,6 +159,8 @@ export function AddSubjectModal({
     null,
   );
 
+  // WHAT: True when save should hit the real API (signed in + active semester).
+  // RISK: Medium — without semesterId, create stays on proto/demo path only.
   const liveCreate = Boolean(isSignedIn && semesterId);
   const atCap = subjectCount >= MAX_SUBJECTS;
   /* Cap wins until Created — avoid setState-in-effect reset */
@@ -271,6 +277,8 @@ export function AddSubjectModal({
    * Processing chain — live: Blob → ingest → poll; else proto /api/parse-syllabus.
    * Demo Panel pdfOutcome can still force reject without a file.
    */
+  // WHAT: Runs PDF upload + ingest poll (live) or /api/parse-syllabus (demo).
+  // HOW: On success, fills form state and sets phase to "form".
   async function startProcessing() {
     setPhase("processing");
     setPdfStep("Uploading");
@@ -440,6 +448,8 @@ export function AddSubjectModal({
   }
 
   /** Persist subject — live API when signed in + semesterId; else Proto demo. */
+  // WHAT: Final save — createSubject or replaceSubject on live path; proto delay otherwise.
+  // EDIT: Payload shape must match API; duplicate code opens DuplicateSubjectDialog.
   async function finishCreate() {
     setSaving(true);
     setLiveSaveError(false);

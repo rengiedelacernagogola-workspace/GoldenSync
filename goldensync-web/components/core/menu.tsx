@@ -1,3 +1,10 @@
+// WHAT: Container panel for a vertical list of MenuItem rows.
+// SCREEN: Dropdown lists, popover content shells (notifications, semester list).
+// HOW: Solid overlay surface; children are MenuItem components.
+// KEEP: Positioning handled by parent popover — Menu is layout only.
+// EDIT: Padding and border tokens here.
+// RISK: Low
+
 /**
  * Menu — floating list shell (Figma `26:238`, UI-032).
  * Solid overlay surface; put MenuItem children inside. Popover uses the same shell.

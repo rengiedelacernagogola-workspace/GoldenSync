@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Load the app’s User row for the signed-in Clerk user.
+// HOW: Single db.orm.public.User query by id; 404 if missing.
+// SCREEN: GET /api/me bootstrap for client profile.
+// EDIT: Selected columns list — avoid leaking internal fields.
+// KEEP: User row must exist (webhook/sync ensures).
+// RISK: High — authentication boundary; only return self.
+
 /**
  * meService — current local user profile for GET /api/me.
  */

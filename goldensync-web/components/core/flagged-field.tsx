@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Text field marked doubtful after PDF import — user can fix the value.
+// SCREEN: Add Subject review rows with warning tint and "Check this value".
+// HOW: Core Input + alert icon; caption always visible (never color alone).
+// KEEP: Expose a real input; placeholder "(editable)" when empty.
+// EDIT: Warning styles and flagCaption here — not in add-subject feature code.
+// RISK: Medium — must keep visible text for the flag (a11y).
+
 /**
  * FlaggedField — PDF-prefilled doubtful field (Figma `40:1411`, UI-048).
  * FLOW: Add Subject review → warning tint + "Check this value" (never color alone).

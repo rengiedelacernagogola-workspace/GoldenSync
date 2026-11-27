@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Soft-archive or restore a subject within the restore window.
+// HOW: archivedAt timestamp; enforces ARCHIVE_RESTORE_DAYS from limits.
+// SCREEN: Subject archive / restore actions.
+// EDIT: Window length in limits — product/legal decision.
+// KEEP: Distinct from replace-subject and hard delete.
+// RISK: High — database; wrong restore logic loses user data visibility.
+
 /**
  * Archive / restore subject within ARCHIVE_RESTORE_DAYS (architecture §7.7 / Appendix B).
  */

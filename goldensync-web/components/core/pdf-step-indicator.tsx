@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Step list + progress bar for PDF upload pipeline stages.
+// SCREEN: Add Subject while PDF is Uploading → Extracting → Parsing → Complete.
+// HOW: step prop drives check/spinner per row; ProgressBar at 0/33/66/100.
+// KEEP: Parent advances step from ingest polling — no API calls here.
+// EDIT: Step labels and progress mapping here.
+// RISK: Low
+
 /**
  * PdfStepIndicator — PDF sync progress (Figma `40:1519`, UI-049).
  * FLOW: Add Subject PDF → Uploading → Extracting → Parsing → Complete (plan 10).

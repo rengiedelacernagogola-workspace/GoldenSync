@@ -1,3 +1,9 @@
+// WHAT: Convert database rows into API-friendly DTO types (dates, decimals, JSON).
+// HOW: Pure mapping functions — no I/O except called from services/queries.
+// EDIT: Add fields here when schema changes; update every map* function.
+// KEEP: API routes should only expose DTOs, not raw ORM shapes.
+// RISK: Low — but wrong mapping leaks internal fields or breaks clients.
+
 /**
  * Map ORM rows to API DTOs — never return raw Prisma/ORM rows (architecture §15).
  */

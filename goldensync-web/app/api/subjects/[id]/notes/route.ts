@@ -1,3 +1,5 @@
+// WHAT: Plan notes for one subject — list (GET) and create (POST). SCREEN: Subject notes + plan UI.
+
 /**
  * GET/POST /api/subjects/:id/notes — list / create plan notes.
  */
@@ -9,6 +11,7 @@ import {
 } from "@/lib/services/plan-notes";
 import { createPlanNoteSchema } from "@/lib/validation/plan-note";
 
+// WHAT: GET — notes for subject :id; optional includeShelved query.
 export const GET = withApi(
   { auth: "required", rateLimit: "read" },
   async (ctx) => {
@@ -21,6 +24,7 @@ export const GET = withApi(
   },
 );
 
+// WHAT: POST — new plan note with validated title/body/topic.
 export const POST = withApi(
   { auth: "required", body: createPlanNoteSchema, rateLimit: "write" },
   async (ctx) => {

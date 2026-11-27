@@ -1,3 +1,6 @@
+// WHAT: Client for plan notes — per-subject notes and Notes hub across subjects.
+// SCREEN: Notes page and subject-scoped note cards. RISK: Medium — writes user content.
+
 /**
  * Plan notes API client.
  */
@@ -28,6 +31,7 @@ export function fetchAllPlanNotes(opts?: { includeShelved?: boolean }) {
 }
 
 /** GET /api/subjects/:id/notes */
+// WHAT: Notes for one subject; optional shelved/archived rows.
 export function fetchPlanNotes(
   subjectId: string,
   opts?: { includeShelved?: boolean; includeArchived?: boolean },

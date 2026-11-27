@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Compact workflow status (Not started / In progress / Completed) with icon or dot.
+// SCREEN: WeekRow status column, mobile row cards, tables.
+// HOW: cva variants; In Progress gets subtle pulse unless reduced-motion.
+// KEEP: Status words always visible — not color-only (DEC-014).
+// EDIT: statusChipVariants colors here.
+// RISK: Low
+
 /**
  * StatusChip — Figma `StatusChip` `14:58`.
  * UI-016: Not Started (gray dot) · In Progress (accent + pulse 2s, paused for reduced-motion) · Completed (check).
