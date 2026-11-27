@@ -142,6 +142,17 @@ export async function updateSubject(
   input: PatchSubjectInput,
 ): Promise<SubjectDto> {
   const current = await requireOwnedSubject(userId, subjectId);
+  const semester = await db.orm.public.Semester.where({
+    id: current.semesterId,
+    userId,
+  }).first();
+  if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only. Archive or delete subjects instead of editing.",
+    );
+  }
 
   let courseCodeNorm = current.courseCodeNorm;
   let courseCode = current.courseCode;

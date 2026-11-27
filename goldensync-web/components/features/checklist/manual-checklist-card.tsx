@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 export interface ManualChecklistCardProps {
   subjectId: string;
   subjectCode?: string;
+  /** Past semester: show items, hide mutation controls. */
+  readOnly?: boolean;
   className?: string;
 }
 
@@ -31,6 +33,7 @@ export interface ManualChecklistCardProps {
 export function ManualChecklistCard({
   subjectId,
   subjectCode,
+  readOnly = false,
   className,
 }: ManualChecklistCardProps) {
   const [items, setItems] = React.useState<ManualChecklistItem[]>([]);
@@ -56,7 +59,7 @@ export function ManualChecklistCard({
   }, [subjectId]);
 
   async function handleAdd() {
-    if (busy || !title.trim()) return;
+    if (readOnly || busy || !title.trim()) return;
     setBusy(true);
     try {
       const next = await addManualChecklistItem(subjectId, { title, detail });
@@ -76,10 +79,12 @@ export function ManualChecklistCard({
   }
 
   async function toggleDone(id: string, done: boolean) {
+    if (readOnly) return;
     setItems(await updateManualChecklistItem(subjectId, id, { done }));
   }
 
   function startEdit(item: ManualChecklistItem) {
+    if (readOnly) return;
     setEditingId(item.id);
     setEditTitle(item.title);
     setEditDetail(item.detail);
@@ -107,6 +112,7 @@ export function ManualChecklistCard({
   }
 
   async function handleDelete(id: string) {
+    if (readOnly) return;
     const removed = items.find((i) => i.id === id);
     setItems(await deleteManualChecklistItem(subjectId, id));
     setOpenId(null);
@@ -128,44 +134,48 @@ export function ManualChecklistCard({
     >
       <div className="flex w-full flex-col gap-space-4">
         <p className="text-[11px] tracking-tight text-text-muted">
-          Add your own tasks. Separate from week ticks — never affects grades.
+          {readOnly
+            ? "Personal tasks (view only for past semesters)."
+            : "Add your own tasks. Separate from week ticks — never affects grades."}
           {items.length > 0 ? ` · ${doneCount}/${items.length} done` : ""}
         </p>
 
-        <div className="flex w-full flex-col gap-space-2 sm:flex-row sm:items-end">
-          <div className="flex min-w-0 flex-1 flex-col gap-space-2">
-            <Input
-              size="Compact"
-              placeholder="Task title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              aria-label="Checklist item title"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void handleAdd();
-                }
-              }}
-            />
-            <Input
-              size="Compact"
-              placeholder="Detail (optional)"
-              value={detail}
-              onChange={(e) => setDetail(e.target.value)}
-              aria-label="Checklist item detail"
-            />
+        {readOnly ? null : (
+          <div className="flex w-full flex-col gap-space-2 sm:flex-row sm:items-end">
+            <div className="flex min-w-0 flex-1 flex-col gap-space-2">
+              <Input
+                size="Compact"
+                placeholder="Task title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                aria-label="Checklist item title"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void handleAdd();
+                  }
+                }}
+              />
+              <Input
+                size="Compact"
+                placeholder="Detail (optional)"
+                value={detail}
+                onChange={(e) => setDetail(e.target.value)}
+                aria-label="Checklist item detail"
+              />
+            </div>
+            <Button
+              variant="Secondary"
+              size="sm"
+              disabled={busy || !title.trim()}
+              onClick={() => void handleAdd()}
+              className="shrink-0"
+            >
+              <Plus className="size-3.5" aria-hidden />
+              Add
+            </Button>
           </div>
-          <Button
-            variant="Secondary"
-            size="sm"
-            disabled={busy || !title.trim()}
-            onClick={() => void handleAdd()}
-            className="shrink-0"
-          >
-            <Plus className="size-3.5" aria-hidden />
-            Add
-          </Button>
-        </div>
+        )}
 
         <ul className="flex w-full flex-col gap-space-2" aria-label="Manual checklist">
           {items.length === 0 ? (
@@ -219,6 +229,7 @@ export function ManualChecklistCard({
                     <div className="flex w-full items-start gap-space-2 p-space-3">
                       <button
                         type="button"
+                        disabled={readOnly}
                         aria-label={
                           item.done ? "Mark not done" : "Mark done"
                         }
@@ -228,6 +239,7 @@ export function ManualChecklistCard({
                           item.done
                             ? "border-accent-primary bg-accent-primary text-white"
                             : "border-border-default bg-bg-base text-transparent",
+                          readOnly && "pointer-events-none opacity-60",
                         )}
                         onClick={() => void toggleDone(item.id, !item.done)}
                       >
@@ -248,65 +260,67 @@ export function ManualChecklistCard({
                           </p>
                         ) : null}
                       </div>
-                      <div className="relative flex h-7 items-center">
-                        <div
-                          className={cn(
-                            "absolute right-8 flex items-center gap-space-1 transition-[opacity,transform] duration-300 ease-out",
-                            open
-                              ? "pointer-events-none scale-95 opacity-0"
-                              : "scale-100 opacity-100",
-                          )}
-                          aria-hidden={open}
-                        />
-                        <div
-                          className={cn(
-                            "absolute right-8 flex items-center gap-0.5 transition-[opacity,transform] duration-300 ease-out",
-                            open
-                              ? "scale-100 opacity-100"
-                              : "pointer-events-none scale-95 opacity-0",
-                          )}
-                          aria-hidden={!open}
-                        >
+                      {readOnly ? null : (
+                        <div className="relative flex h-7 items-center">
+                          <div
+                            className={cn(
+                              "absolute right-8 flex items-center gap-space-1 transition-[opacity,transform] duration-300 ease-out",
+                              open
+                                ? "pointer-events-none scale-95 opacity-0"
+                                : "scale-100 opacity-100",
+                            )}
+                            aria-hidden={open}
+                          />
+                          <div
+                            className={cn(
+                              "absolute right-8 flex items-center gap-0.5 transition-[opacity,transform] duration-300 ease-out",
+                              open
+                                ? "scale-100 opacity-100"
+                                : "pointer-events-none scale-95 opacity-0",
+                            )}
+                            aria-hidden={!open}
+                          >
+                            <button
+                              type="button"
+                              tabIndex={open ? 0 : -1}
+                              aria-label="Edit item"
+                              className="flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-text-primary focus-visible:border focus-visible:border-border-focus"
+                              onClick={() => startEdit(item)}
+                            >
+                              <Pencil className="size-3.5" aria-hidden />
+                            </button>
+                            <button
+                              type="button"
+                              tabIndex={open ? 0 : -1}
+                              aria-label="Delete item"
+                              className="flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-status-error focus-visible:border focus-visible:border-border-focus"
+                              onClick={() => void handleDelete(item.id)}
+                            >
+                              <Trash2 className="size-3.5" aria-hidden />
+                            </button>
+                          </div>
                           <button
                             type="button"
-                            tabIndex={open ? 0 : -1}
-                            aria-label="Edit item"
-                            className="flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-text-primary focus-visible:border focus-visible:border-border-focus"
-                            onClick={() => startEdit(item)}
+                            aria-label={open ? "Close actions" : "More actions"}
+                            aria-expanded={open}
+                            className="relative z-10 flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-text-primary focus-visible:border focus-visible:border-border-focus"
+                            onClick={() =>
+                              setOpenId((cur) =>
+                                cur === item.id ? null : item.id,
+                              )
+                            }
                           >
-                            <Pencil className="size-3.5" aria-hidden />
-                          </button>
-                          <button
-                            type="button"
-                            tabIndex={open ? 0 : -1}
-                            aria-label="Delete item"
-                            className="flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-status-error focus-visible:border focus-visible:border-border-focus"
-                            onClick={() => void handleDelete(item.id)}
-                          >
-                            <Trash2 className="size-3.5" aria-hidden />
+                            {open ? (
+                              <X className="size-3.5" aria-hidden />
+                            ) : (
+                              <MoreHorizontal
+                                className="size-3.5"
+                                aria-hidden
+                              />
+                            )}
                           </button>
                         </div>
-                        <button
-                          type="button"
-                          aria-label={open ? "Close actions" : "More actions"}
-                          aria-expanded={open}
-                          className="relative z-10 flex size-7 items-center justify-center rounded-sm text-text-muted outline-none hover:bg-bg-muted hover:text-text-primary focus-visible:border focus-visible:border-border-focus"
-                          onClick={() =>
-                            setOpenId((cur) =>
-                              cur === item.id ? null : item.id,
-                            )
-                          }
-                        >
-                          {open ? (
-                            <X className="size-3.5" aria-hidden />
-                          ) : (
-                            <MoreHorizontal
-                              className="size-3.5"
-                              aria-hidden
-                            />
-                          )}
-                        </button>
-                      </div>
+                      )}
                     </div>
                   )}
                 </li>

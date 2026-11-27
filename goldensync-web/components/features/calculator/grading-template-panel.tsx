@@ -21,6 +21,7 @@ import {
   cloneGradingTemplate,
   DEFAULT_GRADING_TEMPLATE,
   serializeGradingTemplate,
+  tryParseGradingTemplate,
   type GradingTemplateDoc,
 } from "@/lib/domain/grading-template";
 
@@ -72,13 +73,32 @@ export function GradingTemplatePanel({
         try {
           const detail = await fetchSubjectDetail(subjectId);
           if (cancelled) return;
+          const storedParsed = tryParseGradingTemplate(detail.grading);
           const next = await ensureSubjectGradingTemplate(
             subjectId,
             detail.grading,
           );
           if (cancelled) return;
           setDoc(next);
-          setBaseline(JSON.stringify(serializeGradingTemplate(next)));
+          /*
+           * Baseline must reflect what is stored. Unpersisted parse fallbacks
+           * must not look “already default” or Reset→Save stays disabled.
+           */
+          if (storedParsed) {
+            setBaseline(JSON.stringify(serializeGradingTemplate(storedParsed)));
+          } else {
+            const missing =
+              detail.grading == null ||
+              detail.grading === "" ||
+              (typeof detail.grading === "object" &&
+                !Array.isArray(detail.grading) &&
+                Object.keys(detail.grading as object).length === 0);
+            setBaseline(
+              missing
+                ? JSON.stringify(serializeGradingTemplate(next))
+                : `__raw__:${JSON.stringify(detail.grading)}`,
+            );
+          }
         } catch (err) {
           if (cancelled) return;
           setError(
@@ -103,7 +123,7 @@ export function GradingTemplatePanel({
   function applyDefaultTemplate() {
     const defaults = cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE);
     setDoc(defaults);
-    setBaseline("");
+    /* Keep loaded baseline so Save stays off when already at default. */
     setSaved(false);
     setError(null);
   }

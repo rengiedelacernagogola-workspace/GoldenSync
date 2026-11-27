@@ -24,6 +24,7 @@ import {
 import { useLiveData } from "@/hooks/use-live-data";
 import { pushActivity } from "@/lib/activity/activity-log";
 import { fetchAllPlanNotes } from "@/lib/api/notes";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import {
   appendSavedNote,
   archiveSavedNote,
@@ -89,6 +90,7 @@ function NotesBody() {
           deletedAt: n.deletedAt,
           importance: (n.importance ?? 1) as 1 | 2 | 3,
           pinned: n.pinned,
+          readOnly: isSemesterPast(n.semesterEndDate),
         })),
       );
     } catch {
@@ -158,7 +160,7 @@ function NotesBody() {
   }
 
   async function handleEditNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     setActiveSubjectId(note.subjectId);
     setEditingNoteId(note.id);
     setNoteTitle(note.title);
@@ -168,19 +170,19 @@ function NotesBody() {
   }
 
   async function handleDeleteNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await deleteSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
 
   async function handleArchiveNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await archiveSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
 
   async function handleRestoreNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await restoreSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
@@ -189,12 +191,14 @@ function NotesBody() {
     note: PlanNoteItem,
     patch: { importance?: 1 | 2 | 3; pinned?: boolean },
   ) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await updateSavedNote(note.subjectId, note.id, patch);
     await reloadLibrary();
   }
 
   const subjectSelected = subjects.length > 0;
+  /* Composer is for the active semester’s subjects only. */
+  const notesReadOnly = live.isActiveSemesterPast;
 
   return (
     <>
@@ -221,6 +225,7 @@ function NotesBody() {
           <p className="text-overline uppercase text-text-muted">
             All subjects · note-taker
             {live.signedIn ? " · Live" : ""}
+            {notesReadOnly ? " · Past (view only)" : ""}
           </p>
 
           {!subjectSelected ? (
@@ -230,86 +235,95 @@ function NotesBody() {
           ) : (
             <div className="grid w-full items-stretch gap-space-4 lg:grid-cols-2">
               <Card className="h-full w-full">
-                <div className="flex w-full flex-col gap-space-2 border-b border-border-subtle pb-space-3">
-                  <label className="flex flex-col gap-space-1">
-                    <span className="text-[11px] font-medium tracking-tight text-text-secondary">
-                      Subject
-                    </span>
-                    <select
-                      className={cn(
-                        "h-9 w-full rounded-md border border-border-default bg-bg-subtle px-space-2",
-                        "text-[11px] font-medium tracking-tight text-text-primary outline-none",
-                        "focus-visible:border-border-focus",
-                      )}
-                      value={activeSubject?.id ?? ""}
+                {notesReadOnly ? (
+                  <p className="text-body-sm text-text-muted">
+                    Past semester — notes are view only. Open the library to
+                    read existing notes.
+                  </p>
+                ) : (
+                  <>
+                    <div className="flex w-full flex-col gap-space-2 border-b border-border-subtle pb-space-3">
+                      <label className="flex flex-col gap-space-1">
+                        <span className="text-[11px] font-medium tracking-tight text-text-secondary">
+                          Subject
+                        </span>
+                        <select
+                          className={cn(
+                            "h-9 w-full rounded-md border border-border-default bg-bg-subtle px-space-2",
+                            "text-[11px] font-medium tracking-tight text-text-primary outline-none",
+                            "focus-visible:border-border-focus",
+                          )}
+                          value={activeSubject?.id ?? ""}
+                          onChange={(e) => {
+                            setActiveSubjectId(e.target.value);
+                            setNotesSaved(false);
+                          }}
+                          aria-label="Note subject"
+                        >
+                          {subjects.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.courseCode} — {s.title}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <Input
+                        size="Compact"
+                        placeholder="Notes title — name this note"
+                        value={noteTitle}
+                        onChange={(e) => {
+                          setNotesSaved(false);
+                          setNoteTitle(e.target.value);
+                        }}
+                        aria-label="Notes title"
+                      />
+                      <Input
+                        size="Compact"
+                        placeholder="Topic name — what this note covers"
+                        value={topicName}
+                        onChange={(e) => {
+                          setNotesSaved(false);
+                          setTopicName(e.target.value);
+                        }}
+                        aria-label="Topic name"
+                      />
+                    </div>
+                    <Textarea
+                      value={notes}
                       onChange={(e) => {
-                        setActiveSubjectId(e.target.value);
                         setNotesSaved(false);
+                        setNotes(e.target.value);
                       }}
-                      aria-label="Note subject"
-                    >
-                      {subjects.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.courseCode} — {s.title}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <Input
-                    size="Compact"
-                    placeholder="Notes title — name this note"
-                    value={noteTitle}
-                    onChange={(e) => {
-                      setNotesSaved(false);
-                      setNoteTitle(e.target.value);
-                    }}
-                    aria-label="Notes title"
-                  />
-                  <Input
-                    size="Compact"
-                    placeholder="Topic name — what this note covers"
-                    value={topicName}
-                    onChange={(e) => {
-                      setNotesSaved(false);
-                      setTopicName(e.target.value);
-                    }}
-                    aria-label="Topic name"
-                  />
-                </div>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => {
-                    setNotesSaved(false);
-                    setNotes(e.target.value);
-                  }}
-                  placeholder="Write a note for the selected subject"
-                  rows={6}
-                  aria-label="Note body"
-                />
-                <div className="mt-space-3 flex flex-wrap items-center gap-space-3">
-                  <Button
-                    variant="Primary"
-                    size="md"
-                    disabled={
-                      savingNotes ||
-                      !notes.trim() ||
-                      !noteTitle.trim() ||
-                      !activeSubject
-                    }
-                    onClick={() => void saveNotes()}
-                  >
-                    {savingNotes
-                      ? "Saving…"
-                      : editingNoteId
-                        ? "Update note"
-                        : "Save note"}
-                  </Button>
-                  {notesSaved ? (
-                    <span className="text-body-sm text-status-success">
-                      Saved — canvas ready for another note.
-                    </span>
-                  ) : null}
-                </div>
+                      placeholder="Write a note for the selected subject"
+                      rows={6}
+                      aria-label="Note body"
+                    />
+                    <div className="mt-space-3 flex flex-wrap items-center gap-space-3">
+                      <Button
+                        variant="Primary"
+                        size="md"
+                        disabled={
+                          savingNotes ||
+                          !notes.trim() ||
+                          !noteTitle.trim() ||
+                          !activeSubject
+                        }
+                        onClick={() => void saveNotes()}
+                      >
+                        {savingNotes
+                          ? "Saving…"
+                          : editingNoteId
+                            ? "Update note"
+                            : "Save note"}
+                      </Button>
+                      {notesSaved ? (
+                        <span className="text-body-sm text-status-success">
+                          Saved — canvas ready for another note.
+                        </span>
+                      ) : null}
+                    </div>
+                  </>
+                )}
               </Card>
 
               <NotesLibraryCard

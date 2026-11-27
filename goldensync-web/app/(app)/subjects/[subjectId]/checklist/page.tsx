@@ -178,14 +178,23 @@ function ChecklistBody() {
             <p className="text-body-sm text-text-muted">Loading checklist…</p>
           ) : showLiveEmpty ? (
             <>
-              <ChecklistEmptyPanel
-                subjectId={subject.id}
-                onGenerated={() => subject.refresh()}
-              />
-              <ManualChecklistCard
-                subjectId={subject.id}
-                subjectCode={subject.code}
-              />
+              {subject.semesterPast ? (
+                <p className="text-body-sm text-text-muted">
+                  Past semester — no study weeks to show (view only).
+                </p>
+              ) : (
+                <ChecklistEmptyPanel
+                  subjectId={subject.id}
+                  onGenerated={() => subject.refresh()}
+                />
+              )}
+              {subject.live ? (
+                <ManualChecklistCard
+                  subjectId={subject.id}
+                  subjectCode={subject.code}
+                  readOnly={subject.semesterPast}
+                />
+              ) : null}
             </>
           ) : (
             <>
@@ -227,6 +236,7 @@ function ChecklistBody() {
                 <ManualChecklistCard
                   subjectId={subject.id}
                   subjectCode={subject.code}
+                  readOnly={subject.semesterPast}
                 />
               ) : null}
             </>

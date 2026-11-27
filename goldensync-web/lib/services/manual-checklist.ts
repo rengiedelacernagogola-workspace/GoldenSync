@@ -4,13 +4,30 @@ import "server-only";
  * Manual checklist — freeform items; never feeds Calculator (I14).
  */
 
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
-import { notFound } from "@/lib/http/errors";
+import { AppError, notFound } from "@/lib/http/errors";
 import type {
   CreateManualChecklistInput,
   UpdateManualChecklistInput,
 } from "@/lib/validation/manual-checklist";
+
+async function requireEditableSubject(userId: string, subjectId: string) {
+  const subject = await requireOwnedSubject(userId, subjectId);
+  const semester = await db.orm.public.Semester.where({
+    id: subject.semesterId,
+    userId,
+  }).first();
+  if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only.",
+    );
+  }
+  return subject;
+}
 
 export type ManualChecklistItemDto = {
   id: string;
@@ -75,7 +92,7 @@ export async function createManualChecklistItem(
   subjectId: string,
   input: CreateManualChecklistInput,
 ): Promise<ManualChecklistItemDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.ManualChecklistItem.where({
     subjectId,
   }).all();
@@ -101,7 +118,7 @@ export async function updateManualChecklistItem(
   itemId: string,
   input: UpdateManualChecklistInput,
 ): Promise<ManualChecklistItemDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.ManualChecklistItem.where({
     id: itemId,
     subjectId,
@@ -128,7 +145,7 @@ export async function deleteManualChecklistItem(
   subjectId: string,
   itemId: string,
 ): Promise<void> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.ManualChecklistItem.where({
     id: itemId,
     subjectId,

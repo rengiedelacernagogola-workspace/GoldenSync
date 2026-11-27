@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
         destination: "/calculator?subject=:subjectId",
         permanent: false,
       },
+      {
+        source: "/subjects/:subjectId/policies",
+        destination: "/subjects/:subjectId/faculty",
+        permanent: false,
+      },
     ];
   },
   cacheComponents: true,

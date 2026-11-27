@@ -5,10 +5,11 @@ import "server-only";
  */
 
 import { normalizeCourseCode } from "@/lib/domain/course-code";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import { unitsToDecimalString } from "@/lib/domain/units";
 import { db } from "@/lib/db";
 import { requireOwnedSubject } from "@/lib/db/ownership-guards";
-import { AppError } from "@/lib/http/errors";
+import { AppError, notFound } from "@/lib/http/errors";
 import { getSubjectDetailForUser } from "@/lib/queries/subjects";
 import type { SubjectDetailDto } from "@/lib/services/mappers";
 import { writeSubjectPlanWeeks } from "@/lib/services/plan-skeleton";
@@ -35,6 +36,17 @@ export async function replaceSubject(
     throw new AppError(
       "VALIDATION_FAILED",
       "Cannot replace an archived subject.",
+    );
+  }
+  const semester = await db.orm.public.Semester.where({
+    id: old.semesterId,
+    userId,
+  }).first();
+  if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only. Archive or delete subjects instead of replacing.",
     );
   }
 

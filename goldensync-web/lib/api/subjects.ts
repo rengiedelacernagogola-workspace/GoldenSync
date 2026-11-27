@@ -7,6 +7,7 @@ import { type SubjectDto } from "@/lib/api/semesters";
 import {
   cloneGradingTemplate,
   DEFAULT_GRADING_TEMPLATE,
+  parseGradingTemplate,
   serializeGradingTemplate,
   tryParseGradingTemplate,
   type GradingTemplateDoc,
@@ -144,6 +145,19 @@ export async function ensureSubjectGradingTemplate(
 ): Promise<GradingTemplateDoc> {
   const parsed = tryParseGradingTemplate(gradingRaw);
   if (parsed) return parsed;
+
+  const missing =
+    gradingRaw == null ||
+    gradingRaw === "" ||
+    (typeof gradingRaw === "object" &&
+      !Array.isArray(gradingRaw) &&
+      Object.keys(gradingRaw as object).length === 0);
+
+  /* Preserve existing non-template grading; only persist default when missing. */
+  if (!missing) {
+    return parseGradingTemplate(gradingRaw);
+  }
+
   const doc = serializeGradingTemplate(
     cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
   );

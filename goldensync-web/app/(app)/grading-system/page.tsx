@@ -43,9 +43,12 @@ function GradingSystemBody() {
       : null) ??
     liveSubjects[0]?.id ??
     null;
+  /* Seed only for unsigned demo — never under a signed-in empty semester. */
   const active = useLive
     ? (liveSubjects.find((s) => s.id === liveSubjectId) ?? liveSubjects[0])
-    : seedActive;
+    : live.signedIn
+      ? null
+      : seedActive;
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -89,7 +92,16 @@ function GradingSystemBody() {
           onMenuClick: () => setDrawerOpen(true),
         }}
       >
-        {!subjectSelected ? (
+        {live.signedIn && !live.ready ? (
+          <p className="text-body-sm text-text-muted">Loading subjects…</p>
+        ) : live.signedIn && liveSubjects.length === 0 ? (
+          <EmptyState
+            title="No subjects in this semester"
+            body="Add a subject from the dashboard, or switch to a semester that has subjects."
+            actionLabel="Open dashboard"
+            onAction={() => router.push("/dashboard")}
+          />
+        ) : !subjectSelected || !active ? (
           <EmptyState
             title="No subject selected"
             body={appendixA.calculator.empty}
@@ -99,7 +111,7 @@ function GradingSystemBody() {
         ) : (
           <div className="relative flex w-full min-w-0 flex-col gap-space-6">
             <p className="text-overline uppercase text-text-muted">
-              {active?.code} ·{" "}
+              {active.code} ·{" "}
               {(() => {
                 const s = live.semesters.find(
                   (x) => x.id === live.activeSemesterId,
@@ -112,6 +124,7 @@ function GradingSystemBody() {
             </p>
 
             <GradingTemplatePanel
+              key={useLive ? (liveSubjectId ?? "none") : (active.id ?? "seed")}
               subjectId={useLive ? liveSubjectId : null}
               live={Boolean(useLive && liveSubjectId)}
             />

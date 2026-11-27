@@ -46,6 +46,8 @@ export interface PlanNoteItem {
   /** Set on the global Notes hub. */
   subjectId?: string;
   subjectCode?: string;
+  /** When true, hide mutation controls for this note. */
+  readOnly?: boolean;
 }
 
 type SortMode = "time" | "importance";
@@ -554,7 +556,11 @@ export function NotesLibraryCard({
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-space-1">
-                      {shelved ? (
+                      {note.readOnly ? (
+                        <span className="text-[10px] tracking-tight text-text-muted">
+                          View only
+                        </span>
+                      ) : shelved ? (
                         <button
                           type="button"
                           aria-label="Restore note"

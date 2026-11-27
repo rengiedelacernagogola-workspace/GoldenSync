@@ -275,7 +275,7 @@ export function extractCsuProgramOutcomes(text: string): ExtractedOutcome[] {
 
   const found: ExtractedOutcome[] = [];
   const re =
-    /(?:^|\n)\s*(PO\s*[-.]?\s*\d+(?:\s*\([A-Z]{1,4}\))?)\s*:\s*([\s\S]*?)(?=(?:\n\s*PO\s*[-.]?\s*\d)|(?:\n\s*Course\s*Outcomes)|(?:\n\s*PART\s*III)|$)/gi;
+    /(?:^|\n)\s*(PO\s*[-.]?\s*\d+(?:\s*-?\s*\([A-Z]{1,4}\))?)\s*:\s*([\s\S]*?)(?=(?:\n\s*PO\s*[-.]?\s*\d)|(?:\n\s*Course\s*Outcomes)|(?:\n\s*PART\s*III)|$)/gi;
   let match: RegExpExecArray | null;
   while ((match = re.exec(section)) !== null) {
     const rawCode = cleanLine(match[1] ?? "");
@@ -289,9 +289,9 @@ export function extractCsuProgramOutcomes(text: string): ExtractedOutcome[] {
       .replace(/\s+/g, " ")
       .trim();
     if (rawCode.length < 2 || description.length < 12) continue;
-    /* PO6(CS) → PO6-CS */
+    /* PO6-(CS) / PO6(CS) → PO6-CS */
     const code = rawCode
-      .replace(/\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
+      .replace(/-?\s*\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
       .replace(/[()]/g, "")
       .replace(/\s+/g, "")
       .replace(/–|—/g, "-")
@@ -360,7 +360,7 @@ export function extractOutcomesFromText(text: string): ExtractedOutcome[] {
   }
 
   const re =
-    /(?:^|\n)\s*((?:PEO|PO|CO)\s*[-.]?\s*\d{1,2}(?:-\(?[A-Z]{1,4}\)?)?)\s*(?:[:.)]\s*|[-–—]\s+)(?=[A-Za-z])([^\n]{8,400})/gi;
+    /(?:^|\n)\s*((?:PEO|PO|CO)\s*[-.]?\s*\d{1,2}(?:\s*-?\s*\([A-Z]{1,4}\)|-[A-Z]{1,4})?)\s*(?:[:.)]\s*|[-–—]\s+)(?=[A-Za-z])([^\n]{8,400})/gi;
   let match: RegExpExecArray | null;
   while ((match = re.exec(text)) !== null) {
     const rawCode = cleanLine(match[1] ?? "");
@@ -375,7 +375,7 @@ export function extractOutcomesFromText(text: string): ExtractedOutcome[] {
     const kind = kindMatch[1]!.toUpperCase() as "PEO" | "PO" | "CO";
     /* PO6-(CS) / PO6(CS) / PO6-IS → PO6-CS / PO6-IS */
     const code = rawCode
-      .replace(/\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
+      .replace(/-?\s*\(\s*([A-Z]{1,4})\s*\)/gi, "-$1")
       .replace(/[()]/g, "")
       .replace(/\s+/g, "")
       .replace(/–|—/g, "-")
@@ -473,17 +473,19 @@ export function extractAssessmentsFromText(
   if (embedded.length > 0) return embedded;
 
   const found = new Map<string, ExtractedAssessment>();
+  /* Score capture stays same-line only — never take the next line’s week digit. */
   const re =
-    /(?:^|\n)\s*((?:Laboratory\s*Worksheet|Lab\s*Worksheet|Quiz|Exam|Midterm(?:\s*Exam)?|Final(?:\s*Exam)?|Project(?:\s*Part\s*\d+)?|Software\s*Project(?:\s*Proposal)?(?:\s*Defense)?|Assignment|Activity|Seatwork|Recitation)\s*[\w\s.#-]{0,40}?)\s*(?:[:.\-–—|(]\s*)?(?:max(?:imum)?\s*)?(?:score\s*)?(\d{1,3}(?:\.\d{1,2})?)?\s*(?:pts?|points?)?/gi;
+    /(?:^|\n)\s*((?:Laboratory\s*Worksheet|Lab\s*Worksheet|Quiz|Exam|Midterm(?:\s*Exam)?|Final(?:\s*Exam)?|Project(?:\s*Part\s*\d+)?|Software\s*Project(?:\s*Proposal)?(?:\s*Defense)?|Assignment|Activity|Seatwork|Recitation)[ \t\w.#-]{0,40}?)[ \t]*(?:[:.\-–—|(][ \t]*)?(?:max(?:imum)?[ \t]*)?(?:score[ \t]*)?(\d{1,3}(?:\.\d{1,2})?)?[ \t]*(?:pts?|points?)?/gi;
   let match: RegExpExecArray | null;
   while ((match = re.exec(text)) !== null) {
     const label = cleanLine(match[1] ?? "").slice(0, 120);
     if (label.length < 3) continue;
     if (/^CO\d/i.test(label)) continue;
-    if (/^exam$/i.test(label)) continue;
+    const max = match[2] ? match[2] : null;
+    /* Skip bare unscored "Exam"; keep "Exam" when maxScore was extracted. */
+    if (/^exam$/i.test(label) && !max) continue;
     const key = label.toLowerCase();
     if (found.has(key)) continue;
-    const max = match[2] ? match[2] : null;
     found.set(key, { label, maxScore: max });
     if (found.size >= 40) break;
   }
