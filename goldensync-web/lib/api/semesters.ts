@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api/client";
 export type SemesterDto = {
   id: string;
   label: string;
+  yearLevel: number;
   startDate: string;
   endDate: string;
   skippedWeeks: number[];
@@ -37,6 +38,7 @@ export function fetchSemesters() {
 /** POST /api/semesters */
 export function createSemester(body: {
   label: string;
+  yearLevel: number;
   startDate: string;
   endDate: string;
   skippedWeeks?: number[];
@@ -45,6 +47,13 @@ export function createSemester(body: {
     method: "POST",
     body,
     idempotent: true,
+  });
+}
+
+/** DELETE /api/semesters/:id */
+export function deleteSemester(id: string) {
+  return apiFetch<{ ok: boolean }>(`/api/semesters/${id}`, {
+    method: "DELETE",
   });
 }
 

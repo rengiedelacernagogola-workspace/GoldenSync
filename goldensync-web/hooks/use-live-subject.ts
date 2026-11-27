@@ -15,6 +15,7 @@ import {
   fetchSubjectDetail,
   type SubjectDetailDto,
 } from "@/lib/api/subjects";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 
 export type LiveSubjectView = {
   ready: boolean;
@@ -27,6 +28,8 @@ export type LiveSubjectView = {
   prerequisite: string;
   effectivity: string;
   semesterLabel: string;
+  /** Subject’s owning semester ended before today (Asia/Manila). */
+  semesterPast: boolean;
   detail: SubjectDetailDto | null;
   refresh: () => void;
 };
@@ -116,6 +119,7 @@ export function useLiveSubject(subjectId: string): LiveSubjectView {
     effectivity:
       detail?.effectivity ?? (allowSeed ? seedDetail.effectivity : ""),
     semesterLabel,
+    semesterPast: isSemesterPast(detail?.semesterEndDate),
     detail,
     refresh: () => setTick((t) => t + 1),
   };

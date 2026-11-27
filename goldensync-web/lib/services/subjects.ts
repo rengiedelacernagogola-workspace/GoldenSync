@@ -9,6 +9,7 @@ import {
   courseCodeMatches,
   normalizeCourseCode,
 } from "@/lib/domain/course-code";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import {
   maxScoreToDecimalString,
   unitsToDecimalString,
@@ -41,6 +42,12 @@ export async function createSubject(
     userId,
   }).first();
   if (!semester) throw notFound();
+  if (isSemesterPast(semester.endDate)) {
+    throw new AppError(
+      "VALIDATION_FAILED",
+      "Past semesters are view-only. Archive or delete subjects instead of adding new ones.",
+    );
+  }
 
   const active = await db.orm.public.Subject.where({
     semesterId: input.semesterId,

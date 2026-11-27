@@ -11,9 +11,32 @@ export type ExtractedPlanWeek = {
 function cleanTopic(raw: string): string {
   return raw
     .replace(/\s{2,}/g, " ")
-    .replace(/[|;]+$/g, "")
+    .replace(/[|;:]+$/g, "")
     .replace(/^●\s*/, "")
     .trim();
+}
+
+function isSpecialPlanTopic(line: string): boolean {
+  return (
+    /^(MIDTERM|FINAL)\s*EXAM$/i.test(line) ||
+    /^ACADEMIC\s*BREAK$/i.test(line) ||
+    /^INTERVENTION(?:\s*WEEK)?$/i.test(line) ||
+    /^Summative\s*Assessment\b/i.test(line)
+  );
+}
+
+/** Assessment / activity lines that must not become week topics. */
+function isPlanNoiseLine(line: string): boolean {
+  return (
+    /^TLO\d/i.test(line) ||
+    /^[1-9]$/.test(line) ||
+    /^[●•▪]/.test(line) ||
+    /^\d+\.\s/.test(line) ||
+    /^[a-z]/.test(line) ||
+    /^(Discussion|Output|Laboratory|Lab\s*Activity|Long\s*Quiz|Midterm|Final\s*Exam|Software\s*Project|Interactive|Learning\s*Material|Video\s*Lecture|Flipped|Topic\s*Discussion|Online|Problem-based|Collaborative|Guided|Materials\s*uploaded)/i.test(
+      line,
+    )
+  );
 }
 
 /**
@@ -52,16 +75,44 @@ function topicFromCsuWeekBlock(block: string): string | null {
     .filter(Boolean);
   if (lines.length === 0) return null;
 
+  /* F-CID-009 / F-CID-010: "CO1 Review…", "CO# 4 Trees", "CO4 Non-Linear…". */
+  for (const line of lines) {
+    if (/^CO\s*#?\s*\d+\s+\S/i.test(line)) {
+      const topic = cleanTopic(line.replace(/^CO\s*#?\s*\d+\s+/i, ""));
+      if (topic.length >= 4) return topic.slice(0, 500);
+    }
+  }
+
+  /* CSC 103: "1 Number Theory", "2 Probability", "3 Graph Theory…" */
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i]!.match(/^([1-9])\s+([A-Za-z].{2,120})$/);
+    if (!m?.[2]) continue;
+    if (isPlanNoiseLine(m[2])) continue;
+    if (/^(Week|Hours?)$/i.test(m[2])) continue;
+    if (/^[●•▪]/.test(m[2]) || /^\d+\.\s/.test(m[2])) continue;
+    let title = m[2];
+    /* Wrapped title: "…Automata, and" + "Grammars" */
+    const next = lines[i + 1];
+    if (
+      next &&
+      /,\s*and$/i.test(title) &&
+      /^[A-Z][A-Za-z'’ &\-]{2,40}$/.test(next) &&
+      !isPlanNoiseLine(next)
+    ) {
+      title = `${title} ${next}`;
+    }
+    return cleanTopic(title).slice(0, 500);
+  }
+
   /* Prefer titled topic after a lone CO digit (1–9) line. */
   for (let i = 0; i < lines.length - 1; i++) {
     if (/^[1-9]$/.test(lines[i]!)) {
       const next = cleanTopic(lines[i + 1]!);
       if (
         next.length >= 4 &&
-        !/^TLO\d/i.test(next) &&
-        !/^Discussion/i.test(next) &&
-        !/^Output/i.test(next) &&
-        !/^Laboratory/i.test(next)
+        !/^[1-9]$/.test(next) &&
+        !isPlanNoiseLine(next) &&
+        !isSpecialPlanTopic(next)
       ) {
         return next.slice(0, 500);
       }
@@ -75,14 +126,39 @@ function topicFromCsuWeekBlock(block: string): string | null {
     if (topic.length >= 8) return topic.slice(0, 500);
   }
 
+  /* Orientation marker (often the TOPIC column when LOs are bullets). */
+  for (const line of lines) {
+    if (/^VM[,.]?\s*Quality\s*Policy/i.test(line)) {
+      return "Orientation / Course Syllabus".slice(0, 500);
+    }
+    if (/oriented with the course/i.test(line)) {
+      return cleanTopic(line).slice(0, 500);
+    }
+  }
+
+  /*
+   * Summative / break — only when the block is primarily that row.
+   * Do not steal "Midterm Exam" from assessment columns of content weeks.
+   */
+  const hasCoTopic = lines.some(
+    (l) =>
+      /^CO\s*#?\s*\d+\s+\S/i.test(l) ||
+      /^[1-9]\s+[A-Za-z]/.test(l) ||
+      /^[●•▪]/.test(l) ||
+      /^\d+\.\s/.test(l),
+  );
+  if (!hasCoTopic) {
+    for (const line of lines) {
+      if (isSpecialPlanTopic(line)) {
+        return cleanTopic(line).slice(0, 500);
+      }
+    }
+  }
+
   /* First substantial prose line (orientation week). */
   for (const line of lines) {
-    if (/^TLO\d/i.test(line)) continue;
-    if (/^[1-9]$/.test(line)) continue;
-    if (/^●/.test(line)) continue;
-    if (/^(Discussion|Output|Laboratory|Midterm|Software\s*Project)/i.test(line)) {
-      continue;
-    }
+    if (isPlanNoiseLine(line)) continue;
+    if (isSpecialPlanTopic(line)) continue;
     const topic = cleanTopic(line);
     if (topic.length >= 8) return topic.slice(0, 500);
   }
@@ -128,10 +204,14 @@ export function extractCsuOneWeekBlocks(text: string): ExtractedPlanWeek[] {
   for (const range of ranges) {
     if (weeks.length >= 30) break;
     let topic: string | null = null;
-    if (range.sameLine.length >= 8) {
+    /* Same-line specials (MIDTERM EXAM) win; LO lines like "1. Use arrays…"
+       must defer to CO titles in the block body (F-CID-009 column jam). */
+    if (isSpecialPlanTopic(range.sameLine)) {
       topic = range.sameLine.slice(0, 500);
     } else {
-      topic = topicFromCsuWeekBlock(range.body);
+      topic = topicFromCsuWeekBlock(
+        [range.sameLine, range.body].filter(Boolean).join("\n"),
+      );
     }
     if (!topic) continue;
     const count = Math.min(range.duration, 30 - weeks.length);

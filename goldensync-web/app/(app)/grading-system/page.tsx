@@ -77,8 +77,14 @@ function GradingSystemBody() {
         onNav={handleNav}
         topBar={{
           title: "Grading System",
-          semesterLabel:
-            live.semesters[0]?.label ?? goldenSyncSeed.semester.label,
+          semesterLabel: (() => {
+            const s = live.semesters.find(
+              (x) => x.id === live.activeSemesterId,
+            );
+            return s
+              ? `Year ${s.yearLevel} · ${s.label}`
+              : goldenSyncSeed.semester.label;
+          })(),
           hideAddSubject: true,
           onMenuClick: () => setDrawerOpen(true),
         }}
@@ -94,7 +100,14 @@ function GradingSystemBody() {
           <div className="relative flex w-full min-w-0 flex-col gap-space-6">
             <p className="text-overline uppercase text-text-muted">
               {active?.code} ·{" "}
-              {live.semesters[0]?.label ?? goldenSyncSeed.semester.label}
+              {(() => {
+                const s = live.semesters.find(
+                  (x) => x.id === live.activeSemesterId,
+                );
+                return s
+                  ? `Year ${s.yearLevel} · ${s.label}`
+                  : goldenSyncSeed.semester.label;
+              })()}
               {useLive ? " · Live" : ""}
             </p>
 

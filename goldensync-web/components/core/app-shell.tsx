@@ -5,6 +5,7 @@
  * FLOW: Sidebar Expanded|Collapsed (md+) + TopBar + main. MobileDrawer is separate.
  * RULE: Expanded 240 / Collapsed 64 (Figma); ambient bg on outer.
  * Subject switcher lists live subjects and navigates to the same module on select.
+ * Semester switcher lives in TopBar (beside Add Subject) on every screen.
  */
 
 import * as React from "react";
@@ -16,6 +17,7 @@ import {
 } from "@/components/core/sidebar";
 import { SubjectSwitcherPopover } from "@/components/core/subject-switcher-popover";
 import { TopBar, type TopBarProps } from "@/components/core/top-bar";
+import { SemesterSwitcher } from "@/components/features/semester/semester-switcher";
 import { useSubjectSwitcherControls } from "@/hooks/use-subject-switcher";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +104,13 @@ export function AppShell({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           {...topBar}
+          hideSemester={false}
+          semesterSlot={
+            <SemesterSwitcher
+              listPlacement="bottom"
+              triggerClassName="w-[min(220px,36vw)] sm:w-[min(260px,40vw)] md:w-[280px]"
+            />
+          }
           /* Menu button only below md — drawer owns nav on phone */
           showMenuButton
           className={cn(

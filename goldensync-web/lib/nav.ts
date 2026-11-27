@@ -23,7 +23,8 @@ export function pathForNav(
     case "notes":
       return `/notes?subject=${encodeURIComponent(sid)}`;
     case "policies":
-      return `/subjects/${sid}/policies`;
+      /* Merged into College Faculty (50/50 with Class policies). */
+      return `/subjects/${sid}/faculty`;
     case "faculty":
       return `/subjects/${sid}/faculty`;
     case "grade-calculator":

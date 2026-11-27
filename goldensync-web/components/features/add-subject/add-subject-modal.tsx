@@ -45,6 +45,8 @@ import {
 import { replaceSubject } from "@/lib/api/subjects";
 import { normalizeCourseCode } from "@/lib/domain/course-code";
 import {
+  cloneGradingTemplate,
+  DEFAULT_GRADING_TEMPLATE,
   serializeGradingTemplate,
   tryParseGradingTemplate,
 } from "@/lib/domain/grading-template";
@@ -474,12 +476,11 @@ export function AddSubjectModal({
         } else {
           const outcomes = buildOutcomesPayload();
           const policiesText = values.policies.trim();
-          const gradingText = values.grading.trim();
           const gradingPayload = ingestGradingTemplate
             ? serializeGradingTemplate(ingestGradingTemplate)
-            : gradingText
-              ? gradingText
-              : null;
+            : serializeGradingTemplate(
+                cloneGradingTemplate(DEFAULT_GRADING_TEMPLATE),
+              );
           const facultyName = values.facultyName.trim();
           const facultyCollege = values.facultyCollege.trim();
           const facultyConsultation = values.facultyConsultation.trim();
@@ -511,7 +512,7 @@ export function AddSubjectModal({
                   })),
                 }
               : {}),
-            ...(gradingPayload ? { grading: gradingPayload } : {}),
+            grading: gradingPayload,
             ...(policiesText || outcomes.length > 0
               ? {
                   policies: {

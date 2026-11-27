@@ -26,6 +26,7 @@ const files = [
   "2026-11-23-grade-scale-confirm.sql",
   "2026-11-26-grade-scale-detailed.sql",
   "2026-11-26-missing-plan-indexes.sql",
+  "2026-11-27-semester-year-level.sql",
 ];
 
 const client = new pg.Client({

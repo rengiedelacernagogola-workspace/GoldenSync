@@ -42,6 +42,8 @@ model Semester {
   userId       String
   user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   label        String
+  /// Academic year level (1 = First Year … 6 = Sixth Year). DB default 1 via SQL.
+  yearLevel    Int
   startDate    DateTime
   endDate      DateTime
   skippedWeeks Json

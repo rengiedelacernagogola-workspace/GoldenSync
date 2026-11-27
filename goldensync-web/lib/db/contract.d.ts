@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'8c7f6550bb6e3d1491b4b39298b596c4e351762f7b3ddadc4e6f407758c8d286'>;
+  StorageHashBase<'8952378bdf1f9b8a8c519d5122ebc8e40ffe0ff999fb9e70c35082ec8941634c'>;
 export type ExecutionHash =
   ExecutionHashBase<'a02e998bc5f4c298e2e63066439fb73cef41160cd6b9605e0d108824777fde3d'>;
 export type ProfileHash =
@@ -525,6 +525,7 @@ export namespace Models {
     startDate: FieldOutputTypes['public']['Semester']['startDate'];
     updatedAt: FieldOutputTypes['public']['Semester']['updatedAt'];
     userId: FieldOutputTypes['public']['Semester']['userId'];
+    yearLevel: FieldOutputTypes['public']['Semester']['yearLevel'];
     subjects: public_Subject[];
     user: public_User;
     readonly [RelationKeys]?: 'subjects' | 'user';
@@ -1783,6 +1784,12 @@ type ContractBase = Omit<
                 readonly userId: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly yearLevel: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
                   readonly nullable: false;
                   readonly many: false;
                 };
@@ -3124,6 +3131,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly yearLevel: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
             };
             readonly relations: {
               readonly subjects: {
@@ -3159,6 +3170,7 @@ type ContractBase = Omit<
                 readonly startDate: { readonly column: 'startDate' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly userId: { readonly column: 'userId' };
+                readonly yearLevel: { readonly column: 'yearLevel' };
               };
             };
           };

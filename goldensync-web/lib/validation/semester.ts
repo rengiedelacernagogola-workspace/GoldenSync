@@ -4,10 +4,18 @@
 
 import { z } from "zod";
 
+import {
+  YEAR_LEVEL_MAX,
+  YEAR_LEVEL_MIN,
+} from "@/lib/domain/semester-year";
+
 const dateInput = z.union([z.string().datetime(), z.string().date()]);
+
+const yearLevelSchema = z.number().int().min(YEAR_LEVEL_MIN).max(YEAR_LEVEL_MAX);
 
 export const createSemesterSchema = z.object({
   label: z.string().trim().min(1).max(80),
+  yearLevel: yearLevelSchema,
   startDate: dateInput,
   endDate: dateInput,
   skippedWeeks: z.array(z.number().int().min(1).max(30)).default([]),
@@ -16,6 +24,7 @@ export const createSemesterSchema = z.object({
 export const patchSemesterSchema = z
   .object({
     label: z.string().trim().min(1).max(80).optional(),
+    yearLevel: yearLevelSchema.optional(),
     startDate: dateInput.optional(),
     endDate: dateInput.optional(),
     skippedWeeks: z.array(z.number().int().min(1).max(30)).optional(),

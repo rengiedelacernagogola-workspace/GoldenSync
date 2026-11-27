@@ -39,6 +39,7 @@
     "motion": "^14.12.0",
     "next": "16.4.6",
     "next-themes": "^0.4.6",
+    "@napi-rs/canvas": "^0.1.100",
     "pdf-parse": "^2.4.5",
     "react": "19.3.0",
     "react-bootstrap-icons": "^1.11.6",

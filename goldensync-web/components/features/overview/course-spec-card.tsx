@@ -5,10 +5,10 @@
  * FLOW: view → Edit → all fields → Save (PATCH) / Cancel · Semester read-only.
  */
 
-import { Pencil } from "lucide-react";
 import * as React from "react";
 
-import { Button, Card, Input, Textarea } from "@/components/core";
+import { Card, Input, Textarea } from "@/components/core";
+import { CardEditReveal } from "@/components/features/shared/card-edit-reveal";
 import { ApiClientError } from "@/lib/api/client";
 import { patchSubject } from "@/lib/api/subjects";
 import {
@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 export type CourseSpecCardProps = {
   subjectId: string;
   live: boolean;
+  /** Past semester — hide Edit / Save. */
+  readOnly?: boolean;
   code: string;
   title: string;
   units: string;
@@ -76,7 +78,7 @@ function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-space-1 sm:grid-cols-[minmax(110px,160px)_minmax(0,1fr)] sm:gap-space-3">
+    <div className="grid w-full min-w-0 grid-cols-1 items-start gap-space-1 sm:grid-cols-[minmax(120px,180px)_minmax(0,1fr)] sm:gap-space-4">
       <SpecLabel>{label}</SpecLabel>
       <div className="min-w-0 w-full">{children}</div>
     </div>
@@ -87,6 +89,7 @@ function Row({
 export function CourseSpecCard({
   subjectId,
   live,
+  readOnly = false,
   code,
   title,
   units,
@@ -233,38 +236,17 @@ export function CourseSpecCard({
 
   const hoursDisplay = formatSplitHours(spec.lectureHours, spec.labHours);
 
-  const headerAction = live ? (
-    editing ? (
-      <div className="flex items-center gap-space-2">
-        <Button
-          variant="Primary"
-          size="sm"
-          disabled={saving}
-          onClick={() => void saveAll()}
-        >
-          {saving ? "Saving…" : "Save"}
-        </Button>
-        <Button
-          variant="Ghost"
-          size="sm"
-          disabled={saving}
-          onClick={cancelEdit}
-        >
-          Cancel
-        </Button>
-      </div>
-    ) : (
-      <Button
-        variant="Secondary"
-        size="sm"
-        onClick={beginEdit}
-        aria-label="Edit course specification"
-      >
-        <Pencil className="size-3.5" aria-hidden />
-        Edit
-      </Button>
-    )
-  ) : undefined;
+  const headerAction =
+    live && !readOnly ? (
+      <CardEditReveal
+        editing={editing}
+        saving={saving}
+        editAriaLabel="Edit course specification"
+        onBeginEdit={beginEdit}
+        onCancel={cancelEdit}
+        onSave={() => void saveAll()}
+      />
+    ) : undefined;
 
   return (
     <Card
@@ -272,9 +254,9 @@ export function CourseSpecCard({
       hasHeader
       hasHeaderBadge={Boolean(headerAction)}
       headerBadge={headerAction}
-      className="w-full"
+      className="w-full min-w-0 [&_[data-slot=gs-card-content]]:w-full [&_[data-slot=gs-card-content]]:items-stretch"
     >
-      <div className="flex flex-col gap-space-4">
+      <div className="flex w-full min-w-0 flex-col gap-space-4">
         {!live ? (
           <p className="text-caption text-text-muted">
             Sign in and open a live subject to edit.
@@ -289,13 +271,14 @@ export function CourseSpecCard({
 
         <Row label="Course code & name">
           {editing ? (
-            <div className="flex flex-col gap-space-2">
+            <div className="flex w-full min-w-0 flex-col gap-space-2">
               <Input
                 size="Compact"
                 value={draftCode}
                 onChange={(e) => setDraftCode(e.target.value)}
                 aria-label="Course code"
                 placeholder="e.g. CSC 106"
+                className="w-full min-w-0"
               />
               <Input
                 size="Compact"
@@ -303,6 +286,7 @@ export function CourseSpecCard({
                 onChange={(e) => setDraftTitle(e.target.value)}
                 aria-label="Course name"
                 placeholder="Course name"
+                className="w-full min-w-0"
               />
             </div>
           ) : (
@@ -315,8 +299,8 @@ export function CourseSpecCard({
 
         <Row label="Credit units">
           {editing ? (
-            <div className="grid grid-cols-1 gap-space-2 sm:grid-cols-2">
-              <label className="flex flex-col gap-space-1">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Lecture</span>
                 <Input
                   size="Compact"
@@ -327,9 +311,10 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftLectureUnits(e.target.value)}
                   aria-label="Lecture units"
                   placeholder="e.g. 2"
+                  className="w-full min-w-0"
                 />
               </label>
-              <label className="flex flex-col gap-space-1">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Laboratory</span>
                 <Input
                   size="Compact"
@@ -340,6 +325,7 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftLabUnits(e.target.value)}
                   aria-label="Laboratory units"
                   placeholder="e.g. 1"
+                  className="w-full min-w-0"
                 />
               </label>
             </div>
@@ -350,8 +336,8 @@ export function CourseSpecCard({
 
         <Row label="Pre-req / Co-req">
           {editing ? (
-            <div className="grid grid-cols-1 gap-space-2 sm:grid-cols-2">
-              <label className="flex flex-col gap-space-1">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">
                   Pre-requisite
                 </span>
@@ -361,9 +347,10 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftPrereq(e.target.value)}
                   aria-label="Pre-requisite"
                   placeholder="e.g. ITE 13"
+                  className="w-full min-w-0"
                 />
               </label>
-              <label className="flex flex-col gap-space-1">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">
                   Co-requisite
                 </span>
@@ -373,6 +360,7 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftCoreq(e.target.value)}
                   aria-label="Co-requisite"
                   placeholder="NONE"
+                  className="w-full min-w-0"
                 />
               </label>
             </div>
@@ -387,8 +375,8 @@ export function CourseSpecCard({
 
         <Row label="Contact hours">
           {editing ? (
-            <div className="grid grid-cols-1 gap-space-2 sm:grid-cols-2">
-              <label className="flex flex-col gap-space-1">
+            <div className="grid w-full min-w-0 grid-cols-1 gap-space-2 sm:grid-cols-2">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Lecture</span>
                 <Input
                   size="Compact"
@@ -399,9 +387,10 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftLectureHours(e.target.value)}
                   aria-label="Lecture contact hours"
                   placeholder="e.g. 54"
+                  className="w-full min-w-0"
                 />
               </label>
-              <label className="flex flex-col gap-space-1">
+              <label className="flex min-w-0 flex-col gap-space-1">
                 <span className="text-caption text-text-muted">Laboratory</span>
                 <Input
                   size="Compact"
@@ -412,6 +401,7 @@ export function CourseSpecCard({
                   onChange={(e) => setDraftLabHours(e.target.value)}
                   aria-label="Laboratory contact hours"
                   placeholder="e.g. 36"
+                  className="w-full min-w-0"
                 />
               </label>
             </div>
@@ -428,6 +418,7 @@ export function CourseSpecCard({
               onChange={(e) => setDraftEffectivity(e.target.value)}
               aria-label="Effectivity"
               placeholder="e.g. 2nd Semester A.Y. 2025-2026"
+              className="w-full min-w-0"
             />
           ) : (
             <SpecValue>{dash(effectivity)}</SpecValue>
@@ -442,6 +433,7 @@ export function CourseSpecCard({
               onChange={(e) => setDraftModality(e.target.value)}
               aria-label="Learning modality"
               placeholder="e.g. Onsite / Online"
+              className="w-full min-w-0"
             />
           ) : (
             <SpecValue>{dash(spec.learningModality)}</SpecValue>
@@ -456,6 +448,7 @@ export function CourseSpecCard({
               onChange={(e) => setDraftResources(e.target.value)}
               aria-label="Learning resources needed"
               placeholder="e.g. Classroom, Audio-visual, laptop, internet"
+              className="w-full min-w-0"
             />
           ) : (
             <SpecValue>{dash(spec.learningResources)}</SpecValue>
@@ -470,6 +463,7 @@ export function CourseSpecCard({
               onChange={(e) => setDraftEvidence(e.target.value)}
               aria-label="Outcomes-based evidence"
               placeholder="e.g. At least 80% of the class attain ≥ 60% on all CO"
+              className="w-full min-w-0"
             />
           ) : (
             <SpecValue>{dash(spec.outcomesBasedEvidence)}</SpecValue>
@@ -479,11 +473,12 @@ export function CourseSpecCard({
         <Row label="Course description">
           {editing ? (
             <Textarea
-              rows={5}
+              rows={6}
               value={draftDescription}
               onChange={(e) => setDraftDescription(e.target.value)}
               aria-label="Course description"
               placeholder="Course description…"
+              className="w-full min-w-0"
             />
           ) : (
             <SpecValue className="whitespace-pre-wrap">
