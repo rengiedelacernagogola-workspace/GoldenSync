@@ -132,17 +132,24 @@ export function useLiveDataState(): LiveDataState {
           const override = preferSemesterIdRef.current;
           preferSemesterIdRef.current = null;
           const stored = readStoredSemesterId(profile.id);
+          const previousId = activeSemesterIdRef.current;
           const preferred =
             (override && mapped.some((s) => s.id === override)
               ? override
               : null) ??
-            (activeSemesterIdRef.current &&
-            mapped.some((s) => s.id === activeSemesterIdRef.current)
-              ? activeSemesterIdRef.current
+            (previousId && mapped.some((s) => s.id === previousId)
+              ? previousId
               : null) ??
             (stored && mapped.some((s) => s.id === stored) ? stored : null) ??
             mapped[0]?.id ??
             null;
+
+          /* Switching semester: clear stale subjects before publishing selection. */
+          if (preferred !== previousId) {
+            setSubjects([]);
+            setSubjectCount(0);
+            setReady(false);
+          }
           setActiveSemesterId(preferred);
           if (preferred) {
             writeStoredSemesterId(profile.id, preferred);
@@ -154,7 +161,6 @@ export function useLiveDataState(): LiveDataState {
           } else {
             const subjectList = await fetchSubjects(preferred);
             if (cancelled || owner !== requestOwnerRef.current) return;
-            if (activeSemesterIdRef.current !== preferred) return;
             setSubjects(subjectList);
             setSubjectCount(subjectList.length);
           }
@@ -200,7 +206,10 @@ export function useLiveDataState(): LiveDataState {
     async (semesterId: string) => {
       const match = semesters.find((s) => s.id === semesterId);
       if (!match) return;
+      if (activeSemesterIdRef.current === semesterId) return;
+
       const owner = ++requestOwnerRef.current;
+      setReady(false);
       setActiveSemesterId(semesterId);
       setSubjects([]);
       setSubjectCount(0);
@@ -208,13 +217,11 @@ export function useLiveDataState(): LiveDataState {
       try {
         const subjectList = await fetchSubjects(semesterId);
         if (owner !== requestOwnerRef.current) return;
-        if (activeSemesterIdRef.current !== semesterId) return;
         setSubjects(subjectList);
         setSubjectCount(subjectList.length);
         setError(null);
       } catch (err) {
         if (owner !== requestOwnerRef.current) return;
-        if (activeSemesterIdRef.current !== semesterId) return;
         setSubjects([]);
         setSubjectCount(0);
         setError(
@@ -222,6 +229,8 @@ export function useLiveDataState(): LiveDataState {
             ? err.message
             : "Could not load subjects for that semester.",
         );
+      } finally {
+        if (owner === requestOwnerRef.current) setReady(true);
       }
     },
     [semesters, me?.id, setSubjectCount],

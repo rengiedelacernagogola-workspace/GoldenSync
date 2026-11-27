@@ -47,6 +47,8 @@ export type PlanNoteDto = {
   /** Present on cross-subject list. */
   courseCode?: string;
   subjectTitle?: string;
+  /** Semester end date for the note’s subject (ISO). */
+  semesterEndDate?: string;
 };
 
 function toIso(value: unknown): string {
@@ -129,6 +131,7 @@ export async function listAllPlanNotesForUser(
           ...mapPlanNote(row),
           courseCode: subject.courseCode,
           subjectTitle: subject.title,
+          semesterEndDate: toIso(semester.endDate),
         });
       }
     }

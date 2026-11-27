@@ -128,7 +128,8 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
         const el = actionsRef.current;
         if (!el) return;
         if (e.target instanceof Node && el.contains(e.target)) return;
-        collapseEditReveal({ restoreEye: true });
+        /* Outside click: do not steal focus from the clicked control. */
+        collapseEditReveal();
       }
 
       function onKeyDown(e: KeyboardEvent) {

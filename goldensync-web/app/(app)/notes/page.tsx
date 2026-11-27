@@ -24,6 +24,7 @@ import {
 import { useLiveData } from "@/hooks/use-live-data";
 import { pushActivity } from "@/lib/activity/activity-log";
 import { fetchAllPlanNotes } from "@/lib/api/notes";
+import { isSemesterPast } from "@/lib/domain/semester-year";
 import {
   appendSavedNote,
   archiveSavedNote,
@@ -89,6 +90,7 @@ function NotesBody() {
           deletedAt: n.deletedAt,
           importance: (n.importance ?? 1) as 1 | 2 | 3,
           pinned: n.pinned,
+          readOnly: isSemesterPast(n.semesterEndDate),
         })),
       );
     } catch {
@@ -158,7 +160,7 @@ function NotesBody() {
   }
 
   async function handleEditNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     setActiveSubjectId(note.subjectId);
     setEditingNoteId(note.id);
     setNoteTitle(note.title);
@@ -168,19 +170,19 @@ function NotesBody() {
   }
 
   async function handleDeleteNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await deleteSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
 
   async function handleArchiveNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await archiveSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
 
   async function handleRestoreNote(note: PlanNoteItem) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await restoreSavedNote(note.subjectId, note.id);
     await reloadLibrary();
   }
@@ -189,12 +191,13 @@ function NotesBody() {
     note: PlanNoteItem,
     patch: { importance?: 1 | 2 | 3; pinned?: boolean },
   ) {
-    if (!note.subjectId) return;
+    if (!note.subjectId || note.readOnly) return;
     await updateSavedNote(note.subjectId, note.id, patch);
     await reloadLibrary();
   }
 
   const subjectSelected = subjects.length > 0;
+  /* Composer is for the active semester’s subjects only. */
   const notesReadOnly = live.isActiveSemesterPast;
 
   return (
@@ -333,43 +336,23 @@ function NotesBody() {
                 filterSubjectId={filterSubjectId}
                 onFilterSubjectChange={setFilterSubjectId}
                 className="min-h-0 flex-1"
-                onEditNote={
-                  notesReadOnly
-                    ? undefined
-                    : (n) => void handleEditNote(n)
-                }
-                onDeleteNote={
-                  notesReadOnly
-                    ? undefined
-                    : (id) => {
-                        const note = library.find((n) => n.id === id);
-                        if (note) void handleDeleteNote(note);
-                      }
-                }
-                onArchiveNote={
-                  notesReadOnly
-                    ? undefined
-                    : (id) => {
-                        const note = library.find((n) => n.id === id);
-                        if (note) void handleArchiveNote(note);
-                      }
-                }
-                onRestoreNote={
-                  notesReadOnly
-                    ? undefined
-                    : (id) => {
-                        const note = library.find((n) => n.id === id);
-                        if (note) void handleRestoreNote(note);
-                      }
-                }
-                onUpdateMeta={
-                  notesReadOnly
-                    ? undefined
-                    : (id, patch) => {
-                        const note = library.find((n) => n.id === id);
-                        if (note) void handleUpdateMeta(note, patch);
-                      }
-                }
+                onEditNote={(n) => void handleEditNote(n)}
+                onDeleteNote={(id) => {
+                  const note = library.find((n) => n.id === id);
+                  if (note) void handleDeleteNote(note);
+                }}
+                onArchiveNote={(id) => {
+                  const note = library.find((n) => n.id === id);
+                  if (note) void handleArchiveNote(note);
+                }}
+                onRestoreNote={(id) => {
+                  const note = library.find((n) => n.id === id);
+                  if (note) void handleRestoreNote(note);
+                }}
+                onUpdateMeta={(id, patch) => {
+                  const note = library.find((n) => n.id === id);
+                  if (note) void handleUpdateMeta(note, patch);
+                }}
               />
             </div>
           )}

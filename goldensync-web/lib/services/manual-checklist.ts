@@ -118,7 +118,7 @@ export async function updateManualChecklistItem(
   itemId: string,
   input: UpdateManualChecklistInput,
 ): Promise<ManualChecklistItemDto> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.ManualChecklistItem.where({
     id: itemId,
     subjectId,
@@ -145,7 +145,7 @@ export async function deleteManualChecklistItem(
   subjectId: string,
   itemId: string,
 ): Promise<void> {
-  await requireOwnedSubject(userId, subjectId);
+  await requireEditableSubject(userId, subjectId);
   const existing = await db.orm.public.ManualChecklistItem.where({
     id: itemId,
     subjectId,

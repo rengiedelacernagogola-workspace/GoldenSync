@@ -18,6 +18,7 @@ export type PlanNoteDto = {
   createdAt: string;
   courseCode?: string;
   subjectTitle?: string;
+  semesterEndDate?: string;
 };
 
 /** GET /api/notes — cross-subject library for the Notes hub. */

@@ -60,7 +60,8 @@ export function CardEditReveal({
       const el = rootRef.current;
       if (!el) return;
       if (e.target instanceof Node && el.contains(e.target)) return;
-      collapseReveal({ restoreEye: true });
+      /* Outside click: leave focus on the clicked control. */
+      collapseReveal();
     }
 
     function onKeyDown(e: KeyboardEvent) {
