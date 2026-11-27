@@ -1,3 +1,10 @@
+// WHAT: Pull course code, outcomes, assessments, etc. from extracted PDF text.
+// HOW: Regex/heuristics tuned for CSU F-CID-010; returns null when unsure.
+// SCREEN: Syllabus ingest confirm step — user fixes missed fields.
+// EDIT: Patterns in this file; never invent data when pattern fails.
+// KEEP: PURE — ingest service passes plain text.
+// RISK: Medium — bad regex creates wrong outcomes until user edits.
+
 /**
  * Best-effort syllabus field extraction — PURE.
  * Prefer precision: return null/[] when unsure (never invent seed content).

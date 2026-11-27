@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Command palette (fuzzy search list) powered by cmdk.
+// SCREEN: Kit combobox / ⌘K demos — not the app shell command menu unless wired.
+// HOW: Command, CommandInput, CommandList, CommandItem compound API.
+// EDIT: Empty state and group headings here.
+// RISK: Low
+
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import { cn } from "cn"

@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Children fade in with blur when entering the viewport.
+// SCREEN: Section reveals on scroll (marketing).
+// HOW: AnimatePresence + motion + useInView.
+// EDIT: duration, offset, blur amount via props.
+// RISK: Low
+
 import { useRef } from "react"
 import {
   AnimatePresence,

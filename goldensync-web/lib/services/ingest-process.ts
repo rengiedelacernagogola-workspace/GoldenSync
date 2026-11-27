@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Download uploaded PDF from Blob, extract syllabus fields, store on IngestJob.
+// HOW: Vercel get + pdf parser + domain extractors; updates job row.
+// SCREEN: Ingest progress / confirm extracted syllabus.
+// EDIT: Extraction pipeline wiring here, not in domain regex files alone.
+// KEEP: Runs in Next.js — avoid depending on broken worker bundling.
+// RISK: High — Blob access + DB; validate pathname before download.
+
 /**
  * Download Blob + parse syllabus PDF + update IngestJob.
  * Runs in the Next.js server (reliable). Trigger worker cannot bundle pdf.worker.mjs.

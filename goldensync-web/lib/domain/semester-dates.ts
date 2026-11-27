@@ -1,3 +1,10 @@
+// WHAT: Parse semester dates and detect overlapping terms for the same user.
+// HOW: UTC-midnight dates from YYYY-MM-DD; rangesOverlap for conflict checks.
+// SCREEN: Create/edit semester forms.
+// EDIT: Overlap rules if product allows touching start/end days differently.
+// KEEP: Use these parsers instead of raw new Date(userInput).
+// RISK: Medium — overlap bugs let double-booked semesters.
+
 /**
  * Semester date helpers — range checks and overlap detection.
  */

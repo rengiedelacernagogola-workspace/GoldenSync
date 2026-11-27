@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Phone-friendly card layout for one table row worth of data.
+// SCREEN: Replaces TableRow below sm breakpoint — stack with gap-space-3.
+// HOW: Title row + label/value fields + optional delete IconOnly.
+// KEEP: Do not nest inside another glass card (DEC-035).
+// EDIT: Field layout here — data from parent lists.
+// RISK: Low
+
 /**
  * MobileRowCard — Figma `MobileRowCard` `17:153`.
  * UI-020: mobile TableRow (<640). glass-md · radius-lg · padding space-6 (DEC-035).

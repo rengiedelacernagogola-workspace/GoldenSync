@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Header control — Eye reveals Edit; editing shows Save/Cancel.
+// SCREEN: Faculty, policies, outcomes cards (headerBadge slot).
+// HOW: Parent sets `editing`; this file handles reveal animation + focus traps.
+// EDIT: Used by multiple panels — keep props generic (editAriaLabel, onSave).
+// KEEP: Outside click + Escape collapse reveal without starting edit.
+
 /**
  * Card header: Eye dissolves into Edit in the same slot.
  * FLOW: Eye → Edit (same spot) → Save/Cancel · Escape/outside collapses · Cancel/Save → Eye.

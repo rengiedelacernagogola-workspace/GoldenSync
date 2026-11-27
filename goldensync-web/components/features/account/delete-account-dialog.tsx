@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Modal that confirms permanent account deletion (all subjects wiped).
+// SCREEN: Centered modal — user must type exactly "DELETE" to enable button.
+// HOW: Parent sets open; onDeleted runs after confirm (API wired outside).
+// RISK: Destructive — Confirm stays disabled until typed DELETE matches.
+
 /**
  * DeleteAccountDialog — confirm account wipe (Figma `144:4409`, UI-100).
  * FLOW: type DELETE → sessionActive false → Login.
@@ -18,6 +23,7 @@ export interface DeleteAccountDialogProps {
   onDeleted?: () => void;
 }
 
+// WHAT: Dialog component export — tracks confirmation text in local state.
 /** Destructive confirm — Confirm stays disabled until typed DELETE. */
 export function DeleteAccountDialog({
   open = false,

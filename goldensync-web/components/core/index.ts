@@ -1,3 +1,9 @@
+// WHAT: Barrel file — re-exports all @/components/core/* for one import path.
+// HOW: Named exports only; no runtime logic.
+// KEEP: Add an export block when you create a new core component.
+// EDIT: Export lines here — implementation stays in each component file.
+// RISK: Low — tree-shaking still applies per imported symbol.
+
 /**
  * Core components barrel — Figma `02 Components` core set.
  */

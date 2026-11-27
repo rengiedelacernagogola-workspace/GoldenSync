@@ -1,3 +1,4 @@
+/* WHAT: Load Tailwind, animations, shadcn, and Clerk theme styles into this file. HOW: @import runs first. KEEP: Order matters for overrides. RISK: Medium */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -10,8 +11,10 @@
  * Proto → UI-003. Values must equal live Figma; do not invent.
  */
 
+/* WHAT: Custom "dark" variant for Tailwind — matches .dark on <html>. HOW: Classes like dark:bg-* use this. RISK: Medium */
 @custom-variant dark (&:is(.dark *));
 
+/* WHAT: Design tokens exposed as Tailwind theme (colors, spacing, type). HOW: Maps Figma tokens to utility class names. EDIT: Colors via :root below. RISK: Low–Medium */
 @theme inline {
   /* ─── GoldenSync primitives ─── */
   --color-primitive-black: var(--primitive-black);
@@ -225,6 +228,7 @@
   }
 }
 
+/* WHAT: Default (light) color and spacing values. SCREEN: What users see when html is not .dark. EDIT: Hex values here change brand colors. RISK: Low */
 :root {
   /* Primitives — Figma 1:52–1:67 */
   --primitive-black: #000000;
@@ -336,6 +340,7 @@
   --sidebar-ring: var(--border-focus);
 }
 
+/* WHAT: Dark mode color overrides. HOW: When <html class="dark">, these replace light semantic colors. EDIT: Dark palette here. RISK: Low */
 /* Dark semantic overrides — product baseline (html.dark) */
 .dark {
   --bg-base: var(--primitive-dark-950);
@@ -367,6 +372,7 @@
   --error-ring-glow: #f8717126;
 }
 
+/* WHAT: Named text sizes (display, heading, body) as reusable classes. HOW: Use class text-heading-xl etc. on elements. EDIT: Sizes in @theme block above. RISK: Low */
 /* ─── Text style utilities (Figma style names) ─── */
 @utility text-display-2xl {
   font-size: var(--text-display-2xl);
@@ -474,6 +480,7 @@
  * Effect styles — Figma plan 5.4 / dump on `2:2`.
  * Fill + stroke from semantic tokens; blur/shadow numbers from Figma.
  */
+/* WHAT: Glass blur panels (cards, sidebars). SCREEN: Frosted backgrounds. EDIT: blur px or border tokens. RISK: Low */
 @utility glass-sm {
   background-color: var(--surface-glass);
   border: 1px solid var(--border-subtle);
@@ -532,6 +539,7 @@
   outline-offset: 2px;
 }
 
+/* WHAT: Motion — pulses, fades, shakes for UI feedback. HOW: @keyframes define motion; @utility gs-* applies with reduced-motion respect. RISK: Low */
 /* StatusChip In Progress pulse (Figma Pulse 1↔2, DEC-014): opacity 100% ↔ 40%, 2s */
 @keyframes gs-status-pulse {
   0%,
@@ -705,6 +713,7 @@
  * Paint style bg/ambient — only place raw gradient stops are allowed (plan 5.4).
  * Solid bg-base + blue 6% radial + purple 6% radial.
  */
+/* WHAT: Page background with soft blue/purple glows. SCREEN: Subtle gradient behind app shell. EDIT: Gradient stops here. RISK: Low */
 @utility bg-ambient {
   background-color: var(--bg-base);
   background-image:
@@ -721,6 +730,7 @@
   background-repeat: no-repeat;
 }
 
+/* WHAT: Base resets for whole site — fonts on html/body, hide scrollbars, image sizing. HOW: Applies to all pages using globals.css. RISK: Medium */
 @layer base {
   * {
     @apply border-border outline-ring/50;

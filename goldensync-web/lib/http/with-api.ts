@@ -1,6 +1,12 @@
 import "server-only";
 
 /**
+ * WHAT: Wrapper around every API route — login check, body check, rate limit, errors.
+ * HOW: requestId → same-origin for writes → Clerk auth → ensureUser → Zod body → handler → JSON.
+ * SCREEN: Nothing alone — powers all /api responses the UI calls.
+ * KEEP: Auth modes and error mapping; do not bypass for "convenience".
+ * RISK: High — this is the security front door for the API.
+ *
  * withApi — request pipeline (architecture §5.1).
  * FLOW: requestId → origin (mutations) → Clerk auth → validate → handler → map errors.
  */

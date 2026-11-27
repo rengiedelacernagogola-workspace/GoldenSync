@@ -1,3 +1,9 @@
+// WHAT: Tests PDF file header detection and failure code mapping for bad uploads.
+// HOW: `isPdfMagic` on byte buffers; `pdfFailureCode` for reject reasons.
+// SCREEN: Add Subject — invalid file vs real PDF before server parse.
+// EDIT: When allowed MIME/extension policy changes in `lib/domain/pdf-magic.ts`.
+// KEEP: Magic check is first gate — full parse happens later on server.
+// RISK: Low
 /**
  * Phase 4 — PDF magic bytes.
  * Run: npm run test:unit

@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Final grade breakdown, status banner, letter-grade lookup highlight.
+// SCREEN: Grade Calculator between CO score cards and CO passing dashboard.
+// HOW: Reads CalculatorSnapshot only — no user input.
+// EDIT: Banner colors map from snapshot.status.kind — add kinds in domain first.
+// KEEP: NUMERICAL_GRADE_BANDS is shared domain constant, not this file.
+
 /**
  * Overall grade summary — breakdown table, status banner, lookup table.
  */
@@ -29,6 +35,7 @@ export function GradeSummaryPanel({ snapshot }: GradeSummaryPanelProps) {
           ? "Warning"
           : "Info";
 
+  // HOW: Highlights lookup row when user entered scores and grade band is known.
   const highlightIndex =
     snapshot.anyScoreEntered && snapshot.grade
       ? snapshot.grade.bandIndex

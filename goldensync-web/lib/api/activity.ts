@@ -1,3 +1,6 @@
+// WHAT: Thin client for /api/activity — notification feed CRUD from the browser.
+// HOW: Each function maps to one HTTP method on the same route. RISK: Medium — user-visible notifications.
+
 /**
  * Activity / notifications API client.
  */
@@ -11,6 +14,7 @@ export type ActivityKind =
   | "account"
   | "system";
 
+// WHAT: One activity row as API returns it (ISO strings, optional entity link).
 export type ActivityDto = {
   id: string;
   kind: string;
@@ -23,6 +27,7 @@ export type ActivityDto = {
 };
 
 /** GET /api/activity */
+// WHAT: Load all activity items for the bell / notifications panel.
 export function fetchActivities() {
   return apiFetch<ActivityDto[]>("/api/activity");
 }

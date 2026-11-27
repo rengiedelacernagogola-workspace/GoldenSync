@@ -1,3 +1,10 @@
+// WHAT: Parse/format instructor info stored on Subject.faculty (JSON or legacy string).
+// HOW: parseFaculty tolerates old free-text; serializeFaculty for saves.
+// SCREEN: Subject header / faculty fields on subject detail.
+// EDIT: FacultyInfo fields and title enum (Mr/Ms).
+// KEEP: Match validation in lib/validation if you add required fields.
+// RISK: Low.
+
 /**
  * Structured Subject.faculty JSON — instructor + estimated contact hours.
  */

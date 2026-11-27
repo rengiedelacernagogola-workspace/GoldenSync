@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Load global grade scale bands + confirmation meta for gating.
+// HOW: Reads GradeScale / meta tables — shared across users.
+// SCREEN: Grade scale setup and derived outcome display.
+// EDIT: confirmed flag behavior with services/derived-outcome.ts.
+// KEEP: Not owner-scoped — different auth rules than subjects.
+// RISK: High — database; misconfig affects all grade displays.
+
 /**
  * Grade scale reads — global config (not owner-scoped).
  */

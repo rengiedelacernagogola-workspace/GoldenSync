@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Centered modal dialog (overlay + content + close).
+// KEEP: App modals use @/components/core/modal chrome.
+// HOW: Base UI Dialog Root/Trigger/Content/Title/Description.
+// EDIT: Max-width and animation here.
+// RISK: Low
+
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"

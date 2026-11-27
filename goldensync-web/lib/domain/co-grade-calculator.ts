@@ -1,3 +1,10 @@
+// WHAT: Live calculator math — CO groups, weighted tasks, overall % and letter band.
+// HOW: PURE; reads GradingTemplateDoc + score strings; uses grade-scale bands.
+// SCREEN: Grade Calculator panel and estimated grade cards.
+// EDIT: Status rules (PASSED/CONDITIONAL/FAILED) and task weight formulas here.
+// KEEP: No API calls — merge template + localStorage in UI/services.
+// RISK: Low code risk; High product risk if weighting rules drift from syllabus.
+
 /**
  * Live Grade Calculator — CO-weighted averages, status rules, numerical lookup.
  * PURE: no I/O. Structure comes from GradingTemplateDoc; scores are local.

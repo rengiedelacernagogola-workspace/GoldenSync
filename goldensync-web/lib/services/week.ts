@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: API helper — “this week” planner state for one subject.
+// HOW: Loads semester + plan weeks + skipped weeks → domain planner getWeekState.
+// SCREEN: This Week card / GET subject week endpoint.
+// EDIT: todayISO source (Manila) in caller/service.
+// KEEP: Read-only derivation — no DB writes.
+// RISK: High — reads DB; must enforce ownership on subject.
+
 /**
  * Derived planner week state for a subject (Appendix B GET …/week).
  */

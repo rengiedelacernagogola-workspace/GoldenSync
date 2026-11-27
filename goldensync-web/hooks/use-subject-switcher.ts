@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Subject popover data + navigation when user picks another subject.
+// HOW: useLiveData subjects when signed in with semesters; else goldenSyncSeed list.
+// SCREEN: Subject switcher in sidebar / mobile drawer — same module, new subject.
+// EDIT: pathForSubjectSwitch rules for which page to open. RISK: Medium — wrong path confuses navigation.
+
 /**
  * Shared subject-switcher list + navigate-on-select for AppShell / MobileDrawer.
  */
@@ -14,6 +19,7 @@ import { useLiveData } from "@/hooks/use-live-data";
 import { pathForNav } from "@/lib/nav";
 
 /** Resolve path when picking a subject from the switcher. */
+// WHAT: URL to open after switch — keeps user on same module (plan, notes, etc.) when possible.
 export function pathForSubjectSwitch(
   activeId: SidebarActiveId,
   subjectId: string,
@@ -25,6 +31,7 @@ export function pathForSubjectSwitch(
 }
 
 /** Live or seed items for the subject popover. */
+// WHAT: Builds {id, code, title} rows for the popover list.
 export function useSubjectSwitcherItems(): {
   items: SubjectSwitcherItem[];
   live: boolean;
@@ -51,6 +58,7 @@ export function useSubjectSwitcherItems(): {
 }
 
 /** Open state + select handler that navigates to the same module for the new subject. */
+// WHAT: Wires open/close, click handler, and router.push on select. SCREEN: AppShell passes activeId (current sidebar module).
 export function useSubjectSwitcherControls(opts: {
   activeId: SidebarActiveId;
   enabled?: boolean;

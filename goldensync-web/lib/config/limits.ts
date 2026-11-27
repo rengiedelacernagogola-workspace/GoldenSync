@@ -1,4 +1,11 @@
 /**
+ * WHAT: Product caps (PDF size, how many subjects, rate limits, grade thresholds).
+ * HOW: Other code imports `limits` instead of hardcoding numbers.
+ * SCREEN: Hitting a cap may show "limit reached" style errors.
+ * EDIT: Change a number here to raise/lower a product limit.
+ * KEEP: Single source of truth — do not copy these numbers elsewhere.
+ * RISK: High — wrong caps affect uploads, security rate limits, and grades.
+ *
  * Product limits (architecture Appendix C).
  * Rate-limit and ingest caps read these — do not hardcode elsewhere.
  */

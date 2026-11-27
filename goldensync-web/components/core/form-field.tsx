@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Label + control slot + helper or error message for form inputs.
+// SCREEN: Any labeled field — wraps Input, Textarea, or custom control.
+// HOW: Clones child to wire id/htmlFor; shows error row when message + invalid.
+// KEEP: Error message uses aria-live; helper hidden when error shown.
+// EDIT: Layout and error icon here — validation rules stay in parent/forms.
+// RISK: Medium — only show error after touch/submit (parent responsibility).
+
 /**
  * FormField — Figma `FormField` `10:50`.
  * UI-012: Label + Input + helper (Default) or error row (Error). Required asterisk + aria-required.

@@ -1,3 +1,5 @@
+// WHAT: Maps Course Outcomes (CO) to Program Outcomes (PO). SCREEN: Outcomes linking UI.
+
 /**
  * GET/PUT /api/subjects/:id/outcome-links — CO→PO map.
  */
@@ -9,6 +11,7 @@ import {
 } from "@/lib/services/outcome-links";
 import { replaceOutcomeLinksSchema } from "@/lib/validation/outcome-link";
 
+// WHAT: GET — current CO→PO link rows.
 export const GET = withApi(
   { auth: "required", rateLimit: "read" },
   async (ctx) => {
@@ -17,6 +20,7 @@ export const GET = withApi(
   },
 );
 
+// WHAT: PUT — replace full link set.
 export const PUT = withApi(
   {
     auth: "required",

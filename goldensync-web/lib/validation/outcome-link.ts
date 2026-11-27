@@ -1,3 +1,10 @@
+// WHAT: Validate outcome link upsert (CO id, PO id, level I/E/D).
+// HOW: linkLevelSchema enum + object schema.
+// SCREEN: Outcomes linkage grid.
+// EDIT: IDs must be non-empty strings matching DB ids.
+// KEEP: One level per pair enforced in service, not only Zod.
+// RISK: Low.
+
 /**
  * Zod schemas — CO→PO OutcomeLink map (I/E/D).
  */

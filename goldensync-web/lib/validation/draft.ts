@@ -1,3 +1,10 @@
+// WHAT: Validate draft kind + arbitrary JSON payload for autosave.
+// HOW: draftKindSchema string + payload record.
+// SCREEN: Autosave-enabled forms.
+// EDIT: Allowed draft kinds whitelist.
+// KEEP: Payload is untyped JSON — don’t trust shape without UI contract.
+// RISK: Low.
+
 /**
  * Zod schemas — draft autosave.
  */

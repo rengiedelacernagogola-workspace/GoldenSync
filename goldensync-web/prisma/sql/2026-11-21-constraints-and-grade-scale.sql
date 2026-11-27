@@ -1,3 +1,9 @@
+-- WHAT: Core DB checks (scores, semester dates, plan note importance) + initial GradeScale seed.
+-- HOW: CHECK constraints NOT VALID then VALIDATE; idempotent INSERT for scale bands + meta row.
+-- SCREEN: Grade Calculator mapping, active subject codes per semester, score entry bounds.
+-- EDIT: Band rows must stay aligned with `lib/domain/grade-scale.ts` and later detailed SQL.
+-- KEEP: Idempotent — safe via `apply-all-constraints.mjs`; unique index ignores archived subjects.
+-- RISK: High — overlapping grade bands break calculator until fixed.
 -- Constraints + GradeScale seed (local Docker; mirror to Neon develop when wired)
 
 CREATE UNIQUE INDEX IF NOT EXISTS subject_active_code_per_semester

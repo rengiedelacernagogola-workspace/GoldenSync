@@ -1,3 +1,10 @@
+// WHAT: Column title bar for core Table (overline labels).
+// SCREEN: Top of glass table on desktop.
+// HOW: Optional prop overrides for each column label; fixed height per Figma.
+// KEEP: Pair with TableRow children in Table wrapper.
+// EDIT: Default placeholder labels only — pages pass real copy via props.
+// RISK: Low
+
 /**
  * TableHeader — Figma `TableHeader` `16:92`.
  * UI-019: h-40 · bg-subtle · overline text-muted · bottom border-default.

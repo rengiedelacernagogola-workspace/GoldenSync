@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Button showing active semester label; opens semester list popover.
+// SCREEN: Top bar left area — paired with SemesterSwitcher feature logic.
+// HOW: Presentational trigger; parent wraps with popover + list data.
+// KEEP: Chevron indicates open state via aria-expanded from parent.
+// EDIT: Trigger layout and calendar icon here — list in features/semester.
+// RISK: Low
+
 /**
  * SemesterPicker — top-bar semester trigger (Figma `33:80`, UI-041).
  * FLOW: Dashboard/Top bar → opens Popover Content=SemesterList. Active = open.

@@ -1,3 +1,9 @@
+// WHAT: Tests `computeGrade` scenarios (pass, fail, incomplete, interventions) from CO scores.
+// HOW: Builds outcome inputs from percent scores; asserts scenario id and grade output.
+// SCREEN: Grade Calculator vectors and intervention messaging.
+// EDIT: When architecture §10.1 rules change in `lib/domain/grade-engine.ts`.
+// KEEP: Two 50-max activities per CO simplifies percent = average of pair.
+// RISK: Low
 /**
  * Phase 2 — grade engine six vectors (architecture §10.1).
  * Two activities per outcome @ 50 max → percent ≈ total score out of 100.

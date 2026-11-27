@@ -1,3 +1,5 @@
+// WHAT: Single assessment/activity row — patch label/scores link or delete. SCREEN: Calculator / assessments UI.
+
 /**
  * PATCH/DELETE /api/assessments/:id — edit or remove owned activity.
  */
@@ -9,6 +11,7 @@ import {
 } from "@/lib/services/assessments";
 import { patchAssessmentSchema } from "@/lib/validation/assessment";
 
+// WHAT: PATCH — update assessment fields.
 export const PATCH = withApi(
   { auth: "required", body: patchAssessmentSchema, rateLimit: "write" },
   async (ctx) => {
@@ -17,6 +20,7 @@ export const PATCH = withApi(
   },
 );
 
+// WHAT: DELETE — remove assessment.
 export const DELETE = withApi({ auth: "required", rateLimit: "write" }, async (ctx) => {
   if (!ctx.userId) throw unauthenticated();
   await deleteAssessment(ctx.userId, ctx.params.id);

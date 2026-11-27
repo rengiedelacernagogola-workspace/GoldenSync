@@ -1,3 +1,7 @@
+// WHAT: Clerk registration component — hosts the hosted SignUp UI.
+// SCREEN: Full-screen centered card on ambient background at /sign-up.
+// HOW: appearance.variables map GoldenSync CSS tokens onto Clerk theme.
+// RISK: High — creates new accounts; keep Clerk dashboard settings in sync.
 import { SignUp } from "@clerk/nextjs";
 import { Suspense } from "react";
 
@@ -6,9 +10,11 @@ import { Suspense } from "react";
  * Suspense required with cacheComponents.
  */
 
+// WHAT: Route /sign-up page. SCREEN: Centered registration card on ambient background. RISK: High
 export default function SignUpPage() {
   return (
     <div className="bg-ambient flex min-h-screen items-center justify-center bg-bg-base px-space-4">
+      {/* HOW: Suspense shows fallback text until Clerk client bundle is ready. */}
       <Suspense
         fallback={
           <p className="text-body-sm text-text-muted">Loading sign up…</p>

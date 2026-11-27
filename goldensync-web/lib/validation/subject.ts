@@ -1,3 +1,10 @@
+// WHAT: Validate subject create, patch, and delete-confirm payloads.
+// HOW: Zod including nested plan week preview on create.
+// SCREEN: Subject forms and delete confirmation modal.
+// EDIT: Field max lengths and courseCode rules.
+// KEEP: Align with lib/services/subjects.ts expectations.
+// RISK: Medium — weak validation → corrupt subject rows.
+
 /**
  * Zod schemas — subject create / patch / delete confirm.
  */

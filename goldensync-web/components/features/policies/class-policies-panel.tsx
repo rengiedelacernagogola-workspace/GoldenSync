@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Free-text class policies for one subject.
+// SCREEN: Subject policies area (Class policies card).
+// HOW: parsePoliciesDoc → edit draft textarea → merge into full policies JSON on save.
+// EDIT: Other policy sections (course spec, outcomes) preserved via serializePoliciesDoc spread.
+// KEEP: Same CardEditReveal pattern as FacultyPanel.
+
 /**
  * Class policies — per-subject free-text policies.
  * FLOW: view → Edit → Save (PATCH policies.classPolicies) / Cancel · Past semester read-only.

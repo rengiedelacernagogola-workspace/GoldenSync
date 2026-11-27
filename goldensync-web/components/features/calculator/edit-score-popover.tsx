@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Floating popover to edit one activity score out of max points.
+// SCREEN: ± steppers, numeric input, Cancel/Save — conflict + invalid banners.
+// HOW: Empty input means "not taken"; Save blocked when out of range or invalid flag.
+// EDIT: Parent remounts with new key per row so score state resets on open.
+// RISK: conflict banner is proto/sync — Reload calls onReloadConflict from parent.
+
 /**
  * EditScorePopover — score editor (Figma `180:4693` · invalid `181:14`, UI-114).
  * FLOW: ActivityRow score click → popover · empty = not taken · Proto conflict banner.
@@ -52,6 +58,7 @@ export function EditScorePopover({
     (numeric !== null &&
       (Number.isNaN(numeric) || numeric < 0 || numeric > max));
 
+  // WHAT: Step score up/down by 1, clamped between 0 and max.
   function bump(delta: number) {
     const base = score.trim() === "" || Number.isNaN(Number(score)) ? 0 : Number(score);
     const next = Math.min(max, Math.max(0, base + delta));

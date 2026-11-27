@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Read-only course spec on Overview; Edit toggles inline fields + Save.
+// SCREEN: Top card on subject Overview page.
+// EDIT: Field list and PATCH payload live in saveAll() below.
+
 /**
  * Overview Course specification — header Edit opens whole-card edit mode.
  * FLOW: view → Edit → all fields → Save (PATCH) / Cancel · Semester read-only.
@@ -47,6 +51,7 @@ export type CourseSpecCardProps = {
   }) => void;
 };
 
+// WHAT: Show em dash when a spec field is empty in view mode.
 function dash(value: string | null | undefined): string {
   const t = (value ?? "").trim();
   return t || "—";
@@ -131,6 +136,7 @@ export function CourseSpecCard({
     spec.courseDescription,
   );
 
+  // WHAT: Copy props + parsed policies into draft state when user clicks Edit.
   function hydrateDrafts() {
     setDraftCode(code);
     setDraftTitle(title);
@@ -151,6 +157,7 @@ export function CourseSpecCard({
     setDraftDescription(spec.courseDescription);
   }
 
+  // RISK: beginEdit no-ops when !live — proto users only see sign-in hint.
   function beginEdit() {
     if (!live) return;
     setError(null);
@@ -490,6 +497,7 @@ export function CourseSpecCard({
           )}
         </Row>
 
+        {/* KEEP: Semester is always read-only — not part of patchSubject here. */}
         <Row label="Semester">
           <SpecValue>{dash(semesterLabel)}</SpecValue>
         </Row>

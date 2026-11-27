@@ -1,5 +1,12 @@
 "use client"
 
+// WHAT: Canvas particle field background (interactive or ambient).
+// SCREEN: Decorative backgrounds on marketing / dev demos.
+// HOW: Canvas 2D loop + mouse repulsion optional; heavy — use sparingly.
+// KEEP: Client-only; avoid on low-power mobile main flows.
+// EDIT: quantity, color, speed in props.
+// RISK: Medium — performance cost on large viewports.
+
 import React, {
   useEffect,
   useLayoutEffect,

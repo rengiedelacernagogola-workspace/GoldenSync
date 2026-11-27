@@ -1,3 +1,9 @@
+// WHAT: Invented demo dataset (Juan, ITE 14 active subject, semester week 13) for prototype UI.
+// HOW: Plain objects + branded IDs (`asSubjectId`, etc.) assembled into `goldenSyncSeed`.
+// SCREEN: Feeds mock repos / proto screens before real Clerk + Neon data is wired.
+// EDIT: When plan §7 or Figma seed changes — subjects, activities, blurbs, dates.
+// KEEP: Do not import from React components directly (UI-004); go through data layer later.
+// RISK: Medium — looks like real data but is fiction; don’t ship as production defaults.
 /**
  * Prototype seed — plan §7 (invented demo data).
  * UI-004: single source for screens; never import this from components (use repositories later).

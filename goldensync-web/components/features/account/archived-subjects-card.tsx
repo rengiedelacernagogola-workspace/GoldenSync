@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Read-only list of subjects the user archived (code, title, date).
+// SCREEN: Account page section "Old subjects history".
+// HOW: Fetches when `enabled` (signed in); no restore action here.
+// KEEP: ArchivedSubjectsCard alias at bottom for old imports — prefer ArchivedSubjectsSection.
+// RISK: None — display only; archive/restore happens elsewhere.
+
 /**
  * Account — archived subjects history section (read-only, no outer Card).
  */
@@ -35,6 +41,7 @@ export function ArchivedSubjectsSection({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // HOW: `enabled` gates fetch — false when logged out clears list without calling API.
   React.useEffect(() => {
     if (!enabled) {
       setItems([]);

@@ -1,3 +1,7 @@
+// WHAT: PDF syllabus pipeline from browser — upload to Blob, enqueue parse job, poll until done.
+// HOW: Vercel Blob client → POST ingest → pollIngestJob until terminal status.
+// SCREEN: Add Subject PDF path shows draft fields from extractIngestDraft. RISK: High — files + server workers.
+
 /**
  * Syllabus ingest client — Blob upload → enqueue → poll job.
  */
@@ -56,6 +60,7 @@ export function buildIngestPathname(userId: string, fileName: string): string {
 }
 
 /** Client upload to private Blob via /api/blob/upload token. */
+// WHAT: Upload PDF to private storage path ingest/{userId}/…. KEEP: handleUploadUrl must stay /api/blob/upload.
 export async function uploadSyllabusPdf(userId: string, file: File) {
   const pathname = buildIngestPathname(userId, file.name);
   const blob = await upload(pathname, file, {
@@ -88,6 +93,7 @@ const TERMINAL = new Set([
 ]);
 
 /** Poll until terminal status or timeout (default 60s, 2s interval). */
+// WHAT: Wait loop for syllabus parse — default 2s interval, 120s timeout; honors AbortSignal.
 export async function pollIngestJob(
   jobId: string,
   opts?: { intervalMs?: number; timeoutMs?: number; signal?: AbortSignal },

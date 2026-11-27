@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Donut chart made of tick marks — shows % progress through the term.
+// SCREEN: SubjectCard on dashboard (center percent + optional label).
+// HOW: value 0–100 maps to filled segment count; gradient across filled ticks.
+// KEEP: Default 18 segments = weeks; parent supplies value only.
+// EDIT: size, segments, and label prop — not card layout in subject-card.tsx.
+// RISK: Low
+
 /**
  * SegmentedRingProgress — circular segmented week progress (dashboard SubjectCard).
  * 18 ticks by default; filled segments use a cyan→mint gradient for appeal.

@@ -1,5 +1,8 @@
 "use client";
 
+// WHAT: Stacks short success/error messages bottom-right of the viewport.
+// HOW: Parent pushes ToastItem[]; each auto-dismisses via onDismiss from parent timer.
+
 /**
  * ToastHost — fixed stack for Toast messages (UI-027 companion).
  * FLOW: archive / save / created success toasts. Parent pushes items.

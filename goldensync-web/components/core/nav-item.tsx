@@ -4,12 +4,19 @@
  * NavItem — one sidebar link (Figma `19:222`, UI-021).
  * Edit Active look here (glass-accent + right bar). Disable/enable from Sidebar via `disabled` + Proto `subjectSelected`.
  */
+/* WHAT: One clickable link in the left sidebar (Home, Plan, etc.).
+ * HOW: Icon + label; collapsed = icon only. Active = glass highlight + left accent bar.
+ * SCREEN: Sidebar row the user taps to change pages.
+ * EDIT: `label` / `icon` from Sidebar; Active colors in `active &&` classNames below.
+ * KEEP: aria-current, aria-label when collapsed, disabled behavior.
+ * RISK: Medium — wrong Active styles confuse which page you are on. */
 
 import { LayoutDashboard } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+// WHAT: One clickable row in the sidebar (label, icon, active, collapsed). EDIT: active/hover classes in cn() below. RISK: Low
 export interface NavItemProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label?: string;
@@ -21,6 +28,7 @@ export interface NavItemProps
 }
 
 /** Renders a nav button; collapsed shows icon only (Tooltip later). */
+// WHAT: Single nav button with active highlight bar. HOW: forwardRef lets parent attach a ref to the button. RISK: Low
 export const NavItem = React.forwardRef<HTMLButtonElement, NavItemProps>(
   function NavItem(
     {
@@ -35,6 +43,7 @@ export const NavItem = React.forwardRef<HTMLButtonElement, NavItemProps>(
     },
     ref,
   ) {
+    // HOW: Default icon if parent did not pass one.
     const iconNode = icon ?? (
       <LayoutDashboard className="size-5" aria-hidden strokeWidth={2} />
     );

@@ -1,3 +1,9 @@
+// WHAT: Legacy Trigger task that fails stuck QUEUED/RUNNING ingest jobs — PDF parse lives on Next.js.
+// HOW: Loads Prisma contract client, finds job, sets FAILED + `worker_deprecated_for_parse` message.
+// SCREEN: Add Subject ingest spinner won’t hang forever if old Trigger path still enqueues.
+// EDIT: Only if ingest orchestration moves — keep in sync with `lib/services/ingest-process.ts`.
+// KEEP: Do not add pdf-parse here (Trigger build breaks PDF worker); retry maxAttempts 1.
+// RISK: High — misunderstanding this file may duplicate parse logic on Trigger.
 /**
  * Trigger.dev task — syllabus ingest (architecture §9).
  *

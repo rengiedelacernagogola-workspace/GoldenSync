@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Replace all plan week rows for a subject (learning plan editor).
+// HOW: Full replace transaction after requireOwnedSubject.
+// SCREEN: Learning plan table on subject.
+// EDIT: Duplicate weekNumbers allowed — don’t dedupe in service without product OK.
+// KEEP: Checklist sync may run after replace (check callers).
+// RISK: High — database bulk write.
+
 /**
  * Plan week write use-cases — replace set on owned subject.
  * Duplicate weekNumbers allowed (multiple topics per week).

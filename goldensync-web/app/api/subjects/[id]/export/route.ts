@@ -1,3 +1,5 @@
+// WHAT: Download subject data as CSV or JSON attachment. SCREEN: Export page download button.
+
 /**
  * GET /api/subjects/:id/export?format=csv|json — owner export (Appendix B).
  */
@@ -5,6 +7,7 @@
 import { unauthenticated, withApi, validationFailed } from "@/lib/http";
 import { exportSubject, type ExportFormat } from "@/lib/services/export-subject";
 
+// WHAT: GET — file response; format query csv|json.
 export const GET = withApi({ auth: "required", rateLimit: "read" }, async (ctx) => {
   if (!ctx.userId) throw unauthenticated();
 

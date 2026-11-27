@@ -1,3 +1,6 @@
+// WHAT: Scheduled purge — deletes expired soft-deleted rows per retention jobs.
+// HOW: CRON_SECRET bearer token required (not Clerk user). RISK: High — destructive batch job.
+
 /**
  * GET/POST /api/cron/purge — retention sweeps (Vercel Cron).
  * Auth: Authorization: Bearer CRON_SECRET
@@ -17,11 +20,13 @@ async function handle(request: Request) {
   };
 }
 
+// WHAT: GET/POST both run same purge handler for Vercel Cron flexibility.
 export const GET = withApi(
   { auth: "none", rateLimit: "none" },
   async (ctx) => handle(ctx.request),
 );
 
+// WHAT: POST — same purge as GET (Vercel Cron may use either verb).
 export const POST = withApi(
   { auth: "none", rateLimit: "none" },
   async (ctx) => handle(ctx.request),

@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Program & course outcomes syllabus (vision through CO lists).
+// SCREEN: Subject Outcomes tab — long form card with edit/save.
+// HOW: resolveOutcomesSyllabus merges policies + Outcome rows; save patches both.
+// EDIT: toOutcomeRows syncs PEO/PO/CO list items into replaceOutcomes API shape.
+// RISK: saveAll runs two API calls — partial failure could leave mismatch; CHECK: server txn?
+
 /**
  * Outcomes — syllabus Part II: Vision / Mission / GA / IOs / PEO·PO·CO.
  * FLOW: view → Edit → Save (policies.outcomesSyllabus + Outcome rows) / Cancel.
@@ -203,6 +209,7 @@ function EditableList({
   );
 }
 
+// HOW: Flattens PEO/PO/CO list editors into Outcome rows for replaceOutcomes API.
 function toOutcomeRows(doc: OutcomesSyllabusDoc) {
   const rows: Array<{
     kind: "PEO" | "PO" | "CO";

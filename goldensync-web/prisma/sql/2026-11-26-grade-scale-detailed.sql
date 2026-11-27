@@ -1,3 +1,9 @@
+-- WHAT: Replaces all GradeScale rows with full CSU-style band table and confirms meta.
+-- HOW: DELETE all bands, INSERT ten rows, UPDATE GradeScaleMeta confirmed.
+-- SCREEN: Grade Calculator numerical grade from class average.
+-- EDIT: Band bounds must match `lib/domain/grade-scale.ts` DETAILED_GRADE_BANDS.
+-- KEEP: Not idempotent on data — wipes custom bands every run; intended for controlled deploys.
+-- RISK: High — DELETE removes operator-tuned bands.
 -- Replace coarse GradeScale (3 bands) with detailed CSU-style bands
 -- aligned to lib/domain/grade-scale.ts DETAILED_GRADE_BANDS.
 

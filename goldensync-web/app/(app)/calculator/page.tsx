@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Enter assessment scores and see course outcome (CO) grades.
+// SCREEN: /calculator · optional ?subject= id in URL for which course.
+// HOW: Picks live subject from query or first in semester; else seed demo.
+
 /**
  * Grade Calculator — live CO score entry (sidebar Grade Calculator).
  * FLOW: sidebar grade-calculator → GradeCalculatorPanel.
@@ -22,6 +26,7 @@ import { pathForNav } from "@/lib/nav";
 import { useProtoActions, useSubjectSelected } from "@/state";
 
 /** Calculator page body — needs Suspense for useSearchParams. */
+// WHAT: Shell + empty states + GradeCalculatorPanel for the active subject.
 function CalculatorBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,6 +58,8 @@ function CalculatorBody() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
+  // WHAT: Keeps URL ?subject= in sync so refresh and sidebar share same course.
+  // RISK: router.replace on every liveSubjectId change may feel aggressive in QA.
   React.useEffect(() => {
     if (useLive && liveSubjectId) {
       setSubjectSelected(true);
@@ -121,6 +128,7 @@ function CalculatorBody() {
               {useLive ? " · Live" : ""}
             </p>
 
+            {/* KEEP: key forces panel remount when subject changes — clears stale scores. */}
             <GradeCalculatorPanel
               key={useLive ? (liveSubjectId ?? "none") : (active.id ?? "seed")}
               subjectId={

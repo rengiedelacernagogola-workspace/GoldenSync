@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Read checklist items for a subject’s learning plan weeks.
+// HOW: requireOwnedSubject + ChecklistItem query.
+// SCREEN: Checklist tab.
+// EDIT: Handling legacy duplicate week rows in UI if any remain.
+// KEEP: Sync logic lives in services/checklist-sync.ts.
+// RISK: High — database + ownership.
+
 /**
  * Checklist reads — scoped by subject owner.
  */

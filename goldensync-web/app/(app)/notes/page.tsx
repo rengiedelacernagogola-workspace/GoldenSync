@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Global notes — compose on left, library (all subjects) on right.
+// SCREEN: /notes · ?subject= pre-selects composer dropdown.
+// HOW: Signed-in only for save; past semester → read-only composer.
+
 /**
  * Notes hub — cross-subject note-taker (sidebar Notes).
  * FLOW: pick subject → write/save · library lists notes from every subject.
@@ -35,6 +39,7 @@ import {
 import { pathForNav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
+// WHAT: Two-column layout — composer card + NotesLibraryCard with filters.
 function NotesBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,6 +84,7 @@ function NotesBody() {
           id: n.id,
           subjectId: n.subjectId,
           subjectCode: n.courseCode,
+          // CHECK: weekNumber hardcoded 13 for hub library display — not from API row?
           weekNumber: 13,
           title: n.title,
           topic: n.topic,
@@ -139,6 +145,7 @@ function NotesBody() {
           body,
         });
       } else {
+        // CHECK: Same weekNumber 13 on create — confirm product intent vs plan week.
         await appendSavedNote(activeSubject.id, {
           weekNumber: 13,
           title,

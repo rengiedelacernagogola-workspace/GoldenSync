@@ -1,3 +1,9 @@
+-- WHAT: Multiple learning-plan rows per week with stable `position` ordering.
+-- HOW: Drops old unique on weekNumber, backfills position via window function, adds composite index.
+-- SCREEN: Learning Plan table — several topics in one week.
+-- EDIT: Re-run safe; backfill only runs on existing rows when position was default 0.
+-- KEEP: Matches `PlanWeek.position` in `contract.prisma`.
+-- RISK: Medium — duplicate rows before unique drop need manual review if migration partially applied.
 -- Allow multiple Learning Plan rows per week (topics/outcomes/activities in one week).
 -- Drop unique (subjectId, weekNumber); add position for stable ordering.
 

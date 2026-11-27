@@ -1,3 +1,9 @@
+// WHAT: Normalize and compare subject course codes (e.g. CSC 106).
+// HOW: Pure string helpers — trim, uppercase, match confirmation to stored value.
+// EDIT: Matching rules in courseCodeMatches if syllabus codes change format.
+// KEEP: No database or HTTP here; services call these before saves.
+// RISK: Low — display/normalization only.
+
 /**
  * Course code helpers (architecture §11 / Phase 1).
  * PURE — no I/O.

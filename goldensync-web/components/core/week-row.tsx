@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: One week line in subject Checklist or Plan — topic, outcome, Done checkbox.
+// SCREEN: Checklist table (desktop grid) or stacked card on phone.
+// HOW: Parent controls done + status; ticking Done only marks completed.
+// KEEP: "No class" weeks stay muted with disabled checkbox; Plan hides Done.
+// EDIT: Column labels and grid breakpoints here — data from parent pages.
+// RISK: Medium — Done must not auto-change graded results (DEC-067).
+
 /**
  * WeekRow — Checklist / Plan week row (Figma `37:1249`, UI-044).
  * FLOW: Checklist → tick Done toggles Status=Completed only (never changes results).

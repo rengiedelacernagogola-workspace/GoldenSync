@@ -1,4 +1,4 @@
-"use client";
+"use client"; // WHAT: Browser-only component (state for configure menu). RISK: Medium
 
 /**
  * Sidebar — app shell nav (Figma `21:485`, UI-022).
@@ -36,8 +36,10 @@ import { NavItem } from "@/components/core/nav-item";
 import { SubjectSwitcher } from "@/components/core/subject-switcher";
 import { cn } from "@/lib/utils";
 
+// WHAT: Three layouts — full width, icon-only, or mobile drawer. EDIT: Add variant only with design approval. RISK: Medium
 export type SidebarVariant = "Expanded" | "Collapsed" | "Drawer";
 
+// WHAT: IDs for each nav target; parent uses these for routing/highlight. KEEP: Must match app routes. RISK: Medium
 export type SidebarActiveId =
   | "home"
   | "overview"
@@ -72,6 +74,7 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   onSwitcherClick?: () => void;
 }
 
+// WHAT: List of subject modules in the sidebar. EDIT: Reorder or relabel here; icons from lucide-react. RISK: Low
 const MODULE_ITEMS: {
   id: SidebarActiveId;
   label: string;
@@ -94,6 +97,7 @@ const MODULE_ITEMS: {
 ];
 
 /** Shell sidebar — Expanded | Collapsed | Drawer. Wire Proto from the app layout. */
+// WHAT: Left navigation column. SCREEN: Logo, Home, subject switcher, modules, Account, Log out. HOW: onNav(id) tells parent which link was clicked. RISK: Medium
 export function Sidebar({
   className,
   variant = "Expanded",
@@ -111,7 +115,9 @@ export function Sidebar({
   const collapsed = variant === "Collapsed";
   const isDrawer = variant === "Drawer";
   // RULE: proto/subjectSelected false → disable modules (not Home / Add Subject)
+  // HOW: No subject picked yet → grey out module links (user must pick subject first).
   const modulesDisabled = !subjectSelected;
+  // WHAT: Local state for Edit/Archive/Delete dropdown under "Configure Information".
   const [configureOpen, setConfigureOpen] = React.useState(false);
 
   const toggleLabel =
@@ -290,6 +296,7 @@ export function Sidebar({
               </button>
             </div>
           )}
+          {/* WHAT: Edit / Archive / Delete actions for current subject. */}
           {configureOpen && !modulesDisabled ? (
             <Menu
               aria-label="Configure Information"

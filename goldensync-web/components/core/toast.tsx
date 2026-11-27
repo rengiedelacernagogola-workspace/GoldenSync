@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: One toast card (Info/Success/Error) with icon, message, and dismiss.
+// SCREEN: Rendered in stack by ToastHost bottom-right of viewport.
+// HOW: Presentational only — duration and queue live in ToastHost / sonner.
+// KEEP: User-visible strings from copy/ or parent; variant picks icon + border.
+// EDIT: Visual tokens here — not auto-dismiss timing.
+// RISK: Low
+
 /**
  * Toast — transient notice (Figma `25:545`, UI-027).
  * Info|Success|Error · solid bg-overlay + border-strong. Auto-dismiss in host (sonner later).

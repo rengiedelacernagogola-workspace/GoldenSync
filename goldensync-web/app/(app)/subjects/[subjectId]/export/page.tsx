@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Download subject data as CSV or JSON.
+// SCREEN: /subjects/[subjectId]/export · format picker + Download button.
+// HOW: Live → downloadSubjectExport API; proto → success toast only.
+
 /**
  * Export — CSV / JSON download (Figma `137:2631`, UI-096).
  * FLOW: Format segmented → GET /api/subjects/:id/export (live) or proto toast.
@@ -24,6 +28,7 @@ import { useLiveSubject } from "@/hooks/use-live-subject";
 import { downloadSubjectExport } from "@/lib/api/subjects";
 import { pathForNav } from "@/lib/nav";
 
+// WHAT: Format picker, info banner, download + toast feedback.
 function ExportBody() {
   const params = useParams();
   const router = useRouter();
@@ -41,6 +46,7 @@ function ExportBody() {
     if (path) router.push(path);
   }
 
+  // WHAT: Short-lived toast stack — auto-dismiss after 4 seconds.
   function pushToast(message: string, variant: ToastItem["variant"] = "Success") {
     const id = `export-${Date.now()}`;
     setToasts((prev) => [...prev, { id, message, variant }]);
@@ -50,6 +56,8 @@ function ExportBody() {
     );
   }
 
+  // WHAT: Creates a temporary <a download> from blob URL — no server file path exposed.
+  // RISK: User must allow browser downloads; revokeObjectURL avoids memory leak.
   async function handleDownload() {
     const fmt = format.toLowerCase() === "json" ? "json" : "csv";
     if (subject.live) {
@@ -157,6 +165,7 @@ function ExportBody() {
   );
 }
 
+// WHAT: Route entry for subject export download page.
 export default function ExportPage() {
   return (
     <React.Suspense

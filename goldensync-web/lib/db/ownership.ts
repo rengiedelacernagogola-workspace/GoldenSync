@@ -1,3 +1,9 @@
+// WHAT: Document who may read/write each resource; scalar where-clauses for semesters.
+// HOW: ownedSemesterWhere(userId, id) — no nested relation filters (Composer limitation).
+// EDIT: authorizationMatrix when new tables get APIs.
+// KEEP: Async ownership checks live in ownership-guards.ts, not here.
+// RISK: High — auth design; matrix is the security checklist for new endpoints.
+
 /**
  * Ownership filter shapes + auth matrix (architecture §6.3).
  * Async guards that hit the DB live in ownership-guards.ts

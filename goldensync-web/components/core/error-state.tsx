@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Recoverable error panel with message and Retry button.
+// SCREEN: Dashboard or section when fetch fails — Retry calls parent onRetry.
+// HOW: Alert icon + title/body + optional secondary action.
+// KEEP: Copy from copy/; parent refetches data on Retry.
+// EDIT: Visual chrome here — not API error mapping.
+// RISK: Low
+
 /**
  * ErrorState — page/section load failure (Figma `25:760`, UI-031).
  * Flow: Dashboard LoadError Retry → Default. Edit copy in copy/.

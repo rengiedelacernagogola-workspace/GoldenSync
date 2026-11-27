@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Clerk profile UI plus custom birthday stored in user metadata.
+// SCREEN: Account page — Profile and Birthday sections.
+// HOW: useUser for auth; birthday via user.update({ unsafeMetadata }).
+// EDIT: Clerk appearance tokens map to CSS vars — match theme in variables/elements.
+// RISK: Birthday is unsafeMetadata (client-writable) — not for secrets.
+
 /**
  * Account profile fields — Clerk UserProfile (name / photo / password) + birthday.
  * Renders as sections (no outer Card); parent Account page owns the single container.

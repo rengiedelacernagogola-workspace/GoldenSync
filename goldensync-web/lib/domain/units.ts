@@ -1,3 +1,9 @@
+// WHAT: Turn units and max scores into decimal strings the database accepts.
+// HOW: toFixed(1) for units, toFixed(2) for assessment caps; invalid → safe defaults.
+// EDIT: Decimal places here if Prisma schema or syllabus rules change.
+// KEEP: Used before Prisma writes — strings must match DB column expectations.
+// RISK: Medium — wrong formatting can break saves or skew grades.
+
 /**
  * Units / score coercion for Prisma Decimal fields (stored as numeric text).
  */

@@ -1,3 +1,7 @@
+// WHAT: Maps sidebar menu ids to app URLs (dashboard, subject modules, account).
+// HOW: pathForNav(id, subjectId) — switch per id; null means parent handles (modal / no route).
+// EDIT: Add case when new sidebar link added. KEEP: ids must match SidebarActiveId in components/core. RISK: Medium.
+
 /**
  * Shell navigation helpers — map SidebarActiveId → routes.
  * FLOW: Sidebar / MobileDrawer onNav. Edit paths here when routes change.
@@ -6,6 +10,7 @@
 import type { SidebarActiveId } from "@/components/core";
 
 /** Resolve sidebar id to a path for the active subject. */
+// WHAT: One-stop route table for sidebar clicks. HOW: Default subject id ite-14 when none passed (demo).
 export function pathForNav(
   id: SidebarActiveId,
   subjectId?: string,

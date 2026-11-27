@@ -1,3 +1,7 @@
+// WHAT: Clerk webhook — syncs login provider events into our database.
+// HOW: verifyWebhook checks signature; handles user.deleted cleanup.
+// KEEP: Never log webhook secrets. RISK: High — security + user deletion.
+
 /**
  * POST /api/webhooks/clerk — verified Clerk events (architecture Appendix B).
  */
@@ -7,6 +11,7 @@ import { type NextRequest } from "next/server";
 
 import { db } from "@/lib/db";
 
+// WHAT: POST /api/webhooks/clerk — entry; returns 401 on bad signature.
 export async function POST(request: NextRequest) {
   if (!process.env.CLERK_WEBHOOK_SECRET) {
     return Response.json(

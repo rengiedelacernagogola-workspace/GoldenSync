@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Floating dev-only chip that opens Proto scenario controls on /dev/* routes.
+// SCREEN: Hidden in production and on live app routes — only /dev pages.
+// HOW: usePathname gate + Suspense wrapper; renders DemoPanel when expanded.
+// KEEP: Never ship enabled in production (NODE_ENV check + route prefix).
+// EDIT: Mount rules here — scenario fields stay in demo-panel.tsx.
+// RISK: Low
+
 /**
  * ProtoFab — mount DemoPanel only on /dev/* (C10).
  * FLOW: collapsed Proto chip → expand controls for all Proto fields.

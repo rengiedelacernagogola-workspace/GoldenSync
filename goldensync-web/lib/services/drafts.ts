@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Server-side autosave blobs (form drafts) with expiry.
+// HOW: get/put by userId + kind; TTL from config limits.
+// SCREEN: Long forms that autosave before submit.
+// EDIT: draftKind strings and TTL in limits.
+// KEEP: Expired drafts return null — UI should handle empty.
+// RISK: High — database; drafts may contain partial PII.
+
 /**
  * Draft autosave (architecture Appendix B) — 7-day TTL.
  */

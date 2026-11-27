@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Single tab button (icon + label) with active underline for tablists.
+// SCREEN: Used inside core Tabs — Upload PDF / Enter manually.
+// HOW: role="tab", aria-selected; parent Tabs owns which tab is selected.
+// KEEP: Do not use alone on pages — prefer Tabs wrapper for a11y.
+// EDIT: Active underline and typography here.
+// RISK: Low
+
 /**
  * Tab — one Add Subject mode tab (Figma `22:453`, UI-023).
  * Active = text-primary + 2px accent underline. Used inside Tabs for Upload PDF / Enter manually.

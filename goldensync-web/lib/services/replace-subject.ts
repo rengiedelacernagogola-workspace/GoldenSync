@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Swap a subject row while preserving scores that still match assessments.
+// HOW: Transactional archive + create + score copy; course code normalization.
+// SCREEN: Replace subject flow (same semester).
+// EDIT: What data copies vs resets — high business impact.
+// KEEP: Block when semester past or code confirmation fails.
+// RISK: High — database transaction; partial failure needs careful handling.
+
 /**
  * Replace subject: archive old, insert new, copy matching scores (architecture §7.4).
  */

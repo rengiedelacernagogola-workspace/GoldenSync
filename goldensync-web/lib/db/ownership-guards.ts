@@ -1,3 +1,9 @@
+// WHAT: Throw 404 unless a row belongs to the signed-in user’s semester tree.
+// HOW: Load by id, then verify semester.userId or parent subject ownership.
+// EDIT: Add requireOwned* for new child tables following the two-step pattern.
+// KEEP: RULE — never find Semester/Subject/Assessment/Score by id alone without user check.
+// RISK: High — authentication/authorization; skips here are IDOR vulnerabilities.
+
 /**
  * Ownership DB guards — two-step scalar FK checks.
  * RULE: never find by id alone on Semester/Subject/Assessment/Score.

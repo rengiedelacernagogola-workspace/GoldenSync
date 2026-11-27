@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Full live grade calculator — load template, edit scores, see results.
+// SCREEN: Subject → Scores / Grade Calculator tab (live or demo with `live` flag).
+// HOW: Fetches grading template → merge device-local scores → compute snapshot.
+// EDIT: Save Scores writes browser storage only; template save is GradingTemplatePanel.
+// RISK: Demo path uses DEFAULT_GRADING_TEMPLATE + storage id "seed" when no subjectId.
+
 /**
  * Live Grade Calculator — CO score cards + summary + passing dashboard.
  * FLOW: load/ensure grading template → hydrate local scores → Save Scores / Reset.
@@ -43,6 +49,7 @@ export type GradeCalculatorPanelProps = {
   subjectTitle?: string;
 };
 
+// HOW: Local score bucket key — real subject id or fallback "seed" for demo.
 function storageSubjectId(subjectId: string | null): string {
   if (subjectId?.trim()) return subjectId.trim();
   return "seed";
@@ -160,6 +167,7 @@ export function GradeCalculatorPanel({
     };
   }, [live, subjectId]);
 
+  // WHAT: Recompute all CO cards + summary whenever scores or template change.
   const snapshot = React.useMemo(
     () =>
       template

@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Five-step wizard to edit subject metadata (same form as Add Subject).
+// SCREEN: /subjects/[subjectId]/edit · sidebar "Edit Subject".
+// RISK: Proto (non-live) save shows success but does not call API.
+
 /**
  * Edit Subject — reuses SubjectFormSteps (C6/C7 manage subject).
  * FLOW: Sidebar Edit → form prefilled → PATCH /api/subjects/:id (+ outcomes when live).
@@ -34,6 +38,8 @@ import {
 } from "@/lib/domain/faculty";
 import { pathForNav } from "@/lib/nav";
 
+// WHAT: Inner edit wizard — form state, hydrate from API, save on step 5.
+// HOW: SubjectFormSteps handles steps 1–5; this file owns navigation + PATCH.
 function EditBody() {
   const params = useParams();
   const router = useRouter();
@@ -51,6 +57,8 @@ function EditBody() {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // WHAT: One-time hydrate — copies subject.detail into SubjectFormValues.
+  // KEEP: hydrated guard prevents overwriting user edits on re-fetch.
   React.useEffect(() => {
     if (!subject.ready || hydrated) return;
     const peos =
@@ -95,12 +103,15 @@ function EditBody() {
     return () => window.clearTimeout(handle);
   }, [subject, hydrated]);
 
+  // KEEP: Stay on edit page when sidebar highlights Edit Subject (no self-nav).
   function handleNav(id: SidebarActiveId) {
     if (id === "edit-subject") return;
     const path = pathForNav(id, subject.id);
     if (path) router.push(path);
   }
 
+  // HOW: patchSubject then replaceOutcomes when PEO/PO comma lists are non-empty.
+  // EDIT: Outcome code generation (PEO1, PO1…) lives in the loop below.
   async function handleSave() {
     setError(null);
     if (!subject.live) {
@@ -251,6 +262,8 @@ function EditBody() {
   );
 }
 
+// WHAT: Route entry — Suspense wrapper because EditBody uses client hooks.
+// KEEP: Match other subject pages: thin default export, logic in EditBody.
 export default function EditSubjectPage() {
   return (
     <React.Suspense

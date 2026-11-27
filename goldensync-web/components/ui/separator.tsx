@@ -1,5 +1,10 @@
 "use client"
 
+// WHAT: Horizontal or vertical divider line between sections.
+// HOW: Base UI Separator with orientation prop.
+// EDIT: Border color tokens here.
+// RISK: Low
+
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
 import { cn } from "cn"
 

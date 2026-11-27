@@ -1,3 +1,9 @@
+-- WHAT: Semester.yearLevel column (1–6) with CHECK constraint for academic year label.
+-- HOW: ADD COLUMN DEFAULT 1; constraint NOT VALID; COMMIT; separate DO block VALIDATE.
+-- SCREEN: Semester setup / profile year level in dashboard.
+-- EDIT: Range 1–6 only — change app + constraint together if policy expands.
+-- KEEP: COMMIT required before VALIDATE — don’t merge into single transaction in runners that wrap all SQL.
+-- RISK: Medium — COMMIT inside script may surprise tools that expect one transaction.
 -- Semester academic year level (1–6). Idempotent.
 ALTER TABLE "Semester" ADD COLUMN IF NOT EXISTS "yearLevel" INTEGER NOT NULL DEFAULT 1;
 

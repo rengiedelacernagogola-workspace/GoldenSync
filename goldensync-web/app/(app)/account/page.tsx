@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Settings page — profile, archived subjects, export, delete account.
+// SCREEN: Route /account; semester switcher hidden in top bar.
+// HOW: Clerk user for name; live API for export when signed in.
+
 /**
  * Account — single full-width “Manage your account info” container.
  * FLOW: Sidebar Account → Profile · Birthday · History · Export · Delete.
@@ -98,6 +102,8 @@ export default function AccountPage() {
     );
   }
 
+  // WHAT: Downloads JSON/ZIP export blob via downloadAccountExport API.
+  // RISK: Medium — requires sign-in; shows error toast on failure.
   async function handleExport() {
     if (!isSignedIn) {
       pushToast("Sign in to export your data.", "Error");

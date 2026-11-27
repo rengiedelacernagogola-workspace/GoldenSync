@@ -1,3 +1,9 @@
+// WHAT: Mirror Clerk sign-in into the local `User` table before any owned data is read.
+// HOW: ensureUser upserts by clerkUserId; optional ALLOWED_EMAIL_DOMAINS gate (D5).
+// EDIT: Change domain rules in assertAllowedDomain + env ALLOWED_EMAIL_DOMAINS.
+// KEEP: Called from withApi and webhooks — keep idempotent.
+// RISK: High — auth/db; wrong logic lets strangers in or blocks legit users.
+
 import "server-only";
 
 /**

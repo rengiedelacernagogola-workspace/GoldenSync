@@ -1,3 +1,9 @@
+// WHAT: Text with slowly shifting gradient fill animation.
+// SCREEN: Hero headlines and emphasis copy on landing pages.
+// HOW: background-clip text + CSS keyframe gradient move.
+// EDIT: speed, colorFrom, colorTo props.
+// RISK: Low
+
 import { type ComponentPropsWithoutRef } from "react"
 
 import { cn } from "@/lib/utils"

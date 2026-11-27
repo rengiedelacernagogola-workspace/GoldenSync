@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Editable Table 2 — numeric grade, %, letter, description rows.
+// SCREEN: Grading System tab (first stack: status, equivalent, CO table).
+// HOW: Controlled `rows` + onChange; reset pulls DEFAULT_GRADING_TEMPLATE.
+// EDIT: Add columns here and in grading-template domain types together.
+// KEEP: At least one row — remove button disabled when length <= 1.
+
 /**
  * Table 2 — Numerical Grade Equivalent and Descriptive Interpretation.
  */

@@ -1,3 +1,9 @@
+// WHAT: Dev-only design-token gallery — shows CSS variables and type samples.
+// SCREEN: /dev/tokens — primitive + semantic swatches, glass smoke, seed sanity.
+// HOW: Swatch names match Tailwind/CSS vars (e.g. --bg-base, --accent-primary).
+// KEEP: Product UI must never link here (Figma Tokens doc UI-006).
+// RISK: Ship only behind dev routes or stricter gating before production.
+
 /**
  * Dev-only tokens preview — UI-006.
  * Route: /dev/tokens. Not linked from product UI. Remove or gate harder before prod.
@@ -41,6 +47,7 @@ const semanticSwatches = [
   "text-primary",
 ] as const;
 
+// WHAT: Renders all token sections — primitives, semantic, typography, smoke data.
 /** Lists token swatches and foundation smoke checks for C1. */
 export default function DevTokensPage() {
   return (

@@ -1,3 +1,5 @@
+// WHAT: Update or delete one manual checklist item by itemId.
+
 /**
  * PATCH/DELETE /api/subjects/:id/manual-checklist/:itemId
  */
@@ -9,6 +11,7 @@ import {
 } from "@/lib/services/manual-checklist";
 import { updateManualChecklistSchema } from "@/lib/validation/manual-checklist";
 
+// WHAT: PATCH — edit label/done on one item.
 export const PATCH = withApi(
   {
     auth: "required",
@@ -26,6 +29,7 @@ export const PATCH = withApi(
   },
 );
 
+// WHAT: DELETE — remove manual item.
 export const DELETE = withApi(
   { auth: "required", rateLimit: "write" },
   async (ctx) => {

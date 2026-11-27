@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Shared click control — Primary, Secondary, Ghost, Destructive, IconOnly.
+// KEEP: Change look via buttonVariants here; screens pass variant/size props only.
+// HOW: Base UI primitive + class-variance-authority for variant classes.
+
 /**
  * Button — Figma `Button` `5:161`.
  * UI-010: Variant Primary|Secondary|Ghost|Destructive|IconOnly · Size sm 36 / md 44 / lg 52.
@@ -94,6 +98,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) {
     const resolvedSize = variant === "IconOnly" ? "md" : size;
+    // HOW: loading disables click and swaps children for spinner (width stays stable).
     const isDisabled = disabled || loading;
 
     return (

@@ -1,6 +1,13 @@
 import "server-only";
 
 /**
+ * WHAT: Date helpers fixed to Asia/Manila (school time zone).
+ * HOW: Formats a Date as YYYY-MM-DD using Intl + limits.TIME_ZONE.
+ * SCREEN: Nothing alone — used for "today", streaks, and week math.
+ * EDIT: Time zone lives in limits.TIME_ZONE — change there, not here.
+ * KEEP: Do not put `new Date()` inside lib/domain; pass these strings in.
+ * RISK: Medium — wrong zone shifts "today" and week numbers.
+ *
  * Asia/Manila calendar helpers (architecture §7.6 / I13).
  * Inject YYYY-MM-DD into pure domain — never call new Date() inside lib/domain.
  */

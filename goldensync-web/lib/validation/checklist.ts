@@ -1,3 +1,10 @@
+// WHAT: Validate checklist toggle API body (week number, done flag).
+// HOW: toggleChecklistSchema for POST handlers.
+// SCREEN: Checklist UI week toggles.
+// EDIT: weekNumber max (30) if semesters grow longer.
+// KEEP: Must match checklist service toggle signature.
+// RISK: Low.
+
 /**
  * Zod schemas — checklist week toggle (architecture Appendix B).
  */

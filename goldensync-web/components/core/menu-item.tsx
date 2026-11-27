@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: One clickable row inside Menu — default, hover, active, disabled looks.
+// SCREEN: Notification actions, semester list entries, context menus.
+// HOW: button element with focus ring inset per DEC-028.
+// KEEP: Use inside Menu for consistent hit area and focus style.
+// EDIT: Row height and state colors here.
+// RISK: Low
+
 /**
  * MenuItem — one row in Menu / Popover lists (Figma `26:166`, UI-032).
  * Default|Hover|Active|Disabled. Focus uses inset border-focus (DEC-028).

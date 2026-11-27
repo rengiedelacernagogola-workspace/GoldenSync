@@ -1,4 +1,11 @@
 /**
+ * WHAT: Shared error type and short codes the API returns to the browser.
+ * HOW: Throw AppError with a code; withApi turns it into a JSON error response.
+ * SCREEN: User may see the message text in toasts or empty states.
+ * EDIT: Add a new ErrorCode only with matching HTTP_BY_CODE entry.
+ * KEEP: Code strings stable — clients may key off them.
+ * RISK: High — wrong status codes confuse login and forms.
+ *
  * AppError model (architecture §5.3) — stable codes, safe messages.
  */
 

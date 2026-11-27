@@ -1,3 +1,10 @@
+// WHAT: Validate full learning plan replace payload (many week rows).
+// HOW: Zod array of weeks with status enum and text fields.
+// SCREEN: Learning plan save.
+// EDIT: limits.MAX_PLAN_WEEKS alignment.
+// KEEP: Allows duplicate weekNumber — product rule.
+// RISK: Medium — large payloads can stress API.
+
 /**
  * Zod schemas — plan week replace set (editable Learning Plan).
  * Same weekNumber may appear many times (multiple topics in one week).

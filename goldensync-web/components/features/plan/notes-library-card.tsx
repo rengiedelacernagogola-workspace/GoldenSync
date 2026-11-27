@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Card UI to browse, search, sort, pin, and shelf-manage plan notes.
+// SCREEN: Header filter (optional), search bar, note list, footer shelf tabs.
+// HOW: Shelves split active / archived / deleted / history; trash purges after 30d.
+// EDIT: Parent supplies notes[] and mutation callbacks (edit, delete, archive, meta).
+// RISK: Pin limit 3 on active shelf — togglePin no-ops when already at max.
+
 /**
  * NotesLibraryCard — filter icon · search / sort / pin + shelf (Archived · Deleted · History).
  * Soft-deleted notes stay 30 days before system purge.
@@ -76,6 +82,7 @@ export interface NotesLibraryCardProps {
   ) => void;
 }
 
+// WHAT: Computes days until soft-deleted note is permanently purged (config limit).
 function daysLeftUntilPurge(deletedAt: string | null | undefined): number | null {
   if (!deletedAt) return null;
   const when = Date.parse(deletedAt);
@@ -85,6 +92,7 @@ function daysLeftUntilPurge(deletedAt: string | null | undefined): number | null
   return Math.max(0, Math.ceil((expires - Date.now()) / (24 * 60 * 60 * 1000)));
 }
 
+// WHAT: Main component — local state for query, sort, shelf view, action menus.
 /** Browse saved notes: compact search+sort, pin ≤3, shelf bar for trash/archive. */
 export function NotesLibraryCard({
   notes,

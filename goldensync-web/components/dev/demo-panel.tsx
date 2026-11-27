@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Dev panel toggling Proto store (login, PDF, save, week scenarios).
+// SCREEN: /dev/demo and ProtoFab expanded UI — preview without real API.
+// HOW: useProtoState + useProtoActions from @/state; buttons flip enum fields.
+// KEEP: Not for production user flows — wire real data in features instead.
+// EDIT: Scenario button lists here — store shape in state/proto.
+// RISK: Medium — easy to confuse with real settings if mounted wrongly.
+
 /**
  * DemoPanel — Proto controls (Figma page 07, C10).
  * FLOW: flip Proto fields to preview screens without real backend.

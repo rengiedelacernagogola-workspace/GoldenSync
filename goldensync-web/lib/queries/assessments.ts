@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: List assessments for subject or load one with ownership.
+// HOW: requireOwnedSubject / requireOwnedAssessment patterns.
+// SCREEN: Assessments and scores UI.
+// EDIT: Include outcome relation if UI needs CO codes.
+// KEEP: Decimal fields as strings in DTOs via mappers.
+// RISK: High — database + ownership.
+
 /**
  * Assessment (activity) reads — scoped by owner.
  */

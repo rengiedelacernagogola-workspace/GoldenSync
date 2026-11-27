@@ -1,5 +1,11 @@
 "use client";
 
+// WHAT: Editable Table 1 — grade status vs disposition (syllabus Part IV).
+// SCREEN: Top table on Grading System tab.
+// HOW: Textareas per row; parent passes rows + onChange from grading doc.
+// EDIT: Empty row helpers live in lib/domain/grading-template.
+// KEEP: Same min-one-row rule as other grading tables.
+
 /**
  * Table 1 — Grade Status & Disposition (editable).
  */

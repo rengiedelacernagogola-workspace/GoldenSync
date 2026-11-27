@@ -1,3 +1,7 @@
+// WHAT: Browser helpers for account archive list and full account export download.
+// HOW: Most calls use apiFetch; export uses raw fetch for file blob + filename header.
+// RISK: Medium — export touches user data; auth is enforced on server.
+
 /**
  * Account API client — profile helpers + archived subjects history.
  */
@@ -10,11 +14,13 @@ export type ArchivedSubjectDto = SubjectDto & {
 };
 
 /** GET /api/me/archived-subjects */
+// WHAT: List subjects user archived (with semester label) for Account history UI.
 export function fetchArchivedSubjects() {
   return apiFetch<ArchivedSubjectDto[]>("/api/me/archived-subjects");
 }
 
 /** GET /api/me/export — download account JSON. */
+// WHAT: Download JSON backup — returns filename + Blob for save-as in browser.
 export async function downloadAccountExport(): Promise<{
   filename: string;
   blob: Blob;

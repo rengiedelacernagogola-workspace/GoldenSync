@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Shimmer placeholder while real content is loading.
+// SCREEN: Dashboard cards, table rows, lines of text — type prop picks shape.
+// HOW: CSS shimmer animation; respects prefers-reduced-motion (paused).
+// KEEP: Match skeleton type to final layout (SubjectCard, TableRow, etc.).
+// EDIT: Shimmer keyframes and dimensions per type here.
+// RISK: Low
+
 /**
  * Skeleton — loading placeholders (Figma `25:651`, UI-029 · SubjectCard DEC-049).
  * Type Line|Block|Card|TableRow|SubjectCard. Shimmer; paused for prefers-reduced-motion.

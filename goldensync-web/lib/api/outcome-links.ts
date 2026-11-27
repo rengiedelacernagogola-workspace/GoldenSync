@@ -1,3 +1,7 @@
+// WHAT: HTTP client for course-outcome → program-outcome links (I/E/D levels).
+// HOW: GET list and PUT full replace via apiFetch on /api/subjects/:id/outcome-links.
+// SCREEN: Outcomes / syllabus mapping UI. RISK: Medium — changes accreditation mapping.
+
 /**
  * OutcomeLink API client — CO→PO I/E/D map.
  */

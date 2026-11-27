@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Dialog chrome — header, scroll body, footer slot for actions.
+// SCREEN: Parent wraps with Backdrop + centering (see AddSubjectModal).
+// KEEP: Focus trap / Escape may live in host — this file is layout only.
+
 /**
  * Modal — dialog shell (Figma `24:508`, UI-025).
  * Desktop glass-lg 640 (max 960) · Mobile full screen. No glass inside body (C8).

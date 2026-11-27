@@ -1,3 +1,10 @@
+// WHAT: Dashboard card preview of grade % from template + local calculator scores.
+// HOW: resolveGradingTemplate + loadCalculatorScores + computeCalculatorSnapshot.
+// SCREEN: Home / semester subject cards showing percent and scale label.
+// EDIT: allowDefault flag and clamp logic for display.
+// KEEP: Uses browser storage — estimate may differ from server-backed checklist grades.
+// RISK: Low.
+
 /**
  * Per-subject estimated grade for dashboard cards.
  * Combines Subject.grading template + localStorage calculator scores.

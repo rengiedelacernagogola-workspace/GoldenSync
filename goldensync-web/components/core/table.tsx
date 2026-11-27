@@ -1,3 +1,6 @@
+// WHAT: Glass wrapper for tabular data — optional TableHeader + row children.
+// KEEP: Domain tables supply their own rows; this is layout shell only.
+
 /**
  * Table — Figma `Table` `16:177`.
  * UI-019: glass-sm container · radius-lg · clips. Header + TableRow children.

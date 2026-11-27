@@ -1,3 +1,9 @@
+// WHAT: Generic text input primitive from the UI kit (not Figma core Input).
+// KEEP: Forms in the product use @/components/core/input + FormField.
+// HOW: Forwards props to native input with tailwind classes.
+// EDIT: Kit styling only.
+// RISK: Low
+
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "cn"

@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Toggle learning-plan checklist done state per week.
+// HOW: Updates ChecklistItem + may sync PlanWeek status; invariant I14.
+// SCREEN: Checklist tab on subject.
+// EDIT: Done vs Not started rules when unchecking.
+// KEEP: Optional planWeekId path for single-row updates.
+// RISK: High — database; must verify subject ownership first.
+
 /**
  * Checklist write — toggles ChecklistItem (invariant I14).
  * Optional planWeekId updates only that Learning Plan row’s status.

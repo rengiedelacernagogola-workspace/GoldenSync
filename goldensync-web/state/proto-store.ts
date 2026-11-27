@@ -1,3 +1,9 @@
+// WHAT: In-memory store mirroring 13 Figma Proto variables + actions for Demo Panel.
+// HOW: Vanilla zustand inside; `createProtoStore` caches snapshots for stable `getState`.
+// SCREEN: Toggles login/pdf/week/scenario flags across prototype flows.
+// EDIT: New setters in zustand slice + facade + `proto-types` defaults together.
+// KEEP: `recordFailedLogin` enforces 5 failures → throttled (P1); export `protoStore` singleton.
+// RISK: Medium — prototype only; production must use real auth/API state instead.
 /**
  * Proto store — zustand implementation (Q-001 APPROVED).
  * Figma: Proto collection `1:122` · legend `198:195`.

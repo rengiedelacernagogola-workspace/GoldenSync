@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: UI kit linear progress bar (Base UI Progress).
+// KEEP: Checklist bars use @/components/core/progress-bar.
+// HOW: value 0–100 on Progress root.
+// EDIT: Track height classes here.
+// RISK: Low
+
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 import { cn } from "cn"
 

@@ -1,3 +1,10 @@
+// WHAT: Save/load grade calculator “your score” fields in the browser only.
+// HOW: JSON in localStorage key gs-calculator-scores:{subjectId}; “seed” for demo.
+// SCREEN: Grade Calculator tab — scores are not on server until other flows save them.
+// EDIT: Key prefix and payload shape (CalculatorScoresPayload).
+// KEEP: Returns null on server (SSR) — components must guard window.
+// RISK: Low for privacy (local only); Medium — lost if user clears storage.
+
 /**
  * On-device Grade Calculator scores — localStorage per subject.
  * Key: gs-calculator-scores:{subjectId} (use "seed" for demo).

@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: One course-outcome summary row in Grade Calculator with attainment %.
+// SCREEN: Calculator CO groups — progress bar + attained icon/text.
+// HOW: Parent passes percent and labels; >60% counts as attained (with text).
+// KEEP: Numbers right-aligned mono (KL-01); never color-only attainment.
+// EDIT: Row grid and icons here — scores from parent state.
+// RISK: Medium — pairing with ActivityRow for detail scores.
+
 /**
  * OutcomeRow — Calculator outcome group header (Figma `35:1080`, UI-042).
  * FLOW: Calculator → one row per CO. Attained = percent > 60. Never color alone.

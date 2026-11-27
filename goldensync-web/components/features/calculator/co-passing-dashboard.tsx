@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Read-only CO passing bars (60% marker) + overall pass rate summary.
+// SCREEN: Bottom of Grade Calculator, after score cards and grade summary.
+// HOW: Uses precomputed CalculatorSnapshot from grade-calculator-panel.
+// KEEP: Pure display — no edit/save; snapshot math lives in lib/domain.
+
 /**
  * CO Passing Rate dashboard — bars with 60% marker + course status line.
  */
@@ -29,6 +34,7 @@ export function CoPassingDashboard({ snapshot }: CoPassingDashboardProps) {
       <div className="flex w-full min-w-0 flex-col gap-space-4">
         <div className="flex flex-col gap-space-3">
           {snapshot.cos.map((co) => {
+            // HOW: Bar width = CO average %; dashed line at 60% is pass threshold.
             const passed = co.status === "PASSED";
             const pct = Math.min(100, Math.max(0, co.average));
             return (

@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Subject label + estimated final % and scale grade progress bar.
+// SCREEN: Last block on Grade Calculator page.
+// HOW: finalAverage from snapshot; bar empty until any score entered.
+// KEEP: clampPercent keeps bar within 0–100 for bad numeric input upstream.
+
 /**
  * Semester Estimated Final grade — progress bar from CO-weighted finalAverage.
  */

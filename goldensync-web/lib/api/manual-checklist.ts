@@ -1,3 +1,7 @@
+// WHAT: HTTP client for per-subject manual checklist rows (study todos, not graded work).
+// HOW: Thin wrappers around apiFetch for /api/subjects/:id/manual-checklist routes.
+// SCREEN: Subject checklist tab. RISK: Low — user-owned list data only.
+
 /**
  * Manual checklist API client (I14 — never feeds grades).
  */

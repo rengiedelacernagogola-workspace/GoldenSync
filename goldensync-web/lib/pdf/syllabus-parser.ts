@@ -1,4 +1,10 @@
 /**
+ * WHAT: Reads text out of a syllabus PDF on the server.
+ * HOW: Checks size, dynamically loads pdf-parse, returns text + page count or an error code.
+ * SCREEN: Add Subject / ingest uses the text to prefill fields.
+ * KEEP: Server-only import. Never import this from client components.
+ * RISK: High — PDF parsing and size limits; ask a developer before changing.
+ *
  * SyllabusParser — server-side PDF text extract (Q-002 APPROVED).
  * RULE: import only from Route Handlers / server modules — never client.
  *

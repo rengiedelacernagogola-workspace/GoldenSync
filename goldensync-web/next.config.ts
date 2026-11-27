@@ -1,3 +1,7 @@
+// WHAT: Next.js build/runtime settings — redirects, standalone output, packages, Turbopack CSS.
+// EDIT: redirects() for old URL paths; env GOLDENSYNC_STANDALONE=1 for Docker trace layout.
+// KEEP: serverExternalPackages for pdf/canvas/prisma — build breaks if removed wrongly. RISK: High — deployment.
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {

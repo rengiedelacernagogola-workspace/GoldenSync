@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: User-defined checklist items separate from learning-plan weeks.
+// HOW: requireOwnedSubject; blocks writes when semester is past.
+// SCREEN: Manual checklist panel on subject.
+// EDIT: DTO shape and ordering (position field).
+// KEEP: Invariant I14 — must not affect grade engine inputs.
+// RISK: High — database + ownership guards.
+
 /**
  * Manual checklist — freeform items; never feeds Calculator (I14).
  */

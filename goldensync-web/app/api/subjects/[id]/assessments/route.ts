@@ -1,3 +1,5 @@
+// WHAT: Graded activities for a subject — list and create. SCREEN: Grade calculator / assessments.
+
 /**
  * GET/POST /api/subjects/:id/assessments — list / add activity (Appendix B).
  */
@@ -9,11 +11,13 @@ import {
 } from "@/lib/services/assessments";
 import { createAssessmentSchema } from "@/lib/validation/assessment";
 
+// WHAT: GET — assessments for subject.
 export const GET = withApi({ auth: "required", rateLimit: "read" }, async (ctx) => {
   if (!ctx.userId) throw unauthenticated();
   return listAssessmentsForSubject(ctx.userId, ctx.params.id);
 });
 
+// WHAT: POST — new assessment row.
 export const POST = withApi(
   { auth: "required", body: createAssessmentSchema, rateLimit: "write" },
   async (ctx) => {

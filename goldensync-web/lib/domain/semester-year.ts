@@ -1,3 +1,10 @@
+// WHAT: Year level labels (First Year…) and “past semester” using Manila calendar.
+// HOW: manilaTodayUtc + compare to semester end date from semester-dates parser.
+// SCREEN: Semester picker labels and read-only past terms.
+// EDIT: YEAR_NAMES map and YEAR_LEVEL_MIN/MAX.
+// KEEP: Asia/Manila timezone for “today” — don’t switch to server local blindly.
+// RISK: Low.
+
 /**
  * Semester year-level labels + past-term detection (Asia/Manila).
  */

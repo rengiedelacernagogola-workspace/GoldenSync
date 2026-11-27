@@ -1,5 +1,12 @@
 "use client"
 
+// WHAT: Dropdown select (trigger + listbox) built on Base UI Select.
+// SCREEN: Kit/demo pages — product may use custom pickers in features/.
+// HOW: Compound exports: Select, SelectTrigger, SelectContent, SelectItem, etc.
+// KEEP: Client-only because of popup positioning.
+// EDIT: Visual chrome in this file — options from parent children.
+// RISK: Low
+
 import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "cn"

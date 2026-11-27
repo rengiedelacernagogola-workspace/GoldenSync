@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+// WHAT: Pre-flight check that required Vercel/Clerk/Neon env keys exist (names only, no secrets).
+// HOW: Parses `.env.local` / `.env`, classifies required/recommended/optional, exits 1 on missing required.
+// SCREEN: N/A — run before deploy; see printed checklist for Clerk webhook + `db:apply-constraints`.
+// EDIT: Add keys to `required` / `recommended` when new integrations ship.
+// KEEP: Never logs secret values; flags placeholder strings as FAIL.
+// RISK: Low — false PASS if vars exist but are invalid credentials.
 /**
  * Deploy env readiness — prints pass/fail for required secrets (never values).
  * Usage: node scripts/check-deploy-env.mjs

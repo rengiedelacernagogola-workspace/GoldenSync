@@ -1,3 +1,9 @@
+// WHAT: Loads `.env.local` / `.env` for Trigger worker and picks the correct Neon database URL.
+// HOW: dotenv with override rules; `databaseUrlForWorker` prefers `DIRECT_URL` over pooled `DATABASE_URL`.
+// SCREEN: N/A — worker DB access for ingest task and other Trigger jobs.
+// EDIT: Env file order or URL selection if hosting changes.
+// KEEP: Unpooled/direct URL required — Neon pooler rejects Prisma startup options.
+// RISK: Medium — missing DIRECT_URL may connect through pooler and fail at runtime.
 /**
  * Load env for Trigger worker — prefer .env.local (Next convention) over .env.
  * Prisma on Neon must use the unpooled URL (pooler rejects Prisma startup options).

@@ -1,3 +1,7 @@
+// WHAT: All browser calls for one subject — detail, plan, outcomes, grades, archive, export.
+// HOW: Most routes under /api/subjects/:id/*; export uses raw fetch for file download.
+// KEEP: ensureSubjectGradingTemplate side effect — auto-writes default grading when empty. RISK: High — subject data + deletes.
+
 /**
  * Subject API client — detail, archive, delete, export.
  */
@@ -65,6 +69,7 @@ export type SubjectDetailDto = SubjectDto & {
 };
 
 /** GET /api/subjects/:id */
+// WHAT: Full subject + nested outcomes, plan weeks, assessments, checklist.
 export function fetchSubjectDetail(id: string) {
   return apiFetch<SubjectDetailDto>(`/api/subjects/${id}`);
 }
@@ -78,6 +83,7 @@ export function archiveSubject(id: string) {
 }
 
 /** DELETE /api/subjects/:id — soft-archive with typed confirm. */
+// WHAT: Delete subject — user must type course code to confirm. RISK: High — destructive.
 export function deleteSubject(id: string, confirmCourseCode: string) {
   return apiFetch<{ ok: boolean }>(`/api/subjects/${id}`, {
     method: "DELETE",

@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Slide-over sidebar on small screens when user taps menu in top bar.
+// SCREEN: md:hidden — desktop uses expanded/collapsed sidebar in AppShell.
+// HOW: Backdrop dismiss + same onNav as desktop; subject popover overlays drawer.
+
 /**
  * MobileDrawer — full-height nav sheet (Figma Drawer M `101:10669`, UI-052).
  * FLOW: TopBar menu → Backdrop + Sidebar Drawer. Close X / Backdrop dismiss.

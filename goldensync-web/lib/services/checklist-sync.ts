@@ -1,5 +1,11 @@
 import "server-only";
 
+// WHAT: Dedupe checklist rows and align done flags with plan week status.
+// HOW: Internal helpers called from plan/checklist writes — not API surface.
+// EDIT: Dedup strategy if legacy data has many duplicates.
+// KEEP: One row per (subjectId, weekNumber) target invariant.
+// RISK: High — database maintenance queries.
+
 /**
  * ChecklistItem helpers — keep at most one row per (subjectId, weekNumber)
  * and sync done state even if legacy duplicates exist.

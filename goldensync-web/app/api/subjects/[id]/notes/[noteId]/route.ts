@@ -1,3 +1,5 @@
+// WHAT: Edit or soft-delete one plan note. RISK: Medium — user content.
+
 /**
  * PATCH/DELETE /api/subjects/:id/notes/:noteId — update / delete plan note.
  */
@@ -9,6 +11,7 @@ import {
 } from "@/lib/services/plan-notes";
 import { updatePlanNoteSchema } from "@/lib/validation/plan-note";
 
+// WHAT: PATCH — pin, archive, edit body, etc.
 export const PATCH = withApi(
   { auth: "required", body: updatePlanNoteSchema, rateLimit: "write" },
   async (ctx) => {
@@ -22,6 +25,7 @@ export const PATCH = withApi(
   },
 );
 
+// WHAT: DELETE — soft-delete note (trash retention).
 export const DELETE = withApi(
   { auth: "required", rateLimit: "write" },
   async (ctx) => {

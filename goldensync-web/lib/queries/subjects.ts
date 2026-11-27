@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Load subjects and full subject detail trees for an owner.
+// HOW: requireOwnedSubject + joined reads + mappers DTOs.
+// SCREEN: Subject pages, dashboard cards, export.
+// EDIT: getSubjectDetailForUser includes — heavy query; extend carefully.
+// KEEP: Always pass userId from auth session.
+// RISK: High — database + ownership; detail query is hot path.
+
 /**
  * Subject reads — always scoped by owner via semester.userId.
  */

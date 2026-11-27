@@ -1,3 +1,10 @@
+// WHAT: Small floating caption explaining an icon-only control.
+// SCREEN: Collapsed sidebar NavItem — shows full label on hover/focus.
+// HOW: Static positioned div; parent controls visibility (not a popover library).
+// KEEP: Max width 240; solid overlay background per Figma (no glass).
+// EDIT: Typography and colors here.
+// RISK: Low
+
 /**
  * Tooltip — collapsed NavItem label helper (Figma `25:585`, UI-028).
  * Solid bg-overlay + border-strong · caption · max 240. No glass.

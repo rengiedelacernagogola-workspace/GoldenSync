@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: Create/update/delete assessments (scored activities) on a subject.
+// HOW: Ownership via subject; stores maxScore as decimal string.
+// SCREEN: Assessments / activities list on subject.
+// EDIT: Limits on count per subject from config.
+// KEEP: Tied to outcomes for grade engine inputs.
+// RISK: High — database writes.
+
 /**
  * Assessment (activity) write use-cases (Phase 1 / Appendix B).
  */

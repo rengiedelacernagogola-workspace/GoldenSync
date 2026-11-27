@@ -1,5 +1,12 @@
 "use client";
 
+// WHAT: Horizontal step dots/labels for multi-step forms (1 of 5, etc.).
+// SCREEN: Add Subject manual flow and similar wizards.
+// HOW: Parent passes steps[] with id, label, and state Upcoming|Active|Done.
+// KEEP: Step machine logic stays in feature pages — this only renders UI.
+// EDIT: Spacing and check icon for Done state here.
+// RISK: Low
+
 /**
  * Stepper — multi-step form progress (Figma `27:297` / Step `27:81`, UI-034).
  * Flow: Subject form steps 1–5. Active = accent; Done = check; Upcoming muted.

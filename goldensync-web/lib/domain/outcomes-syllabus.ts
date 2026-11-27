@@ -1,3 +1,10 @@
+// WHAT: Part II syllabus block (vision, mission, PEO/PO/CO lists) inside policies JSON.
+// HOW: parse/serialize OutcomesSyllabusDoc; list item sanitizer for codes/descriptions.
+// SCREEN: Outcomes syllabus section on subject policies UI.
+// EDIT: EMPTY_OUTCOMES_SYLLABUS and sync rules with Outcome table (via services).
+// KEEP: CO/PEO/PO codes should align with lib/domain grade and checklist flows.
+// RISK: Low.
+
 /**
  * Syllabus Part II — Vision / Mission / IOs + editable PEO·PO·CO lists.
  * Institutional text lives in Subject.policies.outcomesSyllabus.

@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Edit weighting template (quizzes, exams, etc.) for grade math.
+// SCREEN: /grading-system · same subject picker pattern as /calculator.
+// EDIT: GradingTemplatePanel holds the actual form fields.
+
 /**
  * Grading System — Subject.grading template editor (sidebar Grading System).
  * FLOW: sidebar calculator → GradingTemplatePanel only.
@@ -22,6 +26,7 @@ import { pathForNav } from "@/lib/nav";
 import { useProtoActions, useSubjectSelected } from "@/state";
 
 /** Grading System page body — needs Suspense for useSearchParams. */
+// KEEP: Nearly mirrors calculator/page.tsx — change both if subject selection changes.
 function GradingSystemBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,6 +74,7 @@ function GradingSystemBody() {
 
   return (
     <>
+      {/* CHECK: AppShell activeId "calculator" — sidebar highlight may match Grade Calculator group. */}
       <AppShell
         sidebarVariant={collapsed ? "Collapsed" : "Expanded"}
         subjectSelected={subjectSelected}

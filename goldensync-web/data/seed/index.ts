@@ -1,3 +1,9 @@
+// WHAT: Public entry for seed data, week rows, and seed TypeScript types.
+// HOW: Re-exports from `goldensync.seed`, `weeks`, and `seed-types`.
+// SCREEN: App bootstrap, Storybook, tests that need consistent demo content.
+// EDIT: Add exports when new seed modules appear.
+// KEEP: One import path `@/data/seed` for all prototype data.
+// RISK: Low
 /**
  * Seed barrel — UI-004.
  */

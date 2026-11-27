@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Subject home — course spec card + notes panel for one subject.
+// SCREEN: Route /subjects/[subjectId]/overview with sidebar on "Overview".
+// HOW: Client page; loads subject via useLiveSubject(subjectId from URL).
+
 /**
  * Overview — subject home (Figma `128:183`, UI-090).
  * FLOW: Dashboard SubjectCard → Overview · Course spec + subject Notes.
@@ -22,6 +26,8 @@ import { pushActivity, type ActivityKind } from "@/lib/activity/activity-log";
 import { pathForNav } from "@/lib/nav";
 
 /** Inner overview — Suspense for useParams. */
+// WHAT: Main overview UI — shell, banners, CourseSpecCard, SubjectNotesPanel.
+// HOW: useParams reads [subjectId]; defaults to "ite-14" if missing (demo).
 function OverviewBody() {
   const params = useParams();
   const router = useRouter();
@@ -31,12 +37,14 @@ function OverviewBody() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [activityTick, setActivityTick] = React.useState(0);
+  // WHAT: activityTick bumps top-bar notifications after saves in child cards.
 
   function handleNav(id: SidebarActiveId) {
     const path = pathForNav(id, subject.id);
     if (path) router.push(path);
   }
 
+  // WHAT: Writes activity log entry then bumps notificationsRefreshKey on top bar.
   function notifyActivity(entry: {
     kind: ActivityKind;
     title: string;
@@ -72,6 +80,7 @@ function OverviewBody() {
             {subject.semesterPast ? " · Past" : ""}
           </p>
 
+          {/* SCREEN: Past semester banner — read-only mode for all edits below. */}
           {subject.semesterPast ? (
             <Banner
               variant="Info"
@@ -124,6 +133,7 @@ function OverviewBody() {
 }
 
 /** Overview page — Suspense for dynamic subjectId. */
+// KEEP: Thin wrapper — put logic in OverviewBody, not here.
 export default function OverviewPage() {
   return (
     <React.Suspense

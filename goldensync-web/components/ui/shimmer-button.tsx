@@ -1,3 +1,9 @@
+// WHAT: Button with animated shimmer highlight across the surface.
+// SCREEN: Landing CTAs and demos — not core app primary actions.
+// HOW: CSS gradient animation on button background layers.
+// EDIT: shimmerColor, duration, borderRadius props.
+// RISK: Low
+
 import React, { type ComponentPropsWithoutRef, type CSSProperties } from "react"
 
 import { cn } from "@/lib/utils"

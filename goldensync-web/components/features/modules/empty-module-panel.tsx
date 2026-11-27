@@ -1,5 +1,10 @@
 "use client";
 
+// WHAT: Placeholder when a subject module is missing from the syllabus.
+// SCREEN: EmptyState with "Edit subject" action routing to /subjects/:id/edit.
+// HOW: Used with ?empty=1 query for design QA via Demo Panel.
+// EDIT: Figma EmptyModule UI-093 — keep copy aligned with appendix empty module.
+
 /**
  * Empty module panel — Figma EmptyModule (`134:1287`+, UI-093).
  * FLOW: ?empty=1 (Demo Panel) → EmptyState → Edit subject.
@@ -10,6 +15,7 @@ import { useRouter } from "next/navigation";
 
 import { EmptyState } from "@/components/core";
 
+// WHAT: Thin wrapper — passes subjectId into Edit subject navigation.
 export function EmptyModulePanel({ subjectId }: { subjectId: string }) {
   const router = useRouter();
 

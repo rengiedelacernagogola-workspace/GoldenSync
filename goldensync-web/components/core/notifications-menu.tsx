@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Bell in top bar listing recent activity (subjects, semesters, notes).
+// HOW: loadActivities on open; refreshKey from parent bumps list after actions.
+// RISK: Low — delete is per-item only, not bulk clear.
+
 /**
  * NotificationsMenu — bell + dropdown of system activities.
  */

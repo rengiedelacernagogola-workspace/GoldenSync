@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Main home screen — grid of subject cards after sign-in.
+// SCREEN: Route /dashboard inside the app shell (sidebar + top bar).
+// HOW: Client component — uses React hooks and browser APIs.
+
 /**
  * Dashboard — subject grid (Figma P2/Dashboard `69:2019`+, UI-070).
  * FLOW: shell → cards → Overview · Add Subject modal · EmptySubjects / Loading.
@@ -59,6 +63,8 @@ import {
 } from "@/state";
 
 /** Dashboard body — Suspense for useSearchParams. */
+// WHAT: Holds all dashboard logic and UI (not the loading wrapper).
+// HOW: Wrapped in Suspense because useSearchParams needs it in Next.js.
 function DashboardBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,6 +76,8 @@ function DashboardBody() {
   const { isSignedIn } = useUser();
   const { signOut } = useClerk();
 
+  // WHAT: Local UI state — drawers, modals, toasts, which subject is selected.
+  // EDIT: Add new modals here with useState; wire onClose in JSX below.
   const [collapsed, setCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
@@ -114,6 +122,9 @@ function DashboardBody() {
   }
 
   /** Real API subjects only — never fall back to seed while signed in. */
+  // WHAT: Chooses live API data vs demo seed for the subject grid.
+  // HOW: Signed in + at least one semester → fetch real subjects.
+  // RISK: Medium — wrong branch shows demo data to signed-in users.
   const useLiveSubjects = live.signedIn && live.semesters.length > 0;
   const activeSemester = getActiveSemester(live);
   const showLiveShell = live.signedIn;
@@ -177,6 +188,8 @@ function DashboardBody() {
     [removedSubjectIds],
   );
 
+  // WHAT: Normalized list for SubjectCard — one object per tile on the grid.
+  // HOW: Maps API or seed rows and enriches with checklist, faculty, grade estimate.
   const gridSubjects = showLiveShell
     ? live.subjects
         .filter((s) => !removedSet.has(s.id))
@@ -277,6 +290,7 @@ function DashboardBody() {
           isActive:
             selectedLiveId != null ? s.id === selectedLiveId : i === 0,
         }));
+  // CHECK: scoresTick read here so grade estimates refresh after storage/focus events.
   void scoresTick;
   const active =
     gridSubjects.find((s) => s.isActive) ?? gridSubjects[0] ?? undefined;
@@ -319,6 +333,8 @@ function DashboardBody() {
     setAddOpen(true);
   }
 
+  // WHAT: Sidebar / drawer navigation and special actions (add, archive, delete, logout).
+  // HOW: Some ids open modals; others call router.push via pathForNav.
   function handleNav(id: SidebarActiveId) {
     setActiveNav(id);
     if (id === "add-subject") {
@@ -633,6 +649,8 @@ function DashboardBody() {
 }
 
 /** Dashboard — Default / Loading / EmptySubjects / NoSemester. */
+// WHAT: Page entry — shows Suspense fallback until search params are ready.
+// KEEP: Do not put heavy logic here; use DashboardBody instead.
 export default function DashboardPage() {
   return (
     <React.Suspense

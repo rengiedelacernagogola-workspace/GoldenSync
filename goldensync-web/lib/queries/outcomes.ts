@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: List outcomes (PEO/PO/CO) for an owned subject.
+// HOW: requireOwnedSubject + Outcome query.
+// SCREEN: Outcomes panels and grade engine inputs.
+// EDIT: Sort by kind/code.
+// KEEP: Pairs with services/outcomes writes.
+// RISK: High — database + ownership.
+
 /**
  * Outcome reads — scoped by subject owner.
  */

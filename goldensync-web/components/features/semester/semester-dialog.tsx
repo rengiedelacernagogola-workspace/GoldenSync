@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Form to create a semester (label, year level, start/end dates).
+// SCREEN: Anchored panel under semester switcher — not a centered modal.
+// HOW: Validates dates locally, then POST createSemester when signed in.
+
 /**
  * SemesterCreatePanel — New semester form (anchored under SemesterSwitcher).
  * FLOW: SemesterPicker → New semester… → panel under trigger · conflict check.
@@ -81,6 +85,7 @@ export function SemesterCreatePanel({
 
   if (!open) return null;
 
+  // WHAT: Client-side checks before API call (required fields, date order, overlap).
   function validateLocal(): string | null {
     if (!label.trim()) return "Semester label is required.";
     if (label.trim().length > 80) return "Label must be at most 80 characters.";
@@ -135,6 +140,7 @@ export function SemesterCreatePanel({
       return;
     }
 
+    // WHAT: Unsigned / demo path — no API; only proto flag hasSemester.
     setHasSemester(true);
     onCreated?.({ label: label.trim() });
     onClose?.();

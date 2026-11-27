@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: Animates a number counting up/down when scrolled into view.
+// SCREEN: Stats on marketing pages.
+// HOW: motion springs from useMotionValue + useInView trigger.
+// EDIT: direction, delay, decimalPlaces props.
+// RISK: Low
+
 import { useEffect, useRef, type ComponentPropsWithoutRef } from "react"
 import { useInView, useMotionValue, useSpring } from "motion/react"
 

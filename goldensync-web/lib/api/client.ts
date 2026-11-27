@@ -1,4 +1,14 @@
+// WHAT: Shared browser `fetch` for GoldenSync APIs — parses `{ data }` / `{ error }` envelopes.
+// HOW: apiFetch sends cookies (Clerk session); optional Idempotency-Key on creates.
+// SCREEN: Every file under lib/api/* imports this. RISK: Medium — all UI data loads go through here.
+
 /**
+ * WHAT: Browser helper to call GoldenSync /api routes and unpack JSON.
+ * HOW: fetch → parse `{ data }` or throw ApiClientError from `{ error }`; adds Idempotency-Key on creates.
+ * SCREEN: Failures often become toast / inline error messages.
+ * KEEP: Envelope shapes must match lib/http/response.ts.
+ * RISK: Medium — wrong parsing breaks every live form save.
+ *
  * Browser fetch helpers for GoldenSync JSON APIs.
  * Expects `{ data, requestId }` or `{ error, requestId }` envelopes.
  */

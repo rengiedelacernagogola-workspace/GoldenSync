@@ -1,5 +1,9 @@
 "use client";
 
+// WHAT: Spreadsheet-style learning plan editor with Save → replacePlan API.
+// SCREEN: Used on Plan page for live subjects (and empty skeleton).
+// RISK: "Done" status syncs checklist — see file header FLOW note.
+
 /**
  * Editable Learning Plan table — add/edit/duplicate week · topic · outcome · activities · status.
  * Status stays checklist-style; Done syncs ChecklistItem via PUT /plan.
@@ -49,6 +53,7 @@ type EditablePlanTableProps = {
 };
 
 const MAX_PLAN_ENTRIES = 90;
+// KEEP: Cap enforced on add, duplicate, and Add Templates button.
 
 function nextKey() {
   return `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -90,6 +95,8 @@ function StatusIndicator({ status }: { status: PlanDraftStatus }) {
   );
 }
 
+// WHAT: Dropdown for row status — portals menu to document.body for z-index.
+// HOW: Closes on outside click, Escape, scroll, or resize.
 function StatusPicker({
   value,
   weekNumber,
@@ -234,6 +241,7 @@ export function EditablePlanTable({
     setOkMsg(null);
   }, [initialRows]);
 
+  // HOW: dirty compares full row JSON to baseline — simple but brittle to key order.
   const dirty = JSON.stringify(rows) !== baseline;
 
   function updateRow(key: string, patch: Partial<PlanDraftRow>) {
@@ -428,7 +436,7 @@ export function EditablePlanTable({
                   role="row"
                   className="border-b border-border-subtle"
                 >
-                  {/* Phone stack */}
+                  {/* SCREEN: Phone stack — duplicate field blocks vs desktop grid below. */}
                   <div className="flex w-full flex-col gap-space-2 px-space-3 py-space-3 md:hidden">
                     <div className="flex w-full items-center justify-between gap-space-2">
                       <label className="flex min-w-0 items-center gap-space-1">

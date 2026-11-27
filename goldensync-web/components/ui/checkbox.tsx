@@ -1,5 +1,11 @@
 "use client"
 
+// WHAT: UI kit checkbox — Base UI + check indicator.
+// KEEP: GoldenSync checklist uses @/components/core/checkbox.
+// HOW: Controlled checked state from parent.
+// EDIT: Size and border tokens here.
+// RISK: Low
+
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
 import { cn } from "cn"
 import { CheckIcon } from "lucide-react"

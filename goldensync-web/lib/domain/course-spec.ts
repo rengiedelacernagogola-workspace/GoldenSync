@@ -1,3 +1,10 @@
+// WHAT: Parse/save Subject.policies JSON (class policies, course spec, outcomes syllabus blob).
+// HOW: Merges legacy string policies into structured PoliciesDoc; ties to outcomes-syllabus.
+// SCREEN: Subject settings / policies forms.
+// EDIT: EMPTY_POLICIES_DOC fields and parse/serialize helpers.
+// KEEP: JSON shape must stay compatible with existing Subject rows.
+// RISK: Medium — corrupt JSON breaks subject detail pages.
+
 /**
  * Structured Subject.policies JSON — class policies blurb + PART I course spec
  * + Part II outcomes syllabus (vision/mission/IOs + PEO·PO·CO lists).

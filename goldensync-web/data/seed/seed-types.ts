@@ -1,3 +1,9 @@
+// WHAT: TypeScript shapes for prototype seed JSON (account, semester, subjects, activities).
+// HOW: Readonly interfaces using branded domain IDs; no classes or DB mapping here.
+// SCREEN: Documents what demo screens expect before Prisma models are loaded.
+// EDIT: Extend interfaces when seed fields grow; keep in sync with `goldensync.seed.ts`.
+// KEEP: Stays free of React/Prisma — pure data contracts (UI-004).
+// RISK: Low — mismatched types fail compile when seed object is updated.
 /**
  * Seed DTOs — plain data mirroring prototype plan §7.
  * UI-004: repositories will map these to domain models later.
