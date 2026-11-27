@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+// WHAT: Runs all `prisma/sql/*.sql` migrations in fixed order against Postgres (local or Neon).
+// HOW: `pg` client + read each file listed in `files` array; skip missing with warn.
+// SCREEN: N/A — ops script; enables DB features the app expects (constraints, grade scale, indexes).
+// EDIT: Append new SQL filenames when adding migrations; keep order dependency-safe.
+// KEEP: Use `DIRECT_URL` when available; scripts should stay idempotent (`IF NOT EXISTS`).
+// RISK: High — wrong order or non-idempotent SQL can break production data.
 /**
  * Apply SQL constraint scripts in order against DIRECT_URL / DATABASE_URL.
  * Safe to re-run if scripts use IF NOT EXISTS / idempotent DDL.
@@ -27,6 +33,7 @@ const files = [
   "2026-11-26-grade-scale-detailed.sql",
   "2026-11-26-missing-plan-indexes.sql",
   "2026-11-27-semester-year-level.sql",
+  "2026-11-27-perf-purge-and-notes-indexes.sql",
 ];
 
 const client = new pg.Client({

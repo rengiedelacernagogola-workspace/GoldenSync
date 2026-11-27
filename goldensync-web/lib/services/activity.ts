@@ -1,5 +1,12 @@
 import "server-only";
 
+// WHAT: CRUD for the in-app activity/notification feed per user.
+// HOW: server-only + Prisma; trims feed to limits.MAX_FEED on create.
+// SCREEN: Activity bell / feed UI via API routes.
+// EDIT: activityKind values must match validation/activity.ts.
+// KEEP: purgeOldActivities retention policy (90 days).
+// RISK: High — database writes; always scope by userId.
+
 /**
  * Activity feed — server-backed notifications (replaces gs-activity-log).
  * Retention: 90 days (DBDEC-005); purge job stub elsewhere.
@@ -53,11 +60,11 @@ function mapActivity(row: {
 
 /** List recent activities for the signed-in user (newest first). */
 export async function listActivities(userId: string): Promise<ActivityDto[]> {
-  const rows = await db.orm.public.ActivityEvent.where({ userId }).all();
-  return rows
-    .map(mapActivity)
-    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-    .slice(0, MAX_FEED);
+  const rows = await db.orm.public.ActivityEvent.where({ userId })
+    .orderBy((r) => r.createdAt.desc())
+    .limit(MAX_FEED)
+    .all();
+  return rows.map(mapActivity);
 }
 
 /** Create an activity event. Cap feed length by deleting oldest beyond MAX_FEED. */
@@ -74,17 +81,15 @@ export async function createActivity(
     entityId: input.entityId ?? null,
   });
 
-  const all = await db.orm.public.ActivityEvent.where({ userId }).all();
-  if (all.length > Math.max(MAX_FEED, limits.MAX_ACTIVITIES)) {
-    const sorted = [...all].sort((a, b) => {
-      const at = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
-      const bt = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
-      return at - bt;
-    });
-    const overflow = sorted.slice(0, sorted.length - MAX_FEED);
-    for (const row of overflow) {
-      await db.orm.public.ActivityEvent.where({ id: row.id }).delete();
-    }
+  // Trim only after crossing the activity cap; keep newest MAX_FEED rows.
+  const threshold = Math.max(MAX_FEED, limits.MAX_ACTIVITIES);
+  const overflow = await db.orm.public.ActivityEvent.where({ userId })
+    .orderBy((r) => r.createdAt.desc())
+    .offset(MAX_FEED)
+    .all();
+  if (overflow.length + MAX_FEED > threshold) {
+    const ids = overflow.map((row) => row.id);
+    await db.orm.public.ActivityEvent.where((r) => r.id.in(ids)).deleteAll();
   }
 
   return mapActivity(created);
@@ -125,10 +130,7 @@ export async function deleteActivity(
 export async function clearActivities(
   userId: string,
 ): Promise<ActivityDto[]> {
-  const rows = await db.orm.public.ActivityEvent.where({ userId }).all();
-  for (const row of rows) {
-    await db.orm.public.ActivityEvent.where({ id: row.id }).delete();
-  }
+  await db.orm.public.ActivityEvent.where({ userId }).deleteAll();
   return listActivities(userId);
 }
 
@@ -140,17 +142,7 @@ export async function purgeOldActivities(
   retentionDays = 90,
 ): Promise<number> {
   const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
-  const rows = await db.orm.public.ActivityEvent.where({}).all();
-  let deleted = 0;
-  for (const row of rows) {
-    const created =
-      row.createdAt instanceof Date
-        ? row.createdAt
-        : new Date(String(row.createdAt));
-    if (created < cutoff) {
-      await db.orm.public.ActivityEvent.where({ id: row.id }).delete();
-      deleted += 1;
-    }
-  }
-  return deleted;
+  return await db.orm.public.ActivityEvent.where((r) =>
+    r.createdAt.lt(cutoff),
+  ).deleteAndCount();
 }

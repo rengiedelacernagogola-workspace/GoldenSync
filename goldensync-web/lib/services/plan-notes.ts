@@ -1,10 +1,19 @@
 import "server-only";
 
+// WHAT: Saved notes library per subject (pin, archive, soft-delete).
+// HOW: requireOwnedSubject; enforces pin cap and retention purge.
+// SCREEN: /notes and subject notes panels.
+// EDIT: NOTE_SOFT_DELETE_DAYS and max pins in limits.
+// KEEP: Past semesters → read-only enforced in service.
+// RISK: High — database + ownership.
+
 /**
  * Plan notes — multi-entry library per subject (replaces localStorage gs-notes-*).
  * Pin ≤3 enforced in service (DBDEC-006).
  * Soft-delete via deletedAt; purge after NOTE_SOFT_DELETE_DAYS.
  */
+
+import { and } from "@prisma/orm-postgres/orm-client";
 
 import { limits } from "@/lib/config/limits";
 import { isSemesterPast } from "@/lib/domain/semester-year";
@@ -85,10 +94,6 @@ function mapPlanNote(row: {
   };
 }
 
-function isActive(row: { archivedAt: unknown; deletedAt?: unknown }) {
-  return row.archivedAt == null && row.deletedAt == null;
-}
-
 /** List notes for an owned subject (newest savedAt first). */
 export async function listPlanNotes(
   userId: string,
@@ -96,13 +101,16 @@ export async function listPlanNotes(
   opts?: { includeShelved?: boolean },
 ): Promise<PlanNoteDto[]> {
   await requireOwnedSubject(userId, subjectId);
-  const rows = await db.orm.public.PlanNote.where({ subjectId }).all();
-  const filtered = opts?.includeShelved
-    ? rows
-    : rows.filter((r) => isActive(r));
-  return filtered
-    .map(mapPlanNote)
-    .sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
+  const rows = opts?.includeShelved
+    ? await db.orm.public.PlanNote.where({ subjectId })
+        .orderBy((n) => n.savedAt.desc())
+        .all()
+    : await db.orm.public.PlanNote.where({ subjectId })
+        .where((n) => n.archivedAt.isNull())
+        .where((n) => n.deletedAt.isNull())
+        .orderBy((n) => n.savedAt.desc())
+        .all();
+  return rows.map(mapPlanNote);
 }
 
 /**
@@ -113,20 +121,26 @@ export async function listAllPlanNotesForUser(
   userId: string,
   opts?: { includeShelved?: boolean },
 ): Promise<PlanNoteDto[]> {
-  const semesters = await db.orm.public.Semester.where({ userId }).all();
-  const out: PlanNoteDto[] = [];
+  const semesters = await db.orm.public.Semester.where({ userId })
+    .include("subjects", (subjects) =>
+      subjects
+        .where((s) => s.archivedAt.isNull())
+        .include("planNotes", (notes) =>
+          opts?.includeShelved
+            ? notes.orderBy((n) => n.savedAt.desc())
+            : notes
+                .where((n) =>
+                  and(n.archivedAt.isNull(), n.deletedAt.isNull()),
+                )
+                .orderBy((n) => n.savedAt.desc()),
+        ),
+    )
+    .all();
 
+  const out: PlanNoteDto[] = [];
   for (const semester of semesters) {
-    const subjects = await db.orm.public.Subject.where({
-      semesterId: semester.id,
-      archivedAt: null,
-    }).all();
-    for (const subject of subjects) {
-      const rows = await db.orm.public.PlanNote.where({
-        subjectId: subject.id,
-      }).all();
-      for (const row of rows) {
-        if (!opts?.includeShelved && !isActive(row)) continue;
+    for (const subject of semester.subjects ?? []) {
+      for (const row of subject.planNotes ?? []) {
         out.push({
           ...mapPlanNote(row),
           courseCode: subject.courseCode,
@@ -150,10 +164,13 @@ export async function createPlanNote(
 
   const pinned = input.pinned === true;
   if (pinned) {
-    const pinnedCount = (
-      await db.orm.public.PlanNote.where({ subjectId }).all()
-    ).filter((r) => r.pinned && isActive(r)).length;
-    if (pinnedCount >= 3) {
+    const pinnedRows = await db.orm.public.PlanNote.where({ subjectId })
+      .where((n) => n.pinned.eq(true))
+      .where((n) => n.archivedAt.isNull())
+      .where((n) => n.deletedAt.isNull())
+      .select("id")
+      .all();
+    if (pinnedRows.length >= 3) {
       throw new AppError(
         "LIMIT_REACHED",
         "At most 3 pinned notes per subject.",
@@ -188,10 +205,14 @@ export async function updatePlanNote(
   if (!existing) throw notFound();
 
   if (input.pinned === true && !existing.pinned) {
-    const pinnedCount = (
-      await db.orm.public.PlanNote.where({ subjectId }).all()
-    ).filter((r) => r.pinned && isActive(r) && r.id !== noteId).length;
-    if (pinnedCount >= 3) {
+    const pinnedRows = await db.orm.public.PlanNote.where({ subjectId })
+      .where((n) => n.pinned.eq(true))
+      .where((n) => n.archivedAt.isNull())
+      .where((n) => n.deletedAt.isNull())
+      .where((n) => n.id.neq(noteId))
+      .select("id")
+      .all();
+    if (pinnedRows.length >= 3) {
       throw new AppError(
         "LIMIT_REACHED",
         "At most 3 pinned notes per subject.",
@@ -272,18 +293,7 @@ export async function purgeSoftDeletedPlanNotes(
   maxAgeDays: number = limits.NOTE_SOFT_DELETE_DAYS,
 ): Promise<number> {
   const cutoff = new Date(Date.now() - maxAgeDays * 24 * 60 * 60 * 1000);
-  const rows = await db.orm.public.PlanNote.where({}).all();
-  let deleted = 0;
-  for (const row of rows) {
-    if (!row.deletedAt) continue;
-    const when =
-      row.deletedAt instanceof Date
-        ? row.deletedAt
-        : new Date(String(row.deletedAt));
-    if (when < cutoff) {
-      await db.orm.public.PlanNote.where({ id: row.id }).delete();
-      deleted += 1;
-    }
-  }
-  return deleted;
+  return await db.orm.public.PlanNote.where((n) => n.deletedAt.isNotNull())
+    .where((n) => n.deletedAt.lt(cutoff))
+    .deleteAndCount();
 }
