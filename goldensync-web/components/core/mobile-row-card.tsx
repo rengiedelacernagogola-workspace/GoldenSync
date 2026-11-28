@@ -67,7 +67,7 @@ export function MobileRowCard({
         data-slot="gs-mobile-row-card-top"
         className="relative flex w-full items-center justify-between gap-space-3"
       >
-        <p className="min-w-0 flex-1 truncate text-body-md font-medium text-text-primary">
+        <p className="min-w-0 flex-1 truncate text-ui text-text-primary">
           {item}
         </p>
         {status ?? <StatusChip status={statusChipStatus} />}
@@ -85,7 +85,7 @@ export function MobileRowCard({
         </div>
         <div className="flex w-full flex-col items-start gap-space-1">
           <span className="text-overline uppercase text-text-muted">{noteLabel}</span>
-          <p className="text-body-sm text-text-muted">{note || "—"}</p>
+          <p className="text-ui-sm text-text-muted">{note || "—"}</p>
         </div>
       </div>
 

@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
   [
-    "relative flex w-full min-w-0 flex-col items-start gap-space-3 overflow-hidden sm:gap-space-4",
-    "rounded-lg p-space-4 sm:p-space-6",
+    "relative flex w-full min-w-0 flex-col items-start gap-space-2 overflow-hidden sm:gap-space-3",
+    "rounded-lg p-space-3 sm:p-space-4",
     "transition-[box-shadow,border-color,opacity,background-color] duration-150 ease-out",
   ].join(" "),
   {
@@ -131,7 +131,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
             data-slot="gs-card-header"
             className="relative flex w-full flex-col items-stretch gap-space-2 border-b border-border-subtle pb-space-4 sm:flex-row sm:items-center sm:justify-between sm:gap-space-3"
           >
-            <h3 className="min-w-0 text-heading-lg whitespace-normal text-text-primary">
+            <h3 className="min-w-0 text-heading-sm whitespace-normal text-text-primary">
               {title}
             </h3>
             {hasHeaderBadge ? (
@@ -151,7 +151,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
               data-slot="gs-card-slot"
               className="flex h-space-24 w-full flex-col items-center justify-center rounded-md border border-dashed border-border-default"
             >
-              <p className="text-caption text-text-muted">Content slot</p>
+              <p className="text-ui-sm text-text-muted">Content slot</p>
             </div>
           )}
         </div>

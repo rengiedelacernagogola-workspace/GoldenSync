@@ -4,8 +4,7 @@
 // SCREEN: Any labeled field — wraps Input, Textarea, or custom control.
 // HOW: Clones child to wire id/htmlFor; shows error row when message + invalid.
 // KEEP: Error message uses aria-live; helper hidden when error shown.
-// EDIT: Layout and error icon here — validation rules stay in parent/forms.
-// RISK: Medium — only show error after touch/submit (parent responsibility).
+// EDIT: Compact (default) uses text-ui labels + tighter gap. RISK: Medium.
 
 /**
  * FormField — Figma `FormField` `10:50`.
@@ -51,7 +50,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
       error,
       required = false,
       hasHelper = true,
-      size = "Desktop",
+      size = "Compact",
       id: idProp,
       inputProps,
     },
@@ -64,21 +63,27 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
     const isError = Boolean(error);
     const showHelper = hasHelper && !isError && Boolean(helper);
     const describedBy = isError ? errorId : showHelper ? helperId : undefined;
+    const isCompact = size === "Compact";
 
     return (
       <div
         data-slot="gs-form-field"
         data-state={isError ? "Error" : "Default"}
-        className={cn("flex w-full min-w-0 flex-col items-start gap-space-2", className)}
+        data-size={size}
+        className={cn(
+          "flex w-full min-w-0 flex-col items-start",
+          isCompact ? "gap-space-1" : "gap-space-2",
+          className,
+        )}
       >
         <div
-          className="flex w-full items-start gap-space-1 text-body-sm font-medium whitespace-nowrap"
+          className={cn(
+            "flex w-full items-start gap-space-1 font-medium whitespace-nowrap",
+            isCompact ? "text-ui" : "text-body-sm",
+          )}
           data-slot="gs-form-field-label-row"
         >
-          <label
-            htmlFor={fieldId}
-            className="text-text-secondary"
-          >
+          <label htmlFor={fieldId} className="text-text-secondary">
             {label}
           </label>
           {required ? (
@@ -103,7 +108,10 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
           <p
             id={helperId}
             data-slot="gs-form-field-helper"
-            className="w-full text-caption text-text-muted"
+            className={cn(
+              "w-full text-text-muted",
+              isCompact ? "text-ui-sm" : "text-caption",
+            )}
           >
             {helper}
           </p>
@@ -122,7 +130,14 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
               aria-hidden
               strokeWidth={2}
             />
-            <p className="min-w-0 flex-1 text-caption text-status-error">{error}</p>
+            <p
+              className={cn(
+                "min-w-0 flex-1 text-status-error",
+                isCompact ? "text-ui-sm" : "text-caption",
+              )}
+            >
+              {error}
+            </p>
           </div>
         ) : null}
       </div>

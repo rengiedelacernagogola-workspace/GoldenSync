@@ -33,6 +33,12 @@ export const limits = {
   NOTE_SOFT_DELETE_DAYS: 30,
   DRAFT_TTL_DAYS: 7,
   INGEST_RESULT_TTL_HOURS: 24,
+  /**
+   * After Log out, Clerk session stays this many minutes so the user can
+   * resume without a password. Past this → hard sign-out (password + email OTP).
+   * KEEP in sync with SOFT_LOCK_GRACE_MINUTES_DEFAULT in lib/auth/soft-lock.ts.
+   */
+  SOFT_LOCK_GRACE_MINUTES: 10,
   MIN_EXTRACTED_CHARS: 200,
   READ_RATE_PER_MINUTE: 120,
   WRITE_RATE_PER_MINUTE: 60,

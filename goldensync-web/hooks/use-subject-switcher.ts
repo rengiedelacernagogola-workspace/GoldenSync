@@ -24,7 +24,14 @@ export function pathForSubjectSwitch(
   activeId: SidebarActiveId,
   subjectId: string,
 ): string {
-  if (activeId === "home" || activeId === "account" || activeId === "logout") {
+  if (
+    activeId === "home" ||
+    activeId === "account" ||
+    activeId === "logout" ||
+    activeId === "my-schedule"
+  ) {
+    // WHAT: Global hubs stay put; subject switch only updates shell context.
+    if (activeId === "my-schedule") return "/my-schedule";
     return `/subjects/${subjectId}/overview`;
   }
   return pathForNav(activeId, subjectId) ?? `/subjects/${subjectId}/overview`;

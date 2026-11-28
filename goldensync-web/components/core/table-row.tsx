@@ -83,7 +83,7 @@ export const TableRow = React.forwardRef<HTMLDivElement, TableRowProps>(
                 : "Default"
         }
         className={cn(
-          "relative flex h-[52px] w-full min-w-[720px] items-center border-b border-border-subtle",
+          "relative flex h-9 w-full min-w-[720px] items-center border-b border-border-subtle",
           !isSkeleton && !isSelected && "hover:bg-surface-glass",
           forceHover && !isSelected && "bg-surface-glass",
           isSelected && "bg-accent-glass-bg",
@@ -104,7 +104,7 @@ export const TableRow = React.forwardRef<HTMLDivElement, TableRowProps>(
           {isSkeleton ? (
             <span className="h-3 w-40 rounded-md bg-bg-subtle" />
           ) : (
-            <p className="truncate text-body-sm whitespace-nowrap text-text-secondary">
+            <p className="truncate text-ui whitespace-nowrap text-text-secondary">
               {item}
             </p>
           )}
@@ -115,7 +115,7 @@ export const TableRow = React.forwardRef<HTMLDivElement, TableRowProps>(
           {isSkeleton ? (
             <span className="h-3 w-8 rounded-md bg-bg-subtle" />
           ) : (
-            <p className="text-mono-md whitespace-nowrap text-text-secondary tabular-nums">
+            <p className="text-mono-sm whitespace-nowrap text-text-secondary tabular-nums">
               {value || "—"}
             </p>
           )}
@@ -126,7 +126,7 @@ export const TableRow = React.forwardRef<HTMLDivElement, TableRowProps>(
           {isSkeleton ? (
             <span className="h-3 w-16 rounded-md bg-bg-subtle" />
           ) : (
-            <p className="text-body-sm whitespace-nowrap text-text-muted">
+            <p className="text-ui-sm whitespace-nowrap text-text-muted">
               {note || "—"}
             </p>
           )}

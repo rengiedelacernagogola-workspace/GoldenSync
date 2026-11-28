@@ -3,6 +3,7 @@
 /**
  * SessionWarning + SessionExpired — P1 overlays (Figma `49:2315` / `49:173`, UI-062).
  * FLOW: sessionActive false → Expired; warning before expire (proto Demo Panel).
+ * Soft-lock: Log out arms grace cookie; Log in again goes to /sign-in resume path.
  */
 
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import * as React from "react";
 import { Backdrop } from "@/components/core/backdrop";
 import { Button } from "@/components/core/button";
 import { Modal } from "@/components/core/modal";
+import { performSoftLogout } from "@/lib/auth/soft-lock";
 import { useProtoActions, useSessionActive } from "@/state";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +24,9 @@ export interface SessionModalsProps {
 }
 
 /**
- * Session overlays — Stay signed in keeps session; Log out → /sign-in.
+ * Session overlays — Stay signed in keeps session; Log out → soft lock → /sign-in.
  */
-// WHAT: Full-screen modals for session timeout warning or expired session. SCREEN: Dimmed backdrop + modal. HOW: useSessionActive from proto state. RISK: Medium — not real Clerk timeout unless wired later.
+// WHAT: Full-screen modals for session timeout warning or expired session. SCREEN: Dimmed backdrop + modal. HOW: useSessionActive from proto state; Log out uses soft lock. RISK: Medium — soft lock wired; idle timeout still proto-driven.
 export function SessionModals({
   warningOpen = false,
   onWarningChange,
@@ -61,8 +63,10 @@ export function SessionModals({
                     variant="Secondary"
                     size="md"
                     onClick={() => {
+                      // WHAT: Soft lock instead of immediate Clerk signOut.
                       setSessionActive(false);
                       onWarningChange?.(false);
+                      performSoftLogout((url) => router.push(url));
                     }}
                   >
                     Log out
@@ -96,7 +100,10 @@ export function SessionModals({
                   variant="Primary"
                   size="md"
                   className="w-full"
-                  onClick={() => router.push("/sign-in")}
+                  onClick={() => {
+                    // WHAT: Go to /sign-in — SignInResume offers Continue if still within grace.
+                    router.push("/sign-in");
+                  }}
                 >
                   Log in again
                 </Button>

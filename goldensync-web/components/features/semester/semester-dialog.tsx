@@ -3,6 +3,8 @@
 // WHAT: Form to create a semester (label, year level, start/end dates).
 // SCREEN: Anchored panel under semester switcher — not a centered modal.
 // HOW: Validates dates locally, then POST createSemester when signed in.
+// EDIT: FieldHints stay local; Compact+float comes from core FormField/Input.
+// KEEP: Date stacking in narrow panel.
 
 /**
  * SemesterCreatePanel — New semester form (anchored under SemesterSwitcher).
@@ -32,6 +34,7 @@ import {
   YEAR_LEVEL_MIN,
   yearLevelName,
 } from "@/lib/domain/semester-year";
+import { compactSelectClass } from "@/lib/ui/compact-field";
 import { cn } from "@/lib/utils";
 import { useProtoActions } from "@/state";
 
@@ -40,6 +43,21 @@ export interface SemesterCreatePanelProps {
   onClose?: () => void;
   onCreated?: (semester: { id?: string; label: string }) => void;
   className?: string;
+}
+
+/** WHAT: Compact label for native year-level select. */
+const labelClass = "text-ui text-text-secondary";
+
+/** WHAT: Right-side guide chip (semester panel only). */
+function FieldHint({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      data-slot="gs-semester-field-hint"
+      className="pointer-events-none select-none text-ui-sm uppercase tracking-wide text-text-muted"
+    >
+      {children}
+    </span>
+  );
 }
 
 function defaultStartDate(): string {
@@ -146,6 +164,9 @@ export function SemesterCreatePanel({
     onClose?.();
   }
 
+  /** WHAT: Shared compact select + room for absolute FieldHint. */
+  const selectClass = cn(compactSelectClass, "pr-14");
+
   return (
     <div
       data-slot="gs-semester-create-panel"
@@ -153,12 +174,14 @@ export function SemesterCreatePanel({
       aria-label="New semester"
       className={cn(
         "flex max-h-[min(70vh,560px)] w-[min(100vw-1.5rem,360px)] flex-col",
-        "overflow-hidden rounded-md border border-border-default bg-bg-elevated shadow-lg",
+        "overflow-hidden rounded-md border border-border-subtle bg-bg-elevated/95 shadow-[0_1px_2px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.18)]",
         className,
       )}
     >
       <div className="flex shrink-0 items-center justify-between gap-space-2 border-b border-border-subtle px-space-3 py-space-2">
-        <h2 className="text-heading-sm text-text-primary">New semester</h2>
+        <h2 className="text-ui font-semibold text-text-primary">
+          New semester
+        </h2>
         <Button variant="Ghost" size="sm" onClick={onClose} aria-label="Close">
           Cancel
         </Button>
@@ -185,57 +208,73 @@ export function SemesterCreatePanel({
           <FormField
             label="Semester label"
             required
+            hasHelper={false}
             inputProps={{
               value: label,
               maxLength: 80,
               onChange: (e) => setLabel(e.target.value),
+              hasTrailingIcon: true,
+              trailingIcon: <FieldHint>Label</FieldHint>,
             }}
           />
-          <div className="flex w-full min-w-0 flex-col items-start gap-space-2">
-            <div className="flex w-full items-start gap-space-1 text-body-sm font-medium">
-              <label
-                htmlFor="gs-semester-year-level"
-                className="text-text-secondary"
-              >
-                Year level
-              </label>
+          <div className="flex w-full min-w-0 flex-col items-start gap-space-1">
+            <div className={cn("flex w-full items-start gap-0.5", labelClass)}>
+              <label htmlFor="gs-semester-year-level">Year level</label>
               <span className="text-status-error" aria-hidden>
                 *
               </span>
             </div>
-            <select
-              id="gs-semester-year-level"
-              value={yearLevel}
-              onChange={(e) => setYearLevel(Number(e.target.value))}
-              className="h-11 w-full rounded-md border border-border-default bg-bg-subtle px-space-3 text-body-sm text-text-primary outline-none focus-visible:border-2 focus-visible:border-border-focus"
-            >
-              {Array.from(
-                { length: YEAR_LEVEL_MAX - YEAR_LEVEL_MIN + 1 },
-                (_, i) => YEAR_LEVEL_MIN + i,
-              ).map((n) => (
-                <option key={n} value={n}>
-                  {yearLevelName(n)}
-                </option>
-              ))}
-            </select>
+            <div className="relative w-full min-w-0">
+              <select
+                id="gs-semester-year-level"
+                value={yearLevel}
+                onChange={(e) => setYearLevel(Number(e.target.value))}
+                className={selectClass}
+              >
+                {Array.from(
+                  { length: YEAR_LEVEL_MAX - YEAR_LEVEL_MIN + 1 },
+                  (_, i) => YEAR_LEVEL_MIN + i,
+                ).map((n) => (
+                  <option key={n} value={n}>
+                    {yearLevelName(n)}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute top-1/2 right-space-2 -translate-y-1/2">
+                <FieldHint>Year</FieldHint>
+              </span>
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-space-3 sm:grid-cols-2">
+          {/*
+           * WHAT: Date fields — hint in trailing slot to the RIGHT of the native calendar
+           * so the picker icon and date text do not collide with the guide chip.
+           */}
+          {/* Stacked — panel is ~360px; side-by-side date inputs clip the year + calendar. */}
+          <div className="grid grid-cols-1 gap-space-3">
             <FormField
               label="Start date"
               required
+              hasHelper={false}
+              className="[&_[data-slot=gs-input]]:min-w-0 [&_[data-slot=gs-input]]:pr-1"
               inputProps={{
                 type: "date",
                 value: startDate,
                 onChange: (e) => setStartDate(e.target.value),
+                hasTrailingIcon: true,
+                trailingIcon: <FieldHint>Start</FieldHint>,
               }}
             />
             <FormField
               label="End date"
               required
+              hasHelper={false}
+              className="[&_[data-slot=gs-input]]:min-w-0 [&_[data-slot=gs-input]]:pr-1"
               inputProps={{
                 type: "date",
                 value: endDate,
                 onChange: (e) => setEndDate(e.target.value),
+                hasTrailingIcon: true,
+                trailingIcon: <FieldHint>End</FieldHint>,
               }}
             />
           </div>
@@ -243,12 +282,12 @@ export function SemesterCreatePanel({
       </div>
 
       <div className="flex shrink-0 justify-end gap-space-2 border-t border-border-subtle px-space-3 py-space-2">
-        <Button variant="Secondary" size="md" onClick={onClose}>
+        <Button variant="Secondary" size="sm" onClick={onClose}>
           Cancel
         </Button>
         <Button
           variant="Primary"
-          size="md"
+          size="sm"
           onClick={() => void handleCreate()}
           disabled={saving}
         >

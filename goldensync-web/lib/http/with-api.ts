@@ -15,6 +15,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import type { ZodType } from "zod";
 
 import { ensureUser } from "@/lib/auth/ensure-user";
+import { parseSoftLockAtFromHeader } from "@/lib/auth/soft-lock";
 import { limits } from "@/lib/config/limits";
 import { AppError, unauthenticated, validationFailed } from "@/lib/http/errors";
 import { checkRateLimit } from "@/lib/http/rate-limit";
@@ -91,6 +92,16 @@ export function withApi<
         clerkUserId = session.userId;
         if (authMode === "required" && !clerkUserId) {
           throw unauthenticated();
+        }
+        // WHAT: Soft-lock cookie present → treat as logged out for APIs until Continue or hard logout.
+        // KEEP: Blocks data access while the UI looks signed out but Clerk session is still warm.
+        if (
+          clerkUserId &&
+          parseSoftLockAtFromHeader(request.headers.get("cookie")) != null
+        ) {
+          throw unauthenticated(
+            "Session is locked. Sign in again to continue.",
+          );
         }
         if (clerkUserId) {
           const clerk = await currentUser();

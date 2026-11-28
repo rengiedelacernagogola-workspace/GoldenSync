@@ -3,30 +3,29 @@
 // WHAT: Single-line text field shell matching Figma Input (border, focus glow).
 // SCREEN: Forms app-wide — pair with FormField for label/error.
 // HOW: Base UI Input inside cva shell; aria-invalid triggers error border.
-// KEEP: Heights sm/md from Figma; invalid styling via aria-invalid, not extra props.
+// KEEP: Focus/error rings; Compact is the system default (11px + light float).
 // EDIT: inputShellVariants tokens here — screens pass size + className only.
 // RISK: Medium — error border must not show before user interaction (see FormField).
 
 /**
  * Input — Figma `Input` `8:84`.
- * UI-011: Size Desktop 44 / Mobile 48 · states via CSS + aria-invalid + disabled.
- * Resting border = border-default (KL-02). Hover = border-strong. Focus/Active = border-focus + glow.
- * Error = status-error + error glow (pair with FormField message). Never show error before first interaction.
+ * UI-011: Size Desktop 44 / Mobile 48 / Compact 32 · states via CSS + aria-invalid.
+ * Compact (default): light-float shell + text-ui. Desktop/Mobile keep solid bg-bg-subtle.
  */
 
 import { Input as InputPrimitive } from "@base-ui/react/input";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
+import { compactFloatShellClass } from "@/lib/ui/compact-field";
 import { cn } from "@/lib/utils";
 
 const inputShellVariants = cva(
   [
     "flex w-full min-w-0 items-center gap-space-2 overflow-hidden rounded-md",
-    "bg-bg-subtle px-space-3",
-    "border border-border-default",
+    "px-space-3",
+    "border",
     "transition-[border-color,box-shadow,opacity] duration-150 ease-out",
-    "hover:border-border-strong",
     /* Focus / Active (DEC-028: Active = Focus while typing) */
     "focus-within:border-2 focus-within:border-border-focus",
     "focus-within:shadow-[0_0_0_3px_var(--focus-ring-glow)]",
@@ -40,13 +39,20 @@ const inputShellVariants = cva(
   {
     variants: {
       size: {
-        Desktop: "min-h-11",
-        Mobile: "min-h-12",
-        Compact: "min-h-8 px-space-2",
+        /* Solid shell — larger touch targets when explicitly requested */
+        Desktop:
+          "min-h-11 border-border-default bg-bg-subtle hover:border-border-strong",
+        Mobile:
+          "min-h-12 border-border-default bg-bg-subtle hover:border-border-strong",
+        /* WHAT: System default — 11px + light float (soft fill + subtle shadow). */
+        Compact: cn(
+          "min-h-8 px-space-2",
+          compactFloatShellClass,
+        ),
       },
     },
     defaultVariants: {
-      size: "Desktop",
+      size: "Compact",
     },
   },
 );
@@ -76,7 +82,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   function Input(
     {
       className,
-      size = "Desktop",
+      size = "Compact",
       hasLeadingIcon = false,
       hasTrailingIcon = false,
       leadingIcon,
@@ -112,16 +118,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "min-w-0 flex-1 bg-transparent text-text-primary outline-none",
             "placeholder:text-text-muted",
             "disabled:cursor-not-allowed",
-            "file:border-0 file:bg-transparent file:text-body-sm file:font-medium file:text-text-primary",
+            "file:border-0 file:bg-transparent file:text-ui file:font-medium file:text-text-primary",
             size === "Compact"
-              ? "text-[11px] leading-snug font-medium tracking-tight antialiased placeholder:text-[11px] placeholder:tracking-tight"
+              ? "text-ui antialiased placeholder:text-ui"
               : "text-body-md",
           )}
           {...props}
         />
         {hasTrailingIcon && trailingIcon ? (
           <span
-            className="flex size-4 shrink-0 items-center justify-center text-text-muted [&_svg]:size-4"
+            /* size-auto so text FieldHints fit; icons still sized via [&_svg] */
+            className="flex shrink-0 items-center justify-center text-text-muted [&_svg]:size-4"
             data-slot="gs-input-trailing"
           >
             {trailingIcon}

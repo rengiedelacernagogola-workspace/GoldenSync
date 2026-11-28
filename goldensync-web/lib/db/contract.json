@@ -64,6 +64,10 @@
       "model": "PlanWeek",
       "namespace": "public"
     },
+    "ScheduleClass": {
+      "model": "ScheduleClass",
+      "namespace": "public"
+    },
     "Score": {
       "model": "Score",
       "namespace": "public"
@@ -1579,6 +1583,153 @@
               "table": "PlanWeek"
             }
           },
+          "ScheduleClass": {
+            "fields": {
+              "courseCode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "courseTitle": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dayOfWeek": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "endTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "location": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "mode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "ScheduleMode"
+                  }
+                }
+              },
+              "startTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "courseCode": {
+                  "column": "courseCode"
+                },
+                "courseTitle": {
+                  "column": "courseTitle"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dayOfWeek": {
+                  "column": "dayOfWeek"
+                },
+                "endTime": {
+                  "column": "endTime"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "location": {
+                  "column": "location"
+                },
+                "mode": {
+                  "column": "mode"
+                },
+                "startTime": {
+                  "column": "startTime"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ScheduleClass"
+            }
+          },
           "Score": {
             "fields": {
               "assessmentId": {
@@ -2204,6 +2355,21 @@
                   "namespace": "public"
                 }
               },
+              "scheduleClasses": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "ScheduleClass",
+                  "namespace": "public"
+                }
+              },
               "semesters": {
                 "cardinality": "1:N",
                 "on": {
@@ -2286,6 +2452,14 @@
                 "CO"
               ],
               "typeName": "OutcomeKind"
+            },
+            "ScheduleMode": {
+              "kind": "postgres-enum",
+              "members": [
+                "FACE_TO_FACE",
+                "ONLINE"
+              ],
+              "typeName": "ScheduleMode"
             }
           },
           "table": {
@@ -2370,6 +2544,14 @@
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "ActivityEvent_createdAt_idx_9575dbd7",
+                  "prefix": "ActivityEvent_createdAt_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "userId",
@@ -2740,6 +2922,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "Draft_expiresAt_idx_6b6b8c10",
+                  "prefix": "Draft_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId"
                   ],
                   "name": "Draft_userId_idx_a489d58a",
@@ -2912,6 +3102,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "createdAt"
+                  ],
+                  "name": "IdempotencyKey_createdAt_idx_9575dbd7",
+                  "prefix": "IdempotencyKey_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "userId",
                     "createdAt"
                   ],
@@ -3028,6 +3226,14 @@
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "updatedAt"
+                  ],
+                  "name": "IngestJob_updatedAt_idx_8c508b31",
+                  "prefix": "IngestJob_updatedAt_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "userId",
@@ -3468,6 +3674,16 @@
                 },
                 {
                   "columns": [
+                    "subjectId",
+                    "archivedAt",
+                    "deletedAt"
+                  ],
+                  "name": "PlanNote_subjectId_archivedAt_deletedAt_idx_d86f4f34",
+                  "prefix": "PlanNote_subjectId_archivedAt_deletedAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "subjectId"
                   ],
                   "name": "PlanNote_subjectId_idx_84df2a1d",
@@ -3578,6 +3794,131 @@
                   ],
                   "name": "PlanWeek_subjectId_weekNumber_position_idx_7c595068",
                   "prefix": "PlanWeek_subjectId_weekNumber_position_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "ScheduleClass": {
+              "columns": {
+                "courseCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "courseTitle": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dayOfWeek": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "endTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "location": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "mode": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "ScheduleMode"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ScheduleMode",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "startTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "ScheduleClass_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ScheduleClass"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId",
+                    "dayOfWeek"
+                  ],
+                  "name": "ScheduleClass_userId_dayOfWeek_idx_3fb7021f",
+                  "prefix": "ScheduleClass_userId_dayOfWeek_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "ScheduleClass_userId_idx_a489d58a",
+                  "prefix": "ScheduleClass_userId_idx",
                   "unique": false
                 }
               ],
@@ -3876,6 +4217,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "archivedAt"
+                  ],
+                  "name": "Subject_archivedAt_idx_5fc66e5b",
+                  "prefix": "Subject_archivedAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "semesterId",
                     "archivedAt"
                   ],
@@ -3993,6 +4342,13 @@
                 "PO",
                 "CO"
               ]
+            },
+            "ScheduleMode": {
+              "kind": "valueSet",
+              "values": [
+                "FACE_TO_FACE",
+                "ONLINE"
+              ]
             }
           }
         },
@@ -4000,10 +4356,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "8952378bdf1f9b8a8c519d5122ebc8e40ffe0ff999fb9e70c35082ec8941634c"
+    "storageHash": "134fcee821df27979acdf904c96f07305f732b0af195614b602ced64d5636361"
   },
   "execution": {
-    "executionHash": "a02e998bc5f4c298e2e63066439fb73cef41160cd6b9605e0d108824777fde3d",
+    "executionHash": "7bc2f3364ffd79f5a782b148c3933113397db36a5d41f774ad9a38ca68766b82",
     "mutations": {
       "defaults": [
         {
@@ -4360,6 +4716,52 @@
           "ref": {
             "entry": "PlanWeek",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "ScheduleClass",
+            "field": "createdAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "ScheduleClass",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "ScheduleClass",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },

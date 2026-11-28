@@ -38,8 +38,8 @@ export function pathForNav(
       return `/subjects/${sid}/checklist`;
     case "export":
       return `/subjects/${sid}/export`;
-    case "this-week":
-      return `/subjects/${sid}/this-week`;
+    case "my-schedule":
+      return "/my-schedule";
     case "calculator":
       return `/grading-system?subject=${encodeURIComponent(sid)}`;
     case "account":

@@ -61,7 +61,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <span className="text-[10px] font-medium tracking-tight text-text-muted">
         {label}
       </span>
-      <span className="min-w-0 truncate text-[11px] font-medium tracking-tight text-text-secondary">
+      <span className="min-w-0 truncate text-ui text-text-secondary">
         {value}
       </span>
     </div>
@@ -259,7 +259,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
           ) : null}
 
           <div className="flex w-full items-center justify-center gap-space-2">
-            <p className="min-w-0 truncate text-[11px] font-medium tracking-tight text-text-secondary antialiased font-mono">
+            <p className="min-w-0 truncate text-ui text-text-secondary antialiased font-mono">
               {code}
             </p>
             <Badge
@@ -274,7 +274,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
             {title}
           </p>
 
-          <p className="w-full text-[11px] font-medium tracking-tight text-text-muted antialiased">
+          <p className="w-full text-ui text-text-muted antialiased">
             {semester}
           </p>
 
@@ -285,7 +285,7 @@ export const SubjectCard = React.forwardRef<HTMLDivElement, SubjectCardProps>(
             className="mt-space-1"
           />
 
-          <p className="whitespace-nowrap text-[11px] font-medium tracking-tight text-text-muted antialiased font-mono tabular-nums">
+          <p className="whitespace-nowrap text-ui text-text-muted antialiased font-mono tabular-nums">
             {weeksDone} of {weeksTotal} weeks done
           </p>
 

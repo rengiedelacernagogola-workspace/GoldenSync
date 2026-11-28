@@ -28,6 +28,7 @@ import { ProfileSection } from "@/components/features/account/profile-section";
 import { goldenSyncSeed } from "@/data/seed";
 import { useLiveData } from "@/hooks/use-live-data";
 import { downloadAccountExport } from "@/lib/api/account";
+import { clearSoftLock, performSoftLogout } from "@/lib/auth/soft-lock";
 import { cn } from "@/lib/utils";
 import { pathForNav } from "@/lib/nav";
 import { useProtoActions } from "@/state";
@@ -81,12 +82,9 @@ export default function AccountPage() {
 
   async function handleNav(id: SidebarActiveId) {
     if (id === "logout") {
+      // WHAT: Soft lock — keep Clerk session for 10 min; resume without password.
       setSessionActive(false);
-      if (isSignedIn) {
-        await signOut({ redirectUrl: "/sign-in" });
-        return;
-      }
-      router.push("/sign-in");
+      performSoftLogout((url) => router.push(url));
       return;
     }
     const path = pathForNav(id, active?.id);
@@ -232,7 +230,9 @@ export default function AccountPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onDeleted={async () => {
+          // WHAT: Account delete — clear soft lock and hard-sign out (no grace resume).
           setSessionActive(false);
+          clearSoftLock();
           if (isSignedIn) {
             await signOut({ redirectUrl: "/sign-in" });
             return;

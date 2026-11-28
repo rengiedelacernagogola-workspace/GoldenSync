@@ -46,7 +46,7 @@ function StatusCell({ status }: { status: OutcomeRowStatus }) {
           className="size-4 shrink-0 text-status-success"
           strokeWidth={2}
         />
-        <span className="text-body-sm text-text-secondary">Attained</span>
+        <span className="text-ui text-text-secondary">Attained</span>
       </>
     );
   }
@@ -58,13 +58,13 @@ function StatusCell({ status }: { status: OutcomeRowStatus }) {
           className="size-4 shrink-0 text-status-warning"
           strokeWidth={1.75}
         />
-        <span className="text-body-sm text-text-secondary">Not attained</span>
+        <span className="text-ui text-text-secondary">Not attained</span>
       </>
     );
   }
   if (status === "No scores") {
     return (
-      <span className="text-body-sm text-text-muted">No scores yet</span>
+      <span className="text-ui text-text-muted">No scores yet</span>
     );
   }
   return null;
@@ -100,7 +100,7 @@ export function OutcomeRow({
       data-slot="gs-outcome-row"
       data-status={status}
       className={cn(
-        "flex min-h-[52px] w-full min-w-[720px] items-center border-b border-border-subtle bg-surface-glass",
+        "flex min-h-9 w-full min-w-[720px] items-center border-b border-border-subtle bg-surface-glass",
         className,
       )}
       {...props}
@@ -123,15 +123,15 @@ export function OutcomeRow({
       >
         {isExcluded ? (
           <>
-            <span className="text-body-sm font-medium whitespace-nowrap text-text-primary">
+            <span className="text-ui whitespace-nowrap text-text-primary">
               Other activities
             </span>
-            <span className="text-caption whitespace-nowrap text-text-muted">
+            <span className="text-ui-sm whitespace-nowrap text-text-muted">
               Excluded from the result.
             </span>
           </>
         ) : (
-          <span className="min-w-0 flex-1 text-body-sm text-text-secondary">
+          <span className="min-w-0 flex-1 text-ui text-text-secondary">
             {description}
           </span>
         )}

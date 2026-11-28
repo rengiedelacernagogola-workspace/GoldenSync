@@ -39,6 +39,13 @@ function mapLink(row: {
   };
 }
 
+/**
+ * WHAT: Loads CO→PO map links that belong only to this subject’s outcomes.
+ * HOW: Ownership check → load Outcomes for subject → split CO vs PO ids → query OutcomeLink where coId and poId are in those lists.
+ * SCREEN: Outcomes matrix cells for this course.
+ * KEEP: Always requireOwnedSubject first; never load every link in the database.
+ * RISK: High
+ */
 /** List outcome links for COs/POs belonging to the subject. */
 export async function listOutcomeLinks(
   userId: string,
@@ -47,19 +54,26 @@ export async function listOutcomeLinks(
   await requireOwnedSubject(userId, subjectId);
   const outcomes = await db.orm.public.Outcome.where({ subjectId }).all();
   const coIds = outcomes
-    .filter((o) => String(o.kind) === "CO")
+    .filter((o) => String(o.kind) === "CO") // Course Outcomes for this subject
     .map((o) => o.id);
   const poIds = outcomes
-    .filter((o) => String(o.kind) === "PO")
+    .filter((o) => String(o.kind) === "PO") // Program Outcomes for this subject
     .map((o) => o.id);
   if (coIds.length === 0 || poIds.length === 0) return [];
 
   const links = await db.orm.public.OutcomeLink.where((l) =>
-    and(l.coId.in(coIds), l.poId.in(poIds)),
+    and(l.coId.in(coIds), l.poId.in(poIds)), // only links inside this subject’s CO/PO set
   ).all();
   return links.map(mapLink);
 }
 
+/**
+ * WHAT: Saves the whole CO→PO matrix for a subject in one go (wipe then recreate).
+ * HOW: Validate each pair is CO→PO and unique → transaction deletes old links for these outcomes → creates new rows → re-lists.
+ * SCREEN: Outcomes matrix after Save.
+ * KEEP: Transactional replace; do not leave half-old half-new links.
+ * RISK: High
+ */
 /** Replace all CO→PO links for a subject (transactional). */
 export async function replaceOutcomeLinks(
   userId: string,

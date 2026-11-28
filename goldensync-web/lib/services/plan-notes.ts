@@ -94,6 +94,13 @@ function mapPlanNote(row: {
   };
 }
 
+/**
+ * WHAT: Lists notes for one subject, newest saved first.
+ * HOW: Ownership check → SQL filter by subjectId; if not shelved, also archivedAt/deletedAt null → orderBy savedAt.
+ * SCREEN: Subject notes panel / library for that course.
+ * EDIT: Pass includeShelved true to also show archive and trash.
+ * RISK: High
+ */
 /** List notes for an owned subject (newest savedAt first). */
 export async function listPlanNotes(
   userId: string,
@@ -106,7 +113,7 @@ export async function listPlanNotes(
         .orderBy((n) => n.savedAt.desc())
         .all()
     : await db.orm.public.PlanNote.where({ subjectId })
-        .where((n) => n.archivedAt.isNull())
+        .where((n) => n.archivedAt.isNull()) // still in the active library
         .where((n) => n.deletedAt.isNull())
         .orderBy((n) => n.savedAt.desc())
         .all();
@@ -114,6 +121,13 @@ export async function listPlanNotes(
 }
 
 /**
+ * WHAT: Global Notes hub — all notes on this user’s non-archived subjects in fewer DB round-trips.
+ * HOW: Load semesters for user → include active subjects → include planNotes (optionally only active) → flatten + sort in memory.
+ * SCREEN: /notes page across courses.
+ * EDIT: includeShelved true adds archived + soft-deleted (not yet hard-purged).
+ * KEEP: Skip archived subjects (archivedAt null filter on Subject).
+ * RISK: High
+ *
  * All notes across the user's subjects (global Notes hub).
  * includeShelved → active + archived + soft-deleted (not yet purged).
  */
@@ -288,6 +302,14 @@ export async function restorePlanNote(
   return mapPlanNote(updated);
 }
 
+/**
+ * WHAT: Cron — permanently deletes notes that sat in trash longer than NOTE_SOFT_DELETE_DAYS.
+ * HOW: One deleteAndCount where deletedAt is set and older than cutoff (uses PlanNote deletedAt index).
+ * SCREEN: Those notes leave Trash forever; active library is untouched.
+ * EDIT: Days come from limits.NOTE_SOFT_DELETE_DAYS.
+ * KEEP: Cron-only; do not call from a random user route.
+ * RISK: High — ask a developer before changing cutoffs.
+ */
 /** Hard-delete soft-deleted notes older than NOTE_SOFT_DELETE_DAYS. */
 export async function purgeSoftDeletedPlanNotes(
   maxAgeDays: number = limits.NOTE_SOFT_DELETE_DAYS,
