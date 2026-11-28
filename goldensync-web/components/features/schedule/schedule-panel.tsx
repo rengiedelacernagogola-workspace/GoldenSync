@@ -33,6 +33,9 @@ import { cn } from "@/lib/utils";
 export interface SchedulePanelProps {
   classes: ScheduleClassDto[];
   loading?: boolean;
+  /** When set, keep showing rows (if any) and offer Retry. */
+  loadError?: string | null;
+  onRetry?: () => void;
   onAdd: () => void;
   onEdit: (row: ScheduleClassDto) => void;
   onDelete: (row: ScheduleClassDto) => void;
@@ -54,6 +57,8 @@ const DAY_LETTER: Record<ScheduleDayOfWeek, string> = {
 export function SchedulePanel({
   classes,
   loading = false,
+  loadError = null,
+  onRetry,
   onAdd,
   onEdit,
   onDelete,
@@ -205,7 +210,21 @@ export function SchedulePanel({
         </p>
       </div>
 
-      {dayClasses.length === 0 ? (
+      {loadError ? (
+        <div
+          className="flex w-full flex-wrap items-center justify-between gap-space-2 rounded-md border border-status-error/40 bg-tint-error-bg px-space-3 py-space-2"
+          role="alert"
+        >
+          <p className="text-ui text-status-error">{loadError}</p>
+          {onRetry ? (
+            <Button variant="Secondary" size="sm" onClick={onRetry}>
+              Retry
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {dayClasses.length === 0 && !loadError ? (
         <EmptyState
           className="flex min-h-[min(50dvh,28rem)] flex-1 justify-center border border-dashed border-border-subtle bg-bg-elevated/30 px-space-4 py-space-8 sm:px-space-8"
           title={`No classes on ${SCHEDULE_DAY_FULL[selectedDay]}`}
@@ -213,6 +232,10 @@ export function SchedulePanel({
           actionLabel="Add Class"
           onAction={onAdd}
         />
+      ) : dayClasses.length === 0 ? (
+        <p className="text-ui text-text-muted">
+          {loading ? "Loading…" : "No classes to show for this day."}
+        </p>
       ) : (
         <ul className="flex w-full min-w-0 flex-1 flex-col gap-space-3">
           {dayClasses.map((row) => {

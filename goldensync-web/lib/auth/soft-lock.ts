@@ -20,6 +20,14 @@ export const SOFT_LOCK_COOKIE = "gs_soft_lock_at";
 /** Keep the cookie until cleared (or 7 days) so expiry still triggers hard logout. */
 export const SOFT_LOCK_COOKIE_MAX_AGE_SEC = 7 * 24 * 60 * 60;
 
+/** WHAT: Browser event so SoftLockGate can re-arm timers when logout sets the cookie. */
+export const SOFT_LOCK_CHANGE_EVENT = "gs:soft-lock-change";
+
+function emitSoftLockChange() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(SOFT_LOCK_CHANGE_EVENT));
+}
+
 /**
  * WHAT: Grace window length in milliseconds.
  * EDIT: Pass limits.SOFT_LOCK_GRACE_MINUTES from app code; default matches that limit.
@@ -122,6 +130,7 @@ export function armSoftLock(): void {
       ? "; Secure"
       : "";
   document.cookie = `${SOFT_LOCK_COOKIE}=${Date.now()}; Path=/; Max-Age=${SOFT_LOCK_COOKIE_MAX_AGE_SEC}; SameSite=Lax${secure}`;
+  emitSoftLockChange();
 }
 
 /**
@@ -134,6 +143,7 @@ export function clearSoftLock(): void {
       ? "; Secure"
       : "";
   document.cookie = `${SOFT_LOCK_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+  emitSoftLockChange();
 }
 
 /**

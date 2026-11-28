@@ -240,7 +240,17 @@ export function dateLabelForDayOfWeek(
 ): string {
   const todayDow = dayOfWeekFromDate(now, timeZone);
   const delta = dayOfWeek - todayDow;
-  const target = new Date(now.getTime() + delta * 24 * 60 * 60 * 1000);
+  // Calendar Y/M/D in the target zone — avoid fixed 24h offsets across DST.
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const y = Number(parts.find((p) => p.type === "year")?.value ?? "1970");
+  const m = Number(parts.find((p) => p.type === "month")?.value ?? "1");
+  const d = Number(parts.find((p) => p.type === "day")?.value ?? "1");
+  const target = new Date(Date.UTC(y, m - 1, d + delta, 12, 0, 0));
   return new Intl.DateTimeFormat("en-GB", {
     timeZone,
     weekday: "long",

@@ -213,7 +213,8 @@ export function Sidebar({
             icon={item.icon}
             collapsed={collapsed}
             active={activeId === item.id}
-            disabled={modulesDisabled}
+            /* My Schedule is account-scoped — do not require a selected subject. */
+            disabled={item.id === "my-schedule" ? false : modulesDisabled}
             className={collapsed ? undefined : "w-full"}
             onClick={() => onNav?.(item.id)}
           />

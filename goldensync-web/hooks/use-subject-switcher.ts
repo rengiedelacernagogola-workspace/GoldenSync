@@ -30,8 +30,7 @@ export function pathForSubjectSwitch(
     activeId === "logout" ||
     activeId === "my-schedule"
   ) {
-    // WHAT: Global hubs stay put; subject switch only updates shell context.
-    if (activeId === "my-schedule") return "/my-schedule";
+    // WHAT: Hubs (incl. My Schedule) open Overview so the shell adopts the selected subject.
     return `/subjects/${subjectId}/overview`;
   }
   return pathForNav(activeId, subjectId) ?? `/subjects/${subjectId}/overview`;

@@ -47,6 +47,7 @@ function MyScheduleBody() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [classes, setClasses] = React.useState<ScheduleClassDto[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [formOpen, setFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<"add" | "edit">("add");
   const [editing, setEditing] = React.useState<ScheduleClassDto | null>(null);
@@ -81,6 +82,7 @@ function MyScheduleBody() {
   async function reload() {
     if (!isSignedIn) {
       setClasses([]);
+      setLoadError(null);
       setLoading(false);
       return;
     }
@@ -88,8 +90,10 @@ function MyScheduleBody() {
     try {
       const rows = await fetchScheduleClasses();
       setClasses(rows);
+      setLoadError(null);
     } catch {
-      setClasses([]);
+      // Keep current rows so a failed refresh does not wipe a successful write.
+      setLoadError("Could not load schedule.");
       pushToast("Could not load schedule.", "Error");
     } finally {
       setLoading(false);
@@ -109,6 +113,14 @@ function MyScheduleBody() {
     if (id === "logout") {
       setSessionActive(false);
       performSoftLogout((url) => router.push(url));
+      return;
+    }
+    // Archive / Delete need Overview confirmation flows — not wired on this page.
+    if (id === "archive-subject" || id === "delete-subject") {
+      if (active?.id) {
+        router.push(`/subjects/${active.id}/overview`);
+        pushToast("Open Overview to archive or delete a subject.", "Info");
+      }
       return;
     }
     const path = pathForNav(id, active?.id);
@@ -134,14 +146,18 @@ function MyScheduleBody() {
     setFormError(null);
     try {
       if (formMode === "edit" && editing) {
-        await updateScheduleClass(editing.id, values);
+        const updated = await updateScheduleClass(editing.id, values);
+        setClasses((prev) =>
+          prev.map((row) => (row.id === updated.id ? updated : row)),
+        );
         pushToast("Class updated.");
       } else {
-        await createScheduleClass(values);
+        const created = await createScheduleClass(values);
+        setClasses((prev) => [...prev, created]);
         pushToast("Class added.");
       }
       setFormOpen(false);
-      await reload();
+      void reload();
     } catch (err) {
       setFormError(
         err instanceof ApiClientError
@@ -158,10 +174,12 @@ function MyScheduleBody() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteScheduleClass(deleteTarget.id);
+      const removedId = deleteTarget.id;
+      await deleteScheduleClass(removedId);
+      setClasses((prev) => prev.filter((row) => row.id !== removedId));
       pushToast("Class deleted.");
       setDeleteTarget(null);
-      await reload();
+      void reload();
     } catch (err) {
       setDeleteError(
         err instanceof ApiClientError
@@ -201,6 +219,8 @@ function MyScheduleBody() {
             <SchedulePanel
               classes={classes}
               loading={loading}
+              loadError={loadError}
+              onRetry={() => void reload()}
               onAdd={openAdd}
               onEdit={openEdit}
               onDelete={(row) => {

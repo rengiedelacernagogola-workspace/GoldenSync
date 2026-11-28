@@ -113,8 +113,8 @@ export function Modal({
       <div
         data-slot="gs-modal-body"
         className={cn(
-          "relative w-full overflow-x-clip overflow-y-auto",
-          isMobile ? "min-h-0 flex-1 px-space-4" : "shrink-0 px-space-6",
+          "relative min-h-0 w-full flex-1 overflow-x-clip overflow-y-auto",
+          isMobile ? "px-space-4" : "px-space-6",
         )}
       >
         {children ?? (

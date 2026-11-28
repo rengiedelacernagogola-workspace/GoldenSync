@@ -41,6 +41,15 @@ export function DeleteScheduleClassDialog({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  React.useEffect(() => {
+    if (!open || saving) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, saving, onClose]);
+
   if (!open) return null;
 
   return (

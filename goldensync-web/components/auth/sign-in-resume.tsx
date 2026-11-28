@@ -22,14 +22,17 @@ import {
   softLockNeedsHardLogout,
 } from "@/lib/auth/soft-lock";
 import { limits } from "@/lib/config/limits";
+import { useProtoActions } from "@/state";
 
 export function SignInResume({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { setSessionActive } = useProtoActions();
   const [ready, setReady] = React.useState(false);
   const [showContinue, setShowContinue] = React.useState(false);
+  const [signOutError, setSignOutError] = React.useState<string | null>(null);
   const graceMs = softLockGraceMs(limits.SOFT_LOCK_GRACE_MINUTES);
 
   React.useEffect(() => {
@@ -40,20 +43,31 @@ export function SignInResume({ children }: { children: React.ReactNode }) {
     // WHAT: No soft lock — show normal SignIn (or leave alone if already signed in elsewhere).
     if (lockedAt == null) {
       setShowContinue(false);
+      setSignOutError(null);
       setReady(true);
       return;
     }
 
     // WHAT: Grace expired — end Clerk session so password + email OTP are required.
     if (softLockNeedsHardLogout(lockedAt, Date.now(), graceMs)) {
-      clearSoftLock();
       if (isSignedIn) {
-        void signOut({ redirectUrl: "/sign-in" }).finally(() => {
-          setShowContinue(false);
-          setReady(true);
-        });
+        setSignOutError(null);
+        void signOut({ redirectUrl: "/sign-in" })
+          .then(() => {
+            clearSoftLock();
+            setShowContinue(false);
+          })
+          .catch(() => {
+            setSignOutError(
+              "Could not end the previous session. Check your connection and try again.",
+            );
+          })
+          .finally(() => {
+            setReady(true);
+          });
         return;
       }
+      clearSoftLock();
       setShowContinue(false);
       setReady(true);
       return;
@@ -62,6 +76,7 @@ export function SignInResume({ children }: { children: React.ReactNode }) {
     // WHAT: Still inside grace and session alive — offer password-free Continue.
     if (isWithinSoftLockGrace(lockedAt, Date.now(), graceMs) && isSignedIn) {
       setShowContinue(true);
+      setSignOutError(null);
       setReady(true);
       return;
     }
@@ -71,7 +86,16 @@ export function SignInResume({ children }: { children: React.ReactNode }) {
   }, [graceMs, isLoaded, isSignedIn, signOut]);
 
   function handleContinue() {
+    const lockedAt = readSoftLockAtClient();
+    if (
+      lockedAt == null ||
+      !isWithinSoftLockGrace(lockedAt, Date.now(), graceMs)
+    ) {
+      setShowContinue(false);
+      return;
+    }
     clearSoftLock();
+    setSessionActive(true);
     setShowContinue(false);
     router.replace("/dashboard");
   }
@@ -84,6 +108,11 @@ export function SignInResume({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex w-full max-w-md flex-col gap-space-6">
+      {signOutError ? (
+        <p className="text-ui text-status-error" role="alert">
+          {signOutError}
+        </p>
+      ) : null}
       {showContinue ? (
         <div
           data-slot="gs-soft-lock-resume"

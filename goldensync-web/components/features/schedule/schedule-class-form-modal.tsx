@@ -58,6 +58,9 @@ export interface ScheduleClassFormModalProps {
 
 const CUSTOM_VALUE = "__custom__";
 
+/** Stable empty list — avoids effect thrash when callers omit `subjects`. */
+const EMPTY_SUBJECTS: ScheduleSubjectOption[] = [];
+
 /** WHAT: Compact label for native selects / radios (FormField labels come from core). */
 const labelClass = "text-ui text-text-secondary";
 
@@ -114,13 +117,14 @@ export function ScheduleClassFormModal({
   open,
   mode,
   initial = null,
-  subjects = [],
+  subjects: subjectsProp,
   existing,
   saving = false,
   error = null,
   onClose,
   onSave,
 }: ScheduleClassFormModalProps) {
+  const subjects = subjectsProp ?? EMPTY_SUBJECTS;
   const [values, setValues] = React.useState<ScheduleFormValues>(emptyValues());
   const [baseline, setBaseline] = React.useState<ScheduleFormValues>(emptyValues());
   const [subjectPick, setSubjectPick] = React.useState<string>(CUSTOM_VALUE);
@@ -134,6 +138,7 @@ export function ScheduleClassFormModal({
   >({});
   const [submitted, setSubmitted] = React.useState(false);
 
+  // WHAT: Reset editable values only when the dialog opens or the edited row changes.
   React.useEffect(() => {
     if (!open) return;
     const next = initial ? fromDto(initial) : emptyValues();
@@ -153,7 +158,19 @@ export function ScheduleClassFormModal({
     } else {
       setSuggested(null);
     }
-  }, [open, initial, subjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- subjects synced separately
+  }, [open, initial]);
+
+  // WHAT: Keep subject pick in sync when suggestions load without wiping typed fields.
+  React.useEffect(() => {
+    if (!open) return;
+    setSubjectPick((prev) => {
+      if (prev !== CUSTOM_VALUE && subjects.some((s) => s.id === prev)) {
+        return prev;
+      }
+      return matchSubjectId(subjects, values.courseCode, values.courseTitle);
+    });
+  }, [open, subjects, values.courseCode, values.courseTitle]);
 
   const dirty = React.useMemo(
     () => JSON.stringify(values) !== JSON.stringify(baseline),
@@ -222,14 +239,14 @@ export function ScheduleClassFormModal({
     return errs;
   }
 
-  function requestClose() {
+  const requestClose = React.useCallback(() => {
     if (saving) return;
     if (dirty) {
       const ok = window.confirm("You have unsaved changes. Discard them?");
       if (!ok) return;
     }
     onClose();
-  }
+  }, [dirty, onClose, saving]);
 
   async function handleSave() {
     setSubmitted(true);
@@ -252,6 +269,15 @@ export function ScheduleClassFormModal({
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
+
+  React.useEffect(() => {
+    if (!open || saving) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") requestClose();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, requestClose, saving]);
 
   if (!open) return null;
 

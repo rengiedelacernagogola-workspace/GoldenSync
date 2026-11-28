@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 import {
+  SOFT_LOCK_CHANGE_EVENT,
   clearSoftLock,
   isSoftLockedAppPath,
   isWithinSoftLockGrace,
@@ -28,17 +29,33 @@ export function SoftLockGate() {
   const { isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const graceMs = softLockGraceMs(limits.SOFT_LOCK_GRACE_MINUTES);
+  /** Observable lock timestamp so arming after logout re-schedules the grace timer. */
+  const [lockedAt, setLockedAt] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    const sync = () => setLockedAt(readSoftLockAtClient());
+    sync();
+    window.addEventListener(SOFT_LOCK_CHANGE_EVENT, sync);
+    const id = window.setInterval(sync, 2000);
+    return () => {
+      window.removeEventListener(SOFT_LOCK_CHANGE_EVENT, sync);
+      window.clearInterval(id);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!isLoaded) return;
-
-    const lockedAt = readSoftLockAtClient();
     if (lockedAt == null) return;
 
     // WHAT: Grace over — force real Clerk sign-out so next login needs password + email OTP.
     if (softLockNeedsHardLogout(lockedAt, Date.now(), graceMs) && isSignedIn) {
-      clearSoftLock();
-      void signOut({ redirectUrl: "/sign-in" });
+      void signOut({ redirectUrl: "/sign-in" })
+        .then(() => {
+          clearSoftLock();
+        })
+        .catch(() => {
+          /* KEEP lock if sign-out fails so withApi still blocks. */
+        });
       return;
     }
 
@@ -49,25 +66,32 @@ export function SoftLockGate() {
     ) {
       router.replace("/sign-in");
     }
-  }, [graceMs, isLoaded, isSignedIn, pathname, router, signOut]);
+  }, [graceMs, isLoaded, isSignedIn, lockedAt, pathname, router, signOut]);
 
   // WHAT: Timer fires at grace end even if the user stays on /sign-in.
   React.useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
-    const lockedAt = readSoftLockAtClient();
     if (lockedAt == null || !isWithinSoftLockGrace(lockedAt, Date.now(), graceMs))
       return;
 
     const remaining = graceMs - (Date.now() - lockedAt);
     if (remaining <= 0) return;
 
+    const armedAt = lockedAt;
     const id = window.setTimeout(() => {
-      clearSoftLock();
-      void signOut({ redirectUrl: "/sign-in" });
+      // Skip if Continue cleared the lock or a newer lock replaced it.
+      if (readSoftLockAtClient() !== armedAt) return;
+      void signOut({ redirectUrl: "/sign-in" })
+        .then(() => {
+          clearSoftLock();
+        })
+        .catch(() => {
+          /* KEEP lock if sign-out fails. */
+        });
     }, remaining);
 
     return () => window.clearTimeout(id);
-  }, [graceMs, isLoaded, isSignedIn, signOut]);
+  }, [graceMs, isLoaded, isSignedIn, lockedAt, signOut]);
 
   return null;
 }
