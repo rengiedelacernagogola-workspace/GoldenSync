@@ -61,7 +61,7 @@ function extractClassicWeekLines(text: string): ExtractedPlanWeek[] {
     if (!Number.isFinite(weekNumber) || weekNumber < 1 || weekNumber > 30) {
       continue;
     }
-    let topic = cleanTopic(match[2] ?? "");
+    const topic = cleanTopic(match[2] ?? "");
     if (topic.length < 2) continue;
     if (!found.has(weekNumber)) {
       found.set(weekNumber, topic.slice(0, 500));
