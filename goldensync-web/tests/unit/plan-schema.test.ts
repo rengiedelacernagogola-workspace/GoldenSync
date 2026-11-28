@@ -1,11 +1,11 @@
-// WHAT: Validates API replace-plan payload — unique week numbers required.
+// WHAT: Validates API replace-plan payload — duplicate week numbers allowed.
 // HOW: Zod `replacePlanSchema.safeParse` success/failure assertions.
 // SCREEN: Learning Plan bulk replace / import validation errors.
-// EDIT: When `lib/validation/plan.ts` schema rules change (note: DB allows duplicate weeks via SQL).
-// KEEP: Schema duplicate rule may differ from DB `position` model — intentional legacy check.
+// EDIT: When `lib/validation/plan.ts` schema rules change.
+// KEEP: Duplicates match DB/product — multiple topics can share one weekNumber.
 // RISK: Low
 /**
- * Phase 1 — replacePlanSchema rejects duplicate week numbers.
+ * Phase 1 — replacePlanSchema allows duplicate week numbers.
  * Run: npm run test:unit
  */
 
@@ -24,12 +24,12 @@ test("replacePlanSchema accepts unique weekNumbers", () => {
   assert.equal(parsed.success, true);
 });
 
-test("replacePlanSchema rejects duplicate weekNumbers", () => {
+test("replacePlanSchema accepts duplicate weekNumbers", () => {
   const parsed = replacePlanSchema.safeParse({
     weeks: [
       { weekNumber: 1, topic: "A" },
       { weekNumber: 1, topic: "B" },
     ],
   });
-  assert.equal(parsed.success, false);
+  assert.equal(parsed.success, true);
 });
