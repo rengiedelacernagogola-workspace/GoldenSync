@@ -26,6 +26,7 @@ import {
   type FacultyInfo,
   type FacultyTitle,
 } from "@/lib/domain/faculty";
+import { compactSelectClass } from "@/lib/ui/compact-field";
 
 export type SubjectCardEditValues = {
   title: string;
@@ -227,7 +228,7 @@ export function SubjectCardEditModal({
                     onChange={(e) =>
                       setFacultyTitle(e.target.value as FacultyTitle)
                     }
-                    className="h-11 w-full rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary"
+                    className={compactSelectClass}
                   >
                     <option value="">—</option>
                     <option value="Mr">Mr</option>

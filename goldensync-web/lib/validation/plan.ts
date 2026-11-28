@@ -12,7 +12,7 @@
 
 import { z } from "zod";
 
-import { limits } from "@/lib/config/limits";
+import { limits } from "../config/limits.ts";
 
 export const planWeekStatusSchema = z.enum([
   "Not started",

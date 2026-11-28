@@ -79,14 +79,14 @@ export function ActivityRow({
       data-slot="gs-activity-row"
       data-state={state}
       className={cn(
-        "flex min-h-[52px] w-full min-w-[720px] items-center border-b border-border-subtle",
+        "flex min-h-9 w-full min-w-[720px] items-center border-b border-border-subtle",
         isConflict && "bg-tint-warning-bg",
         className,
       )}
       {...props}
     >
       <div className="flex h-full min-w-0 flex-1 items-center py-space-2 pr-space-4 pl-space-8">
-        <span className="min-w-0 flex-1 text-body-sm text-text-primary">
+        <span className="min-w-0 flex-1 text-ui text-text-primary">
           {activity}
         </span>
       </div>

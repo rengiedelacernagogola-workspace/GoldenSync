@@ -18,6 +18,7 @@ import { Stepper, type StepperStep } from "@/components/core/stepper";
 import { Textarea } from "@/components/core/textarea";
 import { goldenSyncSeed } from "@/data/seed";
 import type { FacultyTitle } from "@/lib/domain/faculty";
+import { compactSelectClass } from "@/lib/ui/compact-field";
 
 export type SubjectFormStepIndex = 1 | 2 | 3 | 4 | 5;
 
@@ -273,7 +274,7 @@ export function SubjectFormSteps({
                     facultyTitle: e.target.value as FacultyTitle,
                   })
                 }
-                className="h-11 w-full rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary"
+                className={compactSelectClass}
               >
                 <option value="">—</option>
                 <option value="Mr">Mr</option>

@@ -33,7 +33,10 @@ const files = [
   "2026-11-26-grade-scale-detailed.sql",
   "2026-11-26-missing-plan-indexes.sql",
   "2026-11-27-semester-year-level.sql",
+  // WHAT: Speed indexes for purge cutoffs + Notes hub PlanNote filters (pair with contract.prisma @@index).
   "2026-11-27-perf-purge-and-notes-indexes.sql",
+  // WHAT: My Schedule timetable table (ScheduleClass + ScheduleMode enum).
+  "2026-11-28-schedule-class.sql",
 ];
 
 const client = new pg.Client({

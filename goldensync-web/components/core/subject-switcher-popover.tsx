@@ -4,7 +4,7 @@
 // SCREEN: Opens from SubjectSwitcher in sidebar/drawer — checkmark on active.
 // HOW: subjects[] + activeId + onSelect from useSubjectSwitcherControls hook.
 // KEEP: Max 20 subjects; empty copy "Add your first subject."
-// EDIT: List row UI here — fetch/list logic in hook and AppShell.
+// EDIT: Compact 11px rows + light float shell (this popover only).
 // RISK: Low
 
 /**
@@ -38,6 +38,7 @@ export interface SubjectSwitcherPopoverProps
 
 /**
  * Floating subject list — parent positions under SubjectSwitcher (8 px gap).
+ * Compact 11px density + light float shell (scoped to this popover only).
  */
 export function SubjectSwitcherPopover({
   className,
@@ -54,11 +55,14 @@ export function SubjectSwitcherPopover({
     <Popover
       aria-label="Subjects"
       data-slot="gs-subject-switcher-popover"
-      className={cn("w-56", className)}
+      className={cn(
+        "w-56 gap-0.5 border-border-subtle bg-bg-elevated/95 p-1 shadow-[0_1px_2px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.18)]",
+        className,
+      )}
       {...props}
     >
       {isEmpty ? (
-        <p className="px-space-3 py-space-2 text-body-sm text-text-muted">
+        <p className="px-space-2 py-space-1.5 text-ui text-text-muted">
           {emptyLabel}
         </p>
       ) : (
@@ -73,28 +77,28 @@ export function SubjectSwitcherPopover({
               data-selected={selected ? "true" : undefined}
               onClick={() => onSubjectSelect?.(item.id)}
               className={cn(
-                "relative flex w-full items-center gap-space-2 rounded-md px-space-3 py-space-2",
-                "min-h-11 text-left outline-none transition-colors duration-150 ease-out",
+                "relative flex w-full items-center gap-space-1.5 rounded-md px-space-2 py-1.5",
+                "min-h-8 text-left outline-none transition-colors duration-150 ease-out",
                 "hover:bg-surface-glass focus-visible:border-2 focus-visible:border-border-focus",
                 selected && "bg-accent-glass-bg",
               )}
             >
-              <span className="flex min-w-0 flex-1 flex-col items-start">
-                <span className="text-body-sm font-medium text-text-primary">
+              <span className="flex min-w-0 flex-1 flex-col items-start gap-0">
+                <span className="text-ui font-semibold antialiased text-text-primary">
                   {item.code}
                 </span>
-                <span className="w-full truncate text-caption text-text-muted">
+                <span className="w-full truncate text-ui-sm antialiased text-text-muted">
                   {item.title}
                 </span>
               </span>
               {selected ? (
                 <Check
                   aria-hidden
-                  className="size-4 shrink-0 text-accent-primary"
+                  className="size-3.5 shrink-0 text-accent-primary"
                   strokeWidth={2}
                 />
               ) : (
-                <span className="size-4 shrink-0" aria-hidden />
+                <span className="size-3.5 shrink-0" aria-hidden />
               )}
             </button>
           );

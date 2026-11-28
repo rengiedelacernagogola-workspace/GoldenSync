@@ -61,7 +61,7 @@ export const NavItem = React.forwardRef<HTMLButtonElement, NavItemProps>(
         aria-disabled={disabled || undefined}
         className={cn(
           "relative flex items-center gap-space-2 rounded-md px-space-2.5",
-          "text-[11px] leading-snug font-medium tracking-tight antialiased",
+          "text-ui antialiased",
           "transition-[background-color,border-color,color] duration-150 ease-out",
           "outline-none select-none",
           collapsed
@@ -92,7 +92,7 @@ export const NavItem = React.forwardRef<HTMLButtonElement, NavItemProps>(
           {iconNode}
         </span>
         {!collapsed ? (
-          <span className="min-w-0 flex-1 overflow-hidden text-left text-[11px] leading-snug tracking-tight text-ellipsis [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+          <span className="min-w-0 flex-1 overflow-hidden text-left text-ui text-ellipsis [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
             {label}
           </span>
         ) : null}

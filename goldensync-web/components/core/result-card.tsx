@@ -158,7 +158,7 @@ export function ResultCard({
             )}
             strokeWidth={1.75}
           />
-          <p className="min-w-0 flex-1 text-body-sm text-text-secondary">
+          <p className="min-w-0 flex-1 text-ui text-text-secondary">
             {resolvedNote}
           </p>
         </div>
@@ -174,7 +174,7 @@ export function ResultCard({
             {(weakOutcomes ?? []).map((row) => (
               <div
                 key={row.code}
-                className="flex w-full items-center gap-space-3 rounded-md bg-bg-subtle px-space-3 py-space-2 text-body-sm"
+                className="flex w-full items-center gap-space-2 rounded-md bg-bg-subtle px-space-2 py-1.5 text-ui"
               >
                 <span className="shrink-0 font-mono text-mono-md whitespace-nowrap text-text-primary">
                   {row.code}

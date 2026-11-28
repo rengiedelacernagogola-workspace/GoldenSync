@@ -78,7 +78,7 @@ export function Banner({
       data-slot="gs-banner"
       data-variant={variant}
       className={cn(
-        "flex min-h-12 w-full items-center gap-space-3 rounded-md border px-space-4 py-space-3",
+        "flex min-h-9 w-full items-center gap-space-2 rounded-md border px-space-3 py-space-2",
         cfg.shell,
         className,
       )}
@@ -89,7 +89,7 @@ export function Banner({
         aria-hidden
         strokeWidth={2}
       />
-      <p className="min-w-0 flex-1 text-body-sm text-text-primary">{message}</p>
+      <p className="min-w-0 flex-1 text-ui text-text-primary">{message}</p>
       {hasAction ? (
         <Button variant="Secondary" size="sm" onClick={onAction}>
           {actionLabel}

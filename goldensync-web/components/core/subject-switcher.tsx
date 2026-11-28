@@ -71,10 +71,10 @@ export const SubjectSwitcher = React.forwardRef<
     >
       {!collapsed ? (
         <span className="flex min-w-0 flex-1 flex-col items-start gap-0 text-left">
-          <span className="text-[11px] leading-snug font-semibold tracking-tight antialiased whitespace-nowrap text-text-primary">
+          <span className="text-ui font-semibold antialiased whitespace-nowrap text-text-primary">
             {code}
           </span>
-          <span className="w-full truncate text-[10px] leading-snug font-medium tracking-tight antialiased text-text-muted">
+          <span className="w-full truncate text-ui-sm antialiased text-text-muted">
             {title}
           </span>
         </span>

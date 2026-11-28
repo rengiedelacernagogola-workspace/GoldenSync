@@ -58,6 +58,13 @@ function mapActivity(row: {
   };
 }
 
+/**
+ * WHAT: Loads the newest notification rows for one signed-in user.
+ * HOW: Filter by userId → sort createdAt newest first → take only MAX_FEED (40) in SQL.
+ * SCREEN: Bell / activity dropdown list.
+ * EDIT: Change MAX_FEED above to show more or fewer rows.
+ * RISK: High — always keep the userId filter.
+ */
 /** List recent activities for the signed-in user (newest first). */
 export async function listActivities(userId: string): Promise<ActivityDto[]> {
   const rows = await db.orm.public.ActivityEvent.where({ userId })
@@ -67,6 +74,13 @@ export async function listActivities(userId: string): Promise<ActivityDto[]> {
   return rows.map(mapActivity);
 }
 
+/**
+ * WHAT: Adds one notification, then may delete older extras so the feed stays short.
+ * HOW: Insert row → if total past threshold, delete ids older than the newest MAX_FEED in one deleteAll.
+ * SCREEN: New row appears at the top of the bell list.
+ * EDIT: MAX_FEED and limits.MAX_ACTIVITIES control when trimming starts.
+ * RISK: High
+ */
 /** Create an activity event. Cap feed length by deleting oldest beyond MAX_FEED. */
 export async function createActivity(
   userId: string,
@@ -85,7 +99,7 @@ export async function createActivity(
   const threshold = Math.max(MAX_FEED, limits.MAX_ACTIVITIES);
   const overflow = await db.orm.public.ActivityEvent.where({ userId })
     .orderBy((r) => r.createdAt.desc())
-    .offset(MAX_FEED)
+    .offset(MAX_FEED) // skip the newest MAX_FEED; remainder are candidates to delete
     .all();
   if (overflow.length + MAX_FEED > threshold) {
     const ids = overflow.map((row) => row.id);
@@ -126,6 +140,12 @@ export async function deleteActivity(
   return listActivities(userId);
 }
 
+/**
+ * WHAT: Wipes this user’s whole activity feed in one database delete.
+ * HOW: deleteAll where userId matches → then listActivities (empty).
+ * SCREEN: Bell list becomes empty.
+ * RISK: High
+ */
 /** Hard-delete all activities for the signed-in user. Returns empty feed. */
 export async function clearActivities(
   userId: string,
@@ -135,6 +155,13 @@ export async function clearActivities(
 }
 
 /**
+ * WHAT: Cron cleanup — removes everyone’s activities older than retentionDays.
+ * HOW: One deleteAndCount where createdAt < cutoff (uses ActivityEvent_createdAt_idx).
+ * SCREEN: Nothing for users; old rows simply stop existing.
+ * EDIT: Default 90 days; change carefully.
+ * KEEP: Cron-only — not a user API.
+ * RISK: High
+ *
  * Purge activities older than retentionDays (default 90).
  * Intended for cron / scheduled job — not a user route.
  */

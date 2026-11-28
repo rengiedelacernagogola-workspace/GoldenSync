@@ -48,8 +48,8 @@ export const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
         data-slot="gs-menu-item"
         data-selected={selected ? "true" : undefined}
         className={cn(
-          "relative flex w-full items-center gap-space-2 rounded-md px-space-3 py-space-2",
-          "text-left text-body-sm outline-none transition-colors duration-150 ease-out",
+          "relative flex w-full min-h-8 items-center gap-space-1.5 rounded-md px-space-2 py-1.5",
+          "text-left text-ui outline-none transition-colors duration-150 ease-out",
           "hover:bg-surface-glass focus-visible:border-2 focus-visible:border-border-focus",
           selected && "bg-accent-glass-bg text-text-primary",
           !selected && !destructive && "text-text-secondary",

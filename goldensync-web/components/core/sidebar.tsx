@@ -51,7 +51,7 @@ export type SidebarActiveId =
   | "grade-calculator"
   | "checklist"
   | "export"
-  | "this-week"
+  | "my-schedule"
   | "calculator"
   | "add-subject"
   | "edit-subject"
@@ -92,7 +92,7 @@ const MODULE_ITEMS: {
   { id: "grade-calculator", label: "Grade Calculator", icon: <Calculator /> },
   { id: "checklist", label: "Checklist", icon: <SquareCheck /> },
   { id: "export", label: "Export", icon: <Download /> },
-  { id: "this-week", label: "This Week", icon: <CalendarClock /> },
+  { id: "my-schedule", label: "My Schedule", icon: <CalendarClock /> },
   { id: "calculator", label: "Grading System", icon: <TableProperties /> },
 ];
 
@@ -133,7 +133,7 @@ export function Sidebar({
       data-variant={variant}
       className={cn(
         "relative flex flex-col gap-space-4 overflow-hidden bg-bg-elevated",
-        "text-[11px] leading-snug tracking-tight antialiased",
+        "text-ui antialiased",
         isDrawer
           ? "h-full w-[375px] items-stretch p-space-4"
           : collapsed
@@ -153,10 +153,10 @@ export function Sidebar({
       >
         {!collapsed ? (
           <>
-            <span className="flex size-4 shrink-0 items-center justify-center rounded-md bg-accent-primary text-[10px] font-semibold tracking-tight text-text-inverse">
+            <span className="flex size-4 shrink-0 items-center justify-center rounded-md bg-accent-primary text-ui-sm font-semibold text-text-inverse">
               G
             </span>
-            <span className="text-[12px] leading-snug font-semibold tracking-tight antialiased whitespace-nowrap text-text-primary">
+            <span className="text-ui font-semibold antialiased whitespace-nowrap text-text-primary">
               GoldenSync
             </span>
           </>
@@ -213,7 +213,8 @@ export function Sidebar({
             icon={item.icon}
             collapsed={collapsed}
             active={activeId === item.id}
-            disabled={modulesDisabled}
+            /* My Schedule is account-scoped — do not require a selected subject. */
+            disabled={item.id === "my-schedule" ? false : modulesDisabled}
             className={collapsed ? undefined : "w-full"}
             onClick={() => onNav?.(item.id)}
           />
@@ -252,7 +253,7 @@ export function Sidebar({
             <div
               className={cn(
                 "flex h-8 w-full items-center justify-start gap-space-1 rounded-md",
-                "bg-bg-muted px-space-2 text-[11px] leading-snug font-medium tracking-tight antialiased text-text-secondary",
+                "bg-bg-muted px-space-2 text-ui antialiased text-text-secondary",
                 modulesDisabled && "pointer-events-none opacity-40",
               )}
             >
@@ -309,7 +310,7 @@ export function Sidebar({
             >
               <MenuItem
                 label="Edit"
-                className="text-[11px] font-medium tracking-tight antialiased"
+                className="text-ui antialiased"
                 onClick={() => {
                   setConfigureOpen(false);
                   onNav?.("edit-subject");
@@ -317,7 +318,7 @@ export function Sidebar({
               />
               <MenuItem
                 label="Archive"
-                className="text-[11px] font-medium tracking-tight antialiased"
+                className="text-ui antialiased"
                 onClick={() => {
                   setConfigureOpen(false);
                   onNav?.("archive-subject");
@@ -326,7 +327,7 @@ export function Sidebar({
               <MenuItem
                 label="Delete"
                 destructive
-                className="text-[11px] font-medium tracking-tight antialiased"
+                className="text-ui antialiased"
                 onClick={() => {
                   setConfigureOpen(false);
                   onNav?.("delete-subject");

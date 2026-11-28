@@ -24,7 +24,13 @@ export function pathForSubjectSwitch(
   activeId: SidebarActiveId,
   subjectId: string,
 ): string {
-  if (activeId === "home" || activeId === "account" || activeId === "logout") {
+  if (
+    activeId === "home" ||
+    activeId === "account" ||
+    activeId === "logout" ||
+    activeId === "my-schedule"
+  ) {
+    // WHAT: Hubs (incl. My Schedule) open Overview so the shell adopts the selected subject.
     return `/subjects/${subjectId}/overview`;
   }
   return pathForNav(activeId, subjectId) ?? `/subjects/${subjectId}/overview`;

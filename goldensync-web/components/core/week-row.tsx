@@ -52,11 +52,11 @@ export interface WeekTableHeaderProps
 }
 
 const cellLabel =
-  "text-[11px] font-medium leading-snug tracking-tight antialiased";
+  "text-ui antialiased";
 const headLabel =
-  "text-[10px] font-semibold leading-snug tracking-tight antialiased uppercase text-text-muted";
+  "text-ui-sm font-semibold antialiased uppercase text-text-muted";
 const mobileFieldLabel =
-  "text-[10px] font-semibold uppercase tracking-wide text-text-muted";
+  "text-ui-sm font-semibold uppercase tracking-wide text-text-muted";
 
 /** Shared balanced tracks — Week · Topic · Outcome · Activities · (Done) · Status.
  * Callers add `grid` / `md:grid` so `hidden` is not overridden on phone. */
@@ -123,7 +123,7 @@ function StatusCell({
   return (
     <StatusChip
       status={toChipStatus(status)}
-      className="h-5 gap-0.5 px-space-1.5 text-[11px] font-medium leading-none tracking-tight antialiased [&_svg]:size-3"
+      className="h-5 gap-0.5 px-space-1.5 text-ui leading-none antialiased [&_svg]:size-3"
     />
   );
 }

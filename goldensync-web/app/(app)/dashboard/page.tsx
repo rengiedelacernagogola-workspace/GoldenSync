@@ -10,7 +10,7 @@
  * Proto: hasSemester · subjectCount · subjectSelected.
  */
 
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { BookOpen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
@@ -54,6 +54,7 @@ import {
   parseFaculty,
   remainingContactHours,
 } from "@/lib/domain/faculty";
+import { performSoftLogout } from "@/lib/auth/soft-lock";
 import { pathForNav } from "@/lib/nav";
 import {
   useHasSemester,
@@ -74,7 +75,6 @@ function DashboardBody() {
   const subjectSelected = useSubjectSelected();
   const { setSessionActive } = useProtoActions();
   const { isSignedIn } = useUser();
-  const { signOut } = useClerk();
 
   // WHAT: Local UI state — drawers, modals, toasts, which subject is selected.
   // EDIT: Add new modals here with useState; wire onClose in JSX below.
@@ -342,12 +342,9 @@ function DashboardBody() {
       return;
     }
     if (id === "logout") {
+      // WHAT: Soft lock — keep Clerk session for 10 min; resume without password.
       setSessionActive(false);
-      if (isSignedIn) {
-        void signOut({ redirectUrl: "/sign-in" });
-        return;
-      }
-      router.push("/sign-in");
+      performSoftLogout((url) => router.push(url));
       return;
     }
     if (id === "archive-subject" && active) {

@@ -39,7 +39,7 @@ export function TableHeader({
     <div
       data-slot="gs-table-header"
       className={cn(
-        "flex h-10 w-full min-w-[720px] items-center border-b border-border-default bg-bg-subtle",
+        "flex h-8 w-full min-w-[720px] items-center border-b border-border-default bg-bg-subtle",
         className,
       )}
       {...props}

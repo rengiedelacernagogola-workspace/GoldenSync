@@ -43,6 +43,11 @@ const nextConfig: NextConfig = {
         destination: "/subjects/:subjectId/faculty",
         permanent: false,
       },
+      {
+        source: "/subjects/:subjectId/this-week",
+        destination: "/my-schedule",
+        permanent: false,
+      },
     ];
   },
   cacheComponents: true,

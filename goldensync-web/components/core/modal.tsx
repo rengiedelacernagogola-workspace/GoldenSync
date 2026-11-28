@@ -1,7 +1,7 @@
 "use client";
 
-// WHAT: Dialog chrome — header, scroll body, footer slot for actions.
-// SCREEN: Parent wraps with Backdrop + centering (see AddSubjectModal).
+// WHAT: Dialog chrome — header (optional headerActions), scroll body, footer.
+// SCREEN: Parent wraps with Backdrop + centering (see AddSubjectModal / Add Class).
 // KEEP: Focus trap / Escape may live in host — this file is layout only.
 
 /**
@@ -27,6 +27,11 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   hasFooter?: boolean;
   hasTertiary?: boolean;
   footer?: React.ReactNode;
+  /**
+   * WHAT: Optional actions in the header top-right (before the close X).
+   * SCREEN: e.g. Cancel + Save on Add Class.
+   */
+  headerActions?: React.ReactNode;
   onClose?: () => void;
 }
 
@@ -40,6 +45,7 @@ export function Modal({
   hasFooter = true,
   hasTertiary = false,
   footer,
+  headerActions,
   onClose,
   children,
   ...props
@@ -69,26 +75,36 @@ export function Modal({
       <div
         data-slot="gs-modal-header"
         className={cn(
-          "relative flex w-full shrink-0 items-start gap-space-4 border-b border-border-subtle",
+          "relative flex w-full shrink-0 items-start gap-space-3 border-b border-border-subtle sm:gap-space-4",
           isMobile ? "p-space-4" : "pt-space-6 pr-space-4 pb-space-4 pl-space-6",
         )}
       >
         <div className="flex min-w-0 flex-1 flex-col items-start gap-space-1 pt-space-2">
           <h2
             id={titleId}
-            className="text-heading-md whitespace-nowrap text-text-primary"
+            className="text-heading-md text-text-primary sm:whitespace-nowrap"
           >
             {title}
           </h2>
           {hasDescription ? (
-            <p className="w-full text-body-sm text-text-muted">{description}</p>
+            <p className="w-full text-ui-sm text-text-muted">{description}</p>
           ) : null}
         </div>
+        {/* WHAT: Optional Cancel/Save (or similar) sit left of the close control. */}
+        {headerActions ? (
+          <div
+            data-slot="gs-modal-header-actions"
+            className="flex shrink-0 flex-wrap items-center justify-end gap-space-2 pt-space-1"
+          >
+            {headerActions}
+          </div>
+        ) : null}
         <Button
           variant="IconOnly"
           size="md"
           aria-label="Close dialog"
           onClick={onClose}
+          className="shrink-0"
         >
           <X className="size-4" aria-hidden />
         </Button>
@@ -97,8 +113,8 @@ export function Modal({
       <div
         data-slot="gs-modal-body"
         className={cn(
-          "relative w-full overflow-x-clip overflow-y-auto",
-          isMobile ? "min-h-0 flex-1 px-space-4" : "shrink-0 px-space-6",
+          "relative min-h-0 w-full flex-1 overflow-x-clip overflow-y-auto",
+          isMobile ? "px-space-4" : "px-space-6",
         )}
       >
         {children ?? (

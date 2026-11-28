@@ -1,10 +1,10 @@
+// use prisma-8
 // WHAT: Prisma 8 data contract — all Postgres tables/enums GoldenSync persists.
 // HOW: PSL models with relations, indexes, JSON fields; enums for outcomes, jobs, link levels.
 // SCREEN: Maps to Dashboard, subjects, Learning Plan, Calculator scores, ingest jobs, grade scale admin.
 // EDIT: Add fields/models here then run Prisma generate + matching SQL under `prisma/sql/`.
 // KEEP: Single source of truth with `lib/db` generated client; pair DDL with `apply-all-constraints.mjs`.
 // RISK: High — schema drift without SQL scripts breaks Neon and db:verify.
-// use prisma-8
 // GoldenSync data contract — architecture Appendix A + product storage (PlanNote, ManualChecklist, Activity).
 
 native_enum OutcomeKind {
@@ -28,6 +28,11 @@ native_enum LinkLevel {
   D = "D"
 }
 
+native_enum ScheduleMode {
+  FACE_TO_FACE = "FACE_TO_FACE"
+  ONLINE       = "ONLINE"
+}
+
 model User {
   id          String             @id @onCreate(cuid(2))
   clerkUserId String             @unique
@@ -41,6 +46,7 @@ model User {
   drafts      Draft[]
   activities  ActivityEvent[]
   idempotency IdempotencyKey[]
+  scheduleClasses ScheduleClass[]
 }
 
 model Semester {
@@ -85,6 +91,7 @@ model Subject {
 
   @@index([semesterId])
   @@index([semesterId, archivedAt])
+  /// WHAT: Speeds purge of subjects archived past ARCHIVE_RESTORE_DAYS.
   /// Purge expired archives: WHERE archivedAt IS NOT NULL AND archivedAt < cutoff
   @@index([archivedAt])
 }
@@ -154,6 +161,7 @@ model PlanNote {
 
   @@index([subjectId, savedAt])
   @@index([deletedAt])
+  /// WHAT: Speeds active-library and pin-cap queries that filter shelved nulls.
   /// Active library / pin checks: subjectId + shelved nulls
   @@index([subjectId, archivedAt, deletedAt])
 }
@@ -229,8 +237,28 @@ model ActivityEvent {
   createdAt DateTime  @default(now()) @onCreate(now())
 
   @@index([userId, createdAt])
+  /// WHAT: Speeds global 90-day activity retention purge (not just per-user lists).
   /// Cron purge: WHERE createdAt < cutoff (global)
   @@index([createdAt])
+}
+
+/// WHAT: User-owned weekly timetable class (My Schedule). Day 1=Mon … 7=Sun; times HH:mm.
+model ScheduleClass {
+  id          String               @id @onCreate(cuid(2))
+  userId      String
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseCode  String
+  courseTitle String
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  location    String
+  mode        pg.enum(ScheduleMode)
+  createdAt   DateTime             @default(now()) @onCreate(now())
+  updatedAt   temporal.UpdatedAt
+
+  @@index([userId])
+  @@index([userId, dayOfWeek])
 }
 
 model IdempotencyKey {
@@ -246,6 +274,7 @@ model IdempotencyKey {
 
   @@unique([userId, key, route])
   @@index([userId, createdAt])
+  /// WHAT: Speeds deleting idempotency keys older than the TTL.
   /// Cron purge: WHERE createdAt < cutoff
   @@index([createdAt])
 }
@@ -281,6 +310,7 @@ model IngestJob {
   updatedAt    temporal.UpdatedAt
 
   @@index([userId, createdAt])
+  /// WHAT: Speeds clearing stale IngestJob.result JSON by age.
   /// Cron purge of stale result JSON: WHERE updatedAt < cutoff
   @@index([updatedAt])
 }
@@ -310,6 +340,7 @@ model Draft {
 
   @@unique([userId, kind])
   @@index([userId])
+  /// WHAT: Speeds deleting expired autosave drafts.
   /// Cron purge: WHERE expiresAt < now
   @@index([expiresAt])
 }

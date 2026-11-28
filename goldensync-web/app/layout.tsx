@@ -3,8 +3,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import type { Metadata, Viewport } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
+import { SoftLockGate } from "@/components/auth/soft-lock-gate";
 import { ProtoFab } from "@/components/dev/proto-fab";
 
 import "./globals.css";
@@ -64,6 +65,10 @@ export default function RootLayout({
       <body className="bg-ambient flex min-h-dvh w-full min-w-0 flex-col overflow-x-hidden">
         {/* WHAT: ClerkProvider gives sign-in state to all child pages. HOW: appearance.theme matches shadcn UI. RISK: High — auth. */}
         <ClerkProvider appearance={{ theme: shadcn }}>
+          {/* WHAT: Soft-lock gate — redirects app pages and hard-signs out after grace. RISK: High */}
+          <Suspense fallback={null}>
+            <SoftLockGate />
+          </Suspense>
           {children}
           {/* WHAT: Developer-only floating button (prototype tools). SCREEN: Small FAB when enabled. */}
           <ProtoFab />

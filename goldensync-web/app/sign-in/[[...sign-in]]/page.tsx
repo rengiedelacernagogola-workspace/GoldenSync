@@ -2,6 +2,7 @@
 import { SignIn } from "@clerk/nextjs";
 import { Suspense } from "react";
 
+import { SignInResume } from "@/components/auth/sign-in-resume";
 import { AuthMarketingPanel } from "@/components/features/auth/auth-marketing-panel";
 
 /**
@@ -18,36 +19,38 @@ export default function SignInPage() {
         <AuthMarketingPanel />
       </div>
 
-      {/* WHAT: Clerk-hosted email/social sign-in. HOW: appearance vars match GoldenSync tokens. */}
+      {/* WHAT: Soft-lock resume + Clerk-hosted sign-in. HOW: appearance vars match GoldenSync tokens. */}
       <div className="flex w-full min-w-0 items-center justify-center px-space-4 py-space-8 sm:px-space-8 lg:min-h-dvh lg:overflow-y-auto">
         <Suspense
           fallback={
             <p className="text-body-sm text-text-muted">Loading sign in…</p>
           }
         >
-          <SignIn
-            appearance={{
-              variables: {
-                colorPrimary: "var(--accent-primary)",
-                colorBackground: "var(--bg-muted)",
-                colorForeground: "var(--text-primary)",
-                colorMutedForeground: "var(--text-muted)",
-                colorNeutral: "var(--border-default)",
-                colorInput: "var(--bg-base)",
-                colorInputForeground: "var(--text-primary)",
-                borderRadius: "0.5rem",
-              },
-              elements: {
-                rootBox: "mx-auto w-full max-w-md",
-                card: "w-full border border-border-strong bg-bg-muted shadow-hover",
-                socialButtonsBlockButton:
-                  "border border-border-default bg-bg-base text-text-primary hover:bg-bg-subtle",
-                socialButtonsBlockButtonText:
-                  "text-text-primary font-medium",
-                socialButtonsProviderIcon: "brightness-100",
-              },
-            }}
-          />
+          <SignInResume>
+            <SignIn
+              appearance={{
+                variables: {
+                  colorPrimary: "var(--accent-primary)",
+                  colorBackground: "var(--bg-muted)",
+                  colorForeground: "var(--text-primary)",
+                  colorMutedForeground: "var(--text-muted)",
+                  colorNeutral: "var(--border-default)",
+                  colorInput: "var(--bg-base)",
+                  colorInputForeground: "var(--text-primary)",
+                  borderRadius: "0.5rem",
+                },
+                elements: {
+                  rootBox: "mx-auto w-full max-w-md",
+                  card: "w-full border border-border-strong bg-bg-muted shadow-hover",
+                  socialButtonsBlockButton:
+                    "border border-border-default bg-bg-base text-text-primary hover:bg-bg-subtle",
+                  socialButtonsBlockButtonText:
+                    "text-text-primary font-medium",
+                  socialButtonsProviderIcon: "brightness-100",
+                },
+              }}
+            />
+          </SignInResume>
         </Suspense>
       </div>
     </div>

@@ -23,6 +23,7 @@ import {
   serializeFaculty,
   type FacultyTitle,
 } from "@/lib/domain/faculty";
+import { compactSelectClass } from "@/lib/ui/compact-field";
 import { cn } from "@/lib/utils";
 
 export type FacultyPanelProps = {
@@ -226,7 +227,7 @@ export function FacultyPanel({
                     setDraftTitle(e.target.value as FacultyTitle)
                   }
                   aria-label="Instructor title"
-                  className="h-8 w-full min-w-0 rounded-md border border-border-default bg-bg-subtle px-space-2 text-body-sm text-text-primary disabled:opacity-60"
+                  className={cn(compactSelectClass, "disabled:opacity-60")}
                 >
                   <option value="">—</option>
                   <option value="Mr">Mr</option>
